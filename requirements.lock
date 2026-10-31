@@ -200,6 +200,7 @@ lxml==6.1.3 \
     #   justext
     #   lxml-html-clean
     #   trafilatura
+    #   weconomy
 lxml-html-clean==0.4.6 \
     --hash=sha256:cc037270ba500a65e7235409dcddcae8ef37300f26dea826b61d917bf0236880 \
     --hash=sha256:ea9db067c3053854fd87f8d5a1cf01221dc893b54dbf6019c689052e05c64f22

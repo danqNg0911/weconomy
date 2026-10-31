@@ -27,6 +27,8 @@ Label Studio export. Có thể chuyển sang Label Studio sau; không quảng c�
   Không gán quan hệ qua coreference sang câu khác cho bài đo sentence-only này.
 - ACQUIRED chỉ mua tổ chức đích; quyết định mua, đề nghị mua, đạt thỏa thuận chờ hoàn tất chưa được
   coi là giao dịch hoàn tất. Headline fragment không có câu thân bài đầy đủ: không gán triple.
+- AGREED_TO_ACQUIRE (bổ sung 31/10): câu nêu rõ đã đạt thỏa thuận mua tổ chức đích; không gán
+  ACQUIRED thay thế. Dự định/đề nghị đơn thuần không có thỏa thuận chưa thuộc loại này.
 - CEO_OF là chức vụ hiện hữu trong câu; “will become/was to become” chưa phải đã giữ chức vụ.
 - Vai trò đồng sáng lập: mỗi founder có một triple. Apposition “current Pixar and Apple CEO”
   chứng minh hai CEO_OF. Baseline có thể bỏ sót: đó là false negatives cần đo.

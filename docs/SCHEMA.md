@@ -1,4 +1,4 @@
-# Schema v1.0
+# Schema v1.1
 
 Schema Arrow thực thi ở `src/weconomy/schema.py`; in bằng `uv run weconomy schema`.
 Trường chuỗi vắng thông tin dùng chuỗi rỗng; không bịa ngày đăng/ngày sự kiện.
@@ -23,11 +23,12 @@ và toàn bộ thực thể. Số cạnh phải phân biệt claims, events và 
 GOV cần alias hoặc classifier được duyệt, không tự đổi mọi ORG có chữ ministry thành GOV.
 Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nhu cầu truy vấn rõ ràng.
 
-## Mười quan hệ có hướng
+## Quan hệ có hướng
 
 | Predicate | Subject → Object | Định nghĩa |
 |---|---|---|
 | ACQUIRED | ORG → ORG | Chủ thể mua/thâu tóm tổ chức đích; không suy ra từ mua cổ phần/sản phẩm |
+| AGREED_TO_ACQUIRE | ORG → ORG | Đã đạt thỏa thuận mua tổ chức đích, chưa đồng nghĩa thương vụ hoàn tất; assertion_status=agreement_reported |
 | INVESTED_IN | ORG/PERSON → ORG | Rót vốn, không đồng nghĩa mua toàn công ty |
 | MERGED_WITH | ORG → ORG | Sáp nhập được câu mô tả; giữ hướng văn bản, analytics có thể đối xứng hóa |
 | SUED | ORG/PERSON/GOV → ORG/PERSON | Bên khởi kiện → bên bị kiện |
@@ -39,8 +40,11 @@ Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nh
 | REGULATES | GOV → ORG | Cơ quan quản lý → tổ chức chịu quản lý |
 
 Patterns tiếng Anh/Việt đều có trong code. REGULATES cần GOV seed thực, bộ mẫu hiện chưa có GOV.
+Từ 31/10 có 11 predicate định nghĩa; AGREED_TO_ACQUIRE giữ riêng trạng thái thỏa thuận. Không nâng
+thỏa thuận/dự định thành ACQUIRED đã hoàn tất để tăng số cạnh.
 Số loại **định nghĩa** không được báo thành số loại **quan sát**.
 `assertion_status=reported` nghĩa là câu trình bày khẳng định theo nguồn, không có nghĩa đã fact-check.
+Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô tả ở `FULLTEXT.md`.
 `review_status=unreviewed` cho toàn bộ đầu ra tự động. Không có confidence số được hiệu chuẩn nên không đặt điểm giả.
 
 ## Provenance và dedup
@@ -49,6 +53,8 @@ Số loại **định nghĩa** không được báo thành số loại **quan s�
 - `sentence_id = hash(document_id, start, text)`; `mention_id = hash(sentence_id, start, end)`.
 - `entity_id = hash(entity_type, casefold(canonical name))`; alias khác type/đồng danh cần xử lý thủ công.
 - Text hash và Jaccard 5-word-shingle loại bài giống trong cùng run; vẫn giữ snapshot bronze/silver.
+  `merge-runs` chọn một capture toàn văn/NLP thành công mỗi URL theo thứ tự input (cuối thắng),
+  rồi chạy lại cùng phép dedup trên toàn bộ corpus đã chọn. Không cộng số liệu của các run nguồn.
 - `event_id` hiện gắn actor+predicate+assertion_status+document revision khi chưa biết ngày sự kiện.
   Nhiều câu cùng actor/predicate trong một bài chia sẻ event, mỗi câu có claim riêng.
   Đây là quy tắc bảo thủ cho pilot: có thể gộp nhầm hai giao dịch cùng cặp trong một bài;

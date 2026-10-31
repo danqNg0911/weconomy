@@ -34,7 +34,7 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
 | Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay, có đường nâng cấp | Gazetteer bị giới hạn tên và không có GOV ban đầu |
 | Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
-| 10 predicate với type constraints | Schema chung cho cả Sprint 1 và 2 | Mẫu trực tiếp có recall thấp; 10 mẫu khác 10 loại quan sát thật |
+| 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
 | Event identity bảo thủ | Tránh gộp những vòng đầu tư khác nhau | Chưa dedup sự kiện xuyên bài/run khi không có ngày sự kiện |
 | Neo4j Community | Lưu graph có truy vấn provenance, chạy local | Chưa nghiệm thu live khi Engine không hoạt động |
@@ -61,7 +61,8 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 1. Thu thập đủ quyền từ nguồn thật, đo extraction theo nguồn/ngôn ngữ; giữ metadata xuất bản và snapshot.
 2. Thêm tập nhãn theo article/event/time split; bổ sung alias đã duyệt, định danh ngoài (Wikidata/LEI)
    khi có bằng chứng đồng nhất. Chỉ fuzzy/embedding không đủ kết luận cùng thực thể.
-3. Thêm RE phân tích cú pháp hoặc mô hình chạy local sau khi baseline đo recall. Tách reported/planned/
+3. Backend models hiện có dependency RE tiếng Anh cho các argument tường minh. Mở rộng RE tiếng Việt
+   và kiểm định mô hình local trên nhãn độc lập. Tách reported/planned/
    denied/rumoured, vai trò chủ thể/đối tượng, thời gian quan hệ và attribution. Không nâng số cạnh bằng co-occurrence.
 4. Khi batch tăng, thay pairwise shingles hiện O(n²) bằng MinHash/LSH; index xuyên run, partition Parquet
    theo source/date/language. Không cần Kafka để đạt vài nghìn thực thể; SQLite job ledger + batch là bước kế.

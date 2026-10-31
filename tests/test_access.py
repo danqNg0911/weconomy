@@ -83,6 +83,8 @@ def test_rss_discovery(monkeypatch):
     access = mock_access(monkeypatch, handler)
     try:
         assert access.discover("wikinews_en", 2) == ["https://en.wikinews.org/wiki/One"]
+        assert access.discover_records("wikinews_en", 2, exclude_urls={
+            "https://en.wikinews.org/wiki/One"}) == []
     finally:
         access.close()
 

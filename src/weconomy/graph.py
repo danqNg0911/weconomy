@@ -14,7 +14,8 @@ QUERIES = {
     "entities": "UNWIND $rows AS r MERGE (e:Entity {entity_id:r.entity_id}) SET e += r",
     "bronze": """UNWIND $rows AS r MERGE (d:Document {document_id:r.document_id})
         SET d.url=r.url, d.source_id=r.source_id, d.license=r.license, d.attribution=r.attribution,
-            d.published_at=r.published_at, d.retrieved_at=r.retrieved_at, d.kind=r.kind, d.raw_sha256=r.raw_sha256""",
+            d.published_at=r.published_at, d.retrieved_at=r.retrieved_at, d.kind=r.kind, d.raw_sha256=r.raw_sha256,
+            d.content_status=r.content_status, d.nlp_eligible=r.nlp_eligible""",
     "sentences": """UNWIND $rows AS r MATCH (d:Document {document_id:r.document_id})
         MERGE (s:Sentence {sentence_id:r.sentence_id}) SET s += r MERGE (s)-[:IN_DOCUMENT]->(d)""",
     "events": """UNWIND $rows AS r
@@ -49,6 +50,13 @@ def import_graph(run, batch_size=500):
     if not password:
         raise ValueError("Set NEO4J_PASSWORD in your environment before importing")
     tables = {name: read_table(run, name) for name in QUERIES}
+    article_quality = {a["document_id"]: a for a in read_table(run, "articles")}
+    for document in tables["bronze"]:
+        document.pop("raw_bytes", None)
+        document.pop("raw_html", None)
+        article = article_quality.get(document["document_id"], {})
+        document.update({"content_status": article.get("content_status", "legacy_unverified"),
+                         "nlp_eligible": article.get("nlp_eligible", False)})
     with GraphDatabase.driver(os.getenv("NEO4J_URI", "bolt://localhost:7687"),
                               auth=(os.getenv("NEO4J_USER", "neo4j"), password)) as driver:
         driver.verify_connectivity()

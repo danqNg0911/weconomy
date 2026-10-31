@@ -23,22 +23,28 @@ sources:
     hosts: [vnexpress.net]
     language: vi
     kind: news
-    allowed: false
-    permission_basis: Pending documented permission and terms review; RSS is not a full-text license
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
     terms_url: https://vnexpress.net/dieu-khoan-su-dung
-    license: permission-required
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: VnExpress
+    article_pattern: '-\d+\.html$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
     min_interval_seconds: 5
     feeds: [https://vnexpress.net/rss/kinh-doanh.rss]
   tuoitre:
     hosts: [tuoitre.vn]
     language: vi
     kind: news
-    allowed: false
-    permission_basis: Pending documented permission and terms review
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
     terms_url: https://tuoitre.vn/
-    license: permission-required
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: Tuoi Tre Online
+    article_pattern: '-\d+\.htm$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
     min_interval_seconds: 5
-    feeds: [https://tuoitre.vn/rss/kinh-doanh.rss]
+    feeds: [https://tuoitre.vn/kinh-doanh.rss]
   reuters:
     hosts: [www.reuters.com, reuters.com]
     language: en
@@ -63,9 +69,15 @@ sources:
     hosts: [techcrunch.com]
     language: en
     kind: news
-    allowed: false
-    permission_basis: Pending documented permission and terms review
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
     terms_url: https://techcrunch.com/
-    license: permission-required
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: TechCrunch
+    article_pattern: '/\d{4}/\d{2}/\d{2}/[^/]+/?$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     min_interval_seconds: 5
-    feeds: [https://techcrunch.com/feed/]
+    feeds:
+      - https://techcrunch.com/category/startups/feed/
+      - https://techcrunch.com/category/venture/feed/
+      - https://techcrunch.com/feed/

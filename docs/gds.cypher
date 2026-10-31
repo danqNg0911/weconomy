@@ -3,6 +3,7 @@
 // Run CALL gds.version() first. Drop the projection manually only if safe to replace it.
 CALL gds.graph.project('weconomy', 'Entity', {
   ACQUIRED: {orientation: 'UNDIRECTED'},
+  AGREED_TO_ACQUIRE: {orientation: 'UNDIRECTED'},
   INVESTED_IN: {orientation: 'UNDIRECTED'},
   MERGED_WITH: {orientation: 'UNDIRECTED'},
   SUED: {orientation: 'UNDIRECTED'},

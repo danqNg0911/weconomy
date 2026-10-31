@@ -1,4 +1,12 @@
 # Curated seed lexicon, not a claim of open-world NER quality.
+- name: Salesforce
+  type: ORG
+  aliases: [Salesforce Inc.]
+  evidence_url: https://techcrunch.com/2026/10/30/salesforces-ma-spree-continues-with-a-reported-375m-deal-for-defense-tech-startup-rune/
+- name: Vingroup
+  type: ORG
+  aliases: [Tập đoàn Vingroup]
+  evidence_url: https://tuoitre.vn/vingroup-bao-lai-ky-luc-hon-43700-ti-dong-sau-9-thang-100261031120813523.htm
 - name: Microsoft
   type: ORG
   aliases: [Microsoft Corporation, Tập đoàn Microsoft]

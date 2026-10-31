@@ -1,4 +1,5 @@
 """Complete-sentence labels measure false negatives as well as false positives."""
+import hashlib
 import json
 import math
 import random
@@ -112,9 +113,23 @@ def validate(run):
         if (not article or not 0 <= sentence["start"] < sentence["end"] <= len(article["text"])
                 or article["text"][sentence["start"]:sentence["end"]] != sentence["text"]):
             failures.append(f"Invalid sentence offsets: {sentence['sentence_id']}")
+        if article and article.get("nlp_eligible") is False:
+            failures.append(f"Quarantined document reached NLP: {sentence['document_id']}")
     for article in tables["articles"]:
         if article["document_id"] not in bronze_ids:
             failures.append(f"Missing bronze snapshot: {article['document_id']}")
+        if article.get("content_status") == "body_checked" and article.get("paragraph_coverage") != 1.0:
+            failures.append(f"Incomplete body marked checked: {article['document_id']}")
+        if article.get("content_status") in {"restricted", "partial", "unknown"} and article.get("nlp_eligible"):
+            failures.append(f"Invalid NLP eligibility: {article['document_id']}")
+    for snapshot in tables["bronze"]:
+        if snapshot.get("raw_bytes") is not None:
+            if hashlib.sha256(snapshot["raw_bytes"]).hexdigest() != snapshot["raw_sha256"]:
+                failures.append(f"Raw snapshot checksum mismatch: {snapshot['document_id']}")
+            path = (Path(run) / snapshot["raw_path"]).resolve()
+            if (not path.is_relative_to(Path(run).resolve()) or not path.is_file()
+                    or path.read_bytes() != snapshot["raw_bytes"]):
+                failures.append(f"Raw HTML file mismatch: {snapshot['document_id']}")
     for mention in tables["mentions"]:
         article = documents.get(mention["document_id"])
         if (not article or mention["entity_id"] not in entities or mention["sentence_id"] not in sentences

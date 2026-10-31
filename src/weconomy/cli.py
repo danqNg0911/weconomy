@@ -6,7 +6,7 @@ from pathlib import Path
 from .access import Access, katana_urls
 from .analytics import analyze
 from .graph import import_graph
-from .pipeline import load_config, process
+from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
 
@@ -22,7 +22,24 @@ def main():
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
     inputs.add_argument("--urls", type=Path, help="URL lines or Katana JSONL; still checked against policy")
+    inputs.add_argument("--from-run", type=Path, help="Reprocess saved bronze HTML without network requests")
     run.add_argument("--ner", choices=["gazetteer", "models"])
+    run.add_argument("--allow-excerpts", action="store_true", help="Diagnostic NLP on declared excerpts only")
+    collect = sub.add_parser("collect", help="RSS -> full article body checks -> NER/relations -> immutable run")
+    collect.add_argument("--source", action="append", required=True, help="Repeat for multiple sources")
+    collect.add_argument("--limit", type=int, default=3, help="Maximum article URLs attempted per source")
+    collect.add_argument("--ner", choices=["gazetteer", "models"], default="models")
+    collect.add_argument("--skip-run", type=Path, action="append", default=[],
+                         help="Skip URLs already accepted as full text in this run; repeat as needed")
+    merge = sub.add_parser("merge-runs", help="Reprocess and deduplicate accepted full-text snapshots offline")
+    merge.add_argument("--run", dest="runs", type=Path, action="append", required=True,
+                       help="Repeat in revision preference order; last accepted capture of each URL wins")
+    merge.add_argument("--ner", choices=["gazetteer", "models"], default="models")
+    export = sub.add_parser("export", help="Export a run table as UTF-8 JSONL")
+    export.add_argument("run", type=Path)
+    export.add_argument("--table", choices=["articles", "sentences", "mentions", "entities", "relations", "events"],
+                        required=True)
+    export.add_argument("--output", type=Path, required=True)
     discovery = sub.add_parser("discover")
     discovery.add_argument("source")
     discovery.add_argument("--limit", type=int, default=10)
@@ -46,15 +63,22 @@ def main():
         if args.command == "schema":
             result = {"tables": {key: str(value) for key, value in SCHEMAS.items()},
                       "relations": RELATION_TYPES}
-        elif args.command in {"run", "discover"}:
+        elif args.command in {"run", "collect", "discover", "merge-runs"}:
             config = load_config(args.config)
-            if args.command == "run":
+            if args.command in {"run", "collect", "merge-runs"}:
                 if args.ner:
                     config["ner_backend"] = args.ner
-                run, report = process(config, manifest=args.manifest,
-                                      urls=katana_urls(args.urls) if args.urls else None)
+                if args.command == "collect":
+                    run, report = process(config, sources=args.source, limit_per_source=args.limit,
+                                          skip_runs=args.skip_run)
+                elif args.command == "merge-runs":
+                    run, report = process(config, from_runs=args.runs)
+                else:
+                    config["allow_excerpts"] = args.allow_excerpts
+                    run, report = process(config, manifest=args.manifest, from_run=args.from_run,
+                                          urls=katana_urls(args.urls) if args.urls else None)
                 result = {"run": str(run), **report}
-                code = int(bool(report["errors"]))
+                code = int(report["status"] not in {"completed", "no_new_documents"})
             else:
                 if args.limit <= 0 or args.limit > config["max_documents"]:
                     raise ValueError("Discovery limit must be within configured document budget")
@@ -79,6 +103,12 @@ def main():
             result = evaluate(args.run, args.labels)
         elif args.command == "import-neo4j":
             result = import_graph(args.run)
+        elif args.command == "export":
+            rows = read_table(args.run, args.table)
+            with args.output.open("x", encoding="utf-8") as stream:
+                for row in rows:
+                    stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+            result = {"rows": len(rows), "table": args.table, "output": str(args.output)}
         if getattr(args, "output", None) and args.command in {"analytics", "evaluate"}:
             write_new_json(args.output, result)
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))

@@ -4,7 +4,7 @@ import json
 
 import pyarrow as pa
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 
 def stable_id(*parts: str) -> str:
@@ -12,7 +12,7 @@ def stable_id(*parts: str) -> str:
 
 
 def schema(fields):
-    return pa.schema([(name, typ) for name, typ in fields], metadata={b"version": b"1.0"})
+    return pa.schema([(name, typ) for name, typ in fields], metadata={b"version": SCHEMA_VERSION.encode()})
 
 
 S = pa.string()
@@ -20,11 +20,15 @@ INT = pa.int64()
 SCHEMAS = {
     "bronze": schema([(x, S) for x in (
         "document_id", "url", "source_id", "kind", "license", "attribution", "retrieved_at",
-        "published_at", "language_hint", "raw_html", "raw_sha256", "response_headers"
-    )]),
+        "published_at", "language_hint", "raw_html", "raw_sha256", "response_headers", "capture_scope",
+        "raw_path", "discovery_endpoint"
+    )] + [("raw_bytes", pa.binary())]),
     "articles": schema([(x, S) for x in (
-        "document_id", "title", "text", "language", "routing_method", "content_sha256", "duplicate_of"
-    )]),
+        "document_id", "title", "text", "language", "routing_method", "content_sha256", "duplicate_of",
+        "content_status", "extraction_method", "extractor_version", "published_at", "authors",
+        "quality_flags", "canonical_url"
+    )] + [("word_count", INT), ("body_paragraphs", INT), ("trafilatura_coverage", pa.float64()),
+          ("paragraph_coverage", pa.float64()), ("nlp_eligible", pa.bool_())]),
     "sentences": schema([("sentence_id", S), ("document_id", S), ("text", S), ("start", INT), ("end", INT)]),
     "mentions": schema([(x, S) for x in ("mention_id", "document_id", "sentence_id", "entity_id", "surface",
                                         "entity_type", "method")] + [("start", INT), ("end", INT)]),
@@ -40,6 +44,7 @@ SCHEMAS = {
 
 RELATION_TYPES = {
     "ACQUIRED": (["ORG"], ["ORG"]),
+    "AGREED_TO_ACQUIRE": (["ORG"], ["ORG"]),
     "INVESTED_IN": (["ORG", "PERSON"], ["ORG"]),
     "MERGED_WITH": (["ORG"], ["ORG"]),
     "SUED": (["ORG", "PERSON", "GOV"], ["ORG", "PERSON"]),

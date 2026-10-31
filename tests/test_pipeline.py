@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def config(tmp_path):
     result = load_config(ROOT / "config/pipeline.yaml")
     result["output"] = str(tmp_path / "runs")
+    result["allow_excerpts"] = True
     return result
 
 
@@ -26,6 +27,8 @@ def test_real_excerpts_end_to_end_and_immutable_runs(tmp_path):
     assert report["counts"]["relations"] > 0
     assert validate(first)["valid"]
     assert read_table(first, "relations") == read_table(second, "relations")
+    with pytest.raises(ValueError, match="No accepted full-text"):
+        process(config(tmp_path), from_runs=[first, second])
     analytics = analyze(first, small_world=True)
     assert analytics["nodes"] == report["counts"]["entities"]
     assert analytics["small_world_sigma"] is None

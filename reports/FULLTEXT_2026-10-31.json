@@ -1,0 +1,170 @@
+{
+  "run": "data\\runs\\20261031T081315-c1c6196f",
+  "articles": [
+    {
+      "document_id": "cc575d1d949d4690cfa8faeb",
+      "url": "https://vnexpress.net/pho-thu-tuong-se-giam-2-gia-ban-le-dien-5139121.html",
+      "source_id": "vnexpress",
+      "raw_sha256": "cb77daa2ade67cede53f7606d89b78b2cd99f180357e2e39d24c739fb34f34b3",
+      "raw_path": "bronze/html/cc575d1d949d4690cfa8faeb.html",
+      "retrieved_at": "2026-10-31T08:03:58.439438+00:00",
+      "word_count": 748,
+      "body_paragraphs": 16,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.9375,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "fa22092fba98c78f90ac38d1",
+      "url": "https://vnexpress.net/thong-doc-nguoi-dan-gui-tien-nhieu-vi-tin-tuong-he-thong-ngan-hang-5139105.html",
+      "source_id": "vnexpress",
+      "raw_sha256": "4374c9f857fd4b9431a552a54e97cc46fa8e3236a5d69dfed043399f5ef67b6e",
+      "raw_path": "bronze/html/fa22092fba98c78f90ac38d1.html",
+      "retrieved_at": "2026-10-31T08:04:03.426205+00:00",
+      "word_count": 696,
+      "body_paragraphs": 16,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.9375,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "001d4c73c997ec3be6a9f24f",
+      "url": "https://vnexpress.net/vietnam-airlines-doi-them-4-360-ty-dong-chi-phi-nhien-lieu-5139067.html",
+      "source_id": "vnexpress",
+      "raw_sha256": "e31a2cb476d3f5a11ebb44f48d3fa78dfa9345d0291a60efe680085d5bd88340",
+      "raw_path": "bronze/html/001d4c73c997ec3be6a9f24f.html",
+      "retrieved_at": "2026-10-31T08:04:08.414875+00:00",
+      "word_count": 609,
+      "body_paragraphs": 13,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.9230769230769231,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "c31ab156641c11cf4963cc57",
+      "url": "https://tuoitre.vn/pho-thu-tuong-nguyen-van-thang-thong-tin-phuong-an-giam-gia-dien-khoang-2-tu-nay-den-31-3-2027-100261031123030329.htm",
+      "source_id": "tuoitre",
+      "raw_sha256": "97392d0f677c273e31b5c4846a9b90df8b7df339d231d3ad9315e0a0fc77b215",
+      "raw_path": "bronze/html/c31ab156641c11cf4963cc57.html",
+      "retrieved_at": "2026-10-31T08:04:09.069244+00:00",
+      "word_count": 697,
+      "body_paragraphs": 19,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.8947368421052632,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "f59c9978b5ff79e82638d675",
+      "url": "https://tuoitre.vn/vingroup-bao-lai-ky-luc-hon-43700-ti-dong-sau-9-thang-100261031120813523.htm",
+      "source_id": "tuoitre",
+      "raw_sha256": "195a1837e1c0cbc229a95876d2725807aafdf387118866bd9a9f753030acedbe",
+      "raw_path": "bronze/html/f59c9978b5ff79e82638d675.html",
+      "retrieved_at": "2026-10-31T08:04:14.095061+00:00",
+      "word_count": 712,
+      "body_paragraphs": 21,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.6190476190476191,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "965091a198151705fe9a9f78",
+      "url": "https://tuoitre.vn/khu-du-lich-thac-ba-o-lam-dong-gan-10-nam-chua-xong-thu-tuc-trach-nhiem-quan-ly-the-nao-100261031113717489.htm",
+      "source_id": "tuoitre",
+      "raw_sha256": "decf99a627936ae4dafb9995a16655d7e5d4c3a9e0e6926abbf3a49c67c86371",
+      "raw_path": "bronze/html/965091a198151705fe9a9f78.html",
+      "retrieved_at": "2026-10-31T08:04:19.111549+00:00",
+      "word_count": 964,
+      "body_paragraphs": 21,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 0.6190476190476191,
+      "content_status": "body_checked",
+      "extraction_method": "source_dom_recovery",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "0fab092cb22d6897c5ff7417",
+      "url": "https://techcrunch.com/2026/10/30/pile-ins-payouts-and-pacing-pressure-the-investors-behind-the-vcs-open-up/",
+      "source_id": "techcrunch",
+      "raw_sha256": "707184f0c750fedd099dd16e045afc8dbcbc38ec471978525837be72f9671f7b",
+      "raw_path": "bronze/html/0fab092cb22d6897c5ff7417.html",
+      "retrieved_at": "2026-10-31T08:04:19.892774+00:00",
+      "word_count": 2559,
+      "body_paragraphs": 45,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 1.0,
+      "content_status": "body_checked",
+      "extraction_method": "trafilatura_body_checked",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "3a95150e9c0d261df1a587d7",
+      "url": "https://techcrunch.com/2026/10/30/nvidia-weighs-playing-the-cosigner-for-nscales-ai-data-center-in-west-virginia/",
+      "source_id": "techcrunch",
+      "raw_sha256": "0d21b09ace0c2f321416a4d1fe1c3ca84775e6eb752d39bb19a37b9a99c3753a",
+      "raw_path": "bronze/html/3a95150e9c0d261df1a587d7.html",
+      "retrieved_at": "2026-10-31T08:04:24.841389+00:00",
+      "word_count": 511,
+      "body_paragraphs": 11,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 1.0,
+      "content_status": "body_checked",
+      "extraction_method": "trafilatura_body_checked",
+      "nlp_eligible": true
+    },
+    {
+      "document_id": "3bcc6e1c631997d578f2ebc3",
+      "url": "https://techcrunch.com/2026/10/30/salesforces-ma-spree-continues-with-a-reported-375m-deal-for-defense-tech-startup-rune/",
+      "source_id": "techcrunch",
+      "raw_sha256": "ef88dcc547cee55f7692b7e43794f2acc768e34e7c3d5c68a1c8eea1709820f2",
+      "raw_path": "bronze/html/3bcc6e1c631997d578f2ebc3.html",
+      "retrieved_at": "2026-10-31T08:04:29.837694+00:00",
+      "word_count": 231,
+      "body_paragraphs": 5,
+      "paragraph_coverage": 1.0,
+      "trafilatura_coverage": 1.0,
+      "content_status": "body_checked",
+      "extraction_method": "trafilatura_body_checked",
+      "nlp_eligible": true
+    }
+  ],
+  "sources": {
+    "techcrunch": {
+      "articles": 3,
+      "words": 3301
+    },
+    "tuoitre": {
+      "articles": 3,
+      "words": 2373
+    },
+    "vnexpress": {
+      "articles": 3,
+      "words": 2053
+    }
+  },
+  "words_total": 7727,
+  "extraction_methods": {
+    "source_dom_recovery": 6,
+    "trafilatura_body_checked": 3
+  },
+  "claims": [
+    {
+      "subject": "Salesforce",
+      "predicate": "AGREED_TO_ACQUIRE",
+      "object": "Rune Technologies",
+      "assertion_status": "agreement_reported",
+      "review_status": "unreviewed",
+      "document_id": "3bcc6e1c631997d578f2ebc3",
+      "source_url": "https://techcrunch.com/2026/10/30/salesforces-ma-spree-continues-with-a-reported-375m-deal-for-defense-tech-startup-rune/"
+    }
+  ]
+}
