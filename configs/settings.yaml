@@ -1,0 +1,15 @@
+user_agent: AcademicNewsCollector/0.1 (feasibility research)
+timeout_seconds: 20
+delay_seconds: 3
+max_retries: 2
+max_response_bytes: 10000000
+target_per_source: 10
+max_attempts_per_source: 30
+max_articles_per_source: 10
+max_consecutive_restricted: 3
+max_urls_per_source: 100
+max_sitemaps: 6
+max_sitemap_roots: 2
+max_sitemap_depth: 2
+min_words: 100
+data_dir: data
