@@ -1,0 +1,129 @@
+{
+  "projection": "undirected, unweighted, simple; all machine candidates; isolates retained",
+  "nodes": 22,
+  "simple_edges": 2,
+  "claim_edges": 2,
+  "event_edges": 2,
+  "components": 20,
+  "largest_component_nodes": 3,
+  "largest_component_fraction": 0.13636363636363635,
+  "reachable_ordered_pairs_lcc": 6,
+  "sum_shortest_path_lcc": 8,
+  "average_shortest_path_lcc": 1.3333333333333333,
+  "density": 0.008658008658008658,
+  "average_clustering": 0.0,
+  "degree_centrality": {
+    "09aa93ba63958c2a79a97bb0": 0.0,
+    "eecadcbd2d7f28f92d476f45": 0.0,
+    "d0444213ea64489868c76af2": 0.0,
+    "84214bc7c6d8e5d853eb1642": 0.0,
+    "b4e44dbb500242d753eab2e8": 0.09523809523809523,
+    "223e00c9d520cb131018f208": 0.0,
+    "d421f653222abbba5fd94e44": 0.047619047619047616,
+    "f688d68070804722e9b5e57b": 0.0,
+    "f617a3d2529625d597d9a3f1": 0.0,
+    "e3a4661f709cdad7d3dbcc5c": 0.0,
+    "e5790ca65a31dd0530cf3ee8": 0.0,
+    "2341f91e42f864b8b92b075f": 0.0,
+    "7af8d097baf522dd0a57364a": 0.0,
+    "0201b5dc6214b45aae8473a6": 0.0,
+    "a53d156f70c30a6b5bd33379": 0.047619047619047616,
+    "d5f5822ce157e732b4d174a8": 0.0,
+    "b8862d2f63072ec204055f1c": 0.0,
+    "ca0bc2b0bad681d0d5ff9183": 0.0,
+    "997134f570d94cf4c5049147": 0.0,
+    "8dfbc4c026fe2222880cf953": 0.0,
+    "9f191b6ccb04b2048739a314": 0.0,
+    "446d264bfbf4881094f4ca49": 0.0
+  },
+  "pagerank": {
+    "09aa93ba63958c2a79a97bb0": 0.02564103276880479,
+    "eecadcbd2d7f28f92d476f45": 0.02564103276880479,
+    "d0444213ea64489868c76af2": 0.02564103276880479,
+    "84214bc7c6d8e5d853eb1642": 0.02564103276880479,
+    "b4e44dbb500242d753eab2e8": 0.24947559266023533,
+    "223e00c9d520cb131018f208": 0.02564103276880479,
+    "d421f653222abbba5fd94e44": 0.13167239236623687,
+    "f688d68070804722e9b5e57b": 0.02564103276880479,
+    "f617a3d2529625d597d9a3f1": 0.02564103276880479,
+    "e3a4661f709cdad7d3dbcc5c": 0.02564103276880479,
+    "e5790ca65a31dd0530cf3ee8": 0.02564103276880479,
+    "2341f91e42f864b8b92b075f": 0.02564103276880479,
+    "7af8d097baf522dd0a57364a": 0.02564103276880479,
+    "0201b5dc6214b45aae8473a6": 0.02564103276880479,
+    "a53d156f70c30a6b5bd33379": 0.13167239236623687,
+    "d5f5822ce157e732b4d174a8": 0.02564103276880479,
+    "b8862d2f63072ec204055f1c": 0.02564103276880479,
+    "ca0bc2b0bad681d0d5ff9183": 0.02564103276880479,
+    "997134f570d94cf4c5049147": 0.02564103276880479,
+    "8dfbc4c026fe2222880cf953": 0.02564103276880479,
+    "9f191b6ccb04b2048739a314": 0.02564103276880479,
+    "446d264bfbf4881094f4ca49": 0.02564103276880479
+  },
+  "communities": [
+    [
+      "a53d156f70c30a6b5bd33379",
+      "b4e44dbb500242d753eab2e8",
+      "d421f653222abbba5fd94e44"
+    ],
+    [
+      "09aa93ba63958c2a79a97bb0"
+    ],
+    [
+      "eecadcbd2d7f28f92d476f45"
+    ],
+    [
+      "d0444213ea64489868c76af2"
+    ],
+    [
+      "84214bc7c6d8e5d853eb1642"
+    ],
+    [
+      "223e00c9d520cb131018f208"
+    ],
+    [
+      "f688d68070804722e9b5e57b"
+    ],
+    [
+      "f617a3d2529625d597d9a3f1"
+    ],
+    [
+      "e3a4661f709cdad7d3dbcc5c"
+    ],
+    [
+      "e5790ca65a31dd0530cf3ee8"
+    ],
+    [
+      "2341f91e42f864b8b92b075f"
+    ],
+    [
+      "7af8d097baf522dd0a57364a"
+    ],
+    [
+      "0201b5dc6214b45aae8473a6"
+    ],
+    [
+      "d5f5822ce157e732b4d174a8"
+    ],
+    [
+      "b8862d2f63072ec204055f1c"
+    ],
+    [
+      "ca0bc2b0bad681d0d5ff9183"
+    ],
+    [
+      "997134f570d94cf4c5049147"
+    ],
+    [
+      "8dfbc4c026fe2222880cf953"
+    ],
+    [
+      "9f191b6ccb04b2048739a314"
+    ],
+    [
+      "446d264bfbf4881094f4ca49"
+    ]
+  ],
+  "small_world_sigma": null,
+  "small_world_reason": "LCC too small/sparse or zero clustering; no valid sigma estimate"
+}

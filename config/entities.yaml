@@ -1,0 +1,40 @@
+# Curated seed lexicon, not a claim of open-world NER quality.
+- name: Microsoft
+  type: ORG
+  aliases: [Microsoft Corporation, Tập đoàn Microsoft]
+- name: GitHub
+  type: ORG
+  aliases: []
+- name: Medstory
+  type: ORG
+  aliases: []
+- name: The Walt Disney Company
+  type: ORG
+  aliases: [Disney, Walt Disney]
+- name: Pixar
+  type: ORG
+  aliases: []
+- name: Apple
+  type: ORG
+  aliases: [Apple Inc.]
+- name: Steve Jobs
+  type: PERSON
+  aliases: []
+- name: Bill Gates
+  type: PERSON
+  aliases: []
+- name: Paul Allen
+  type: PERSON
+  aliases: []
+- name: Nat Friedman
+  type: PERSON
+  aliases: []
+- name: Satya Nadella
+  type: PERSON
+  aliases: []
+- name: LinkedIn
+  type: ORG
+  aliases: []
+- name: Nokia
+  type: ORG
+  aliases: []

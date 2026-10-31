@@ -1,0 +1,21 @@
+{
+  "documents": [],
+  "errors": [
+    {
+      "url": "https://en.wikinews.org/wiki/Disney_buys_Pixar",
+      "error": "HTTPStatusError: Client error '403 Forbidden' for url 'https://en.wikinews.org/robots.txt'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "url": "https://en.wikinews.org/wiki/Microsoft_to_acquire_health_information_search_engine",
+      "error": "HTTPStatusError: Client error '403 Forbidden' for url 'https://en.wikinews.org/robots.txt'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "url": "https://en.wikinews.org/wiki/Technology_giant_Microsoft_completes_acquisition_of_GitHub",
+      "error": "HTTPStatusError: Client error '403 Forbidden' for url 'https://en.wikinews.org/robots.txt'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    },
+    {
+      "url": "https://vi.wikipedia.org/wiki/Microsoft",
+      "error": "HTTPStatusError: Client error '403 Forbidden' for url 'https://vi.wikipedia.org/robots.txt'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+    }
+  ]
+}

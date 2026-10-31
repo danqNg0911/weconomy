@@ -1,0 +1,537 @@
+{
+  "format": "weconomy-labels-v1",
+  "warning": "Agent pilot labels, NOT human held-out gold",
+  "guidelines": "docs/ANNOTATION.md",
+  "tasks": [
+    {
+      "sentence_id": "62e51752a44e96ffaf3036c6",
+      "document_id": "a8b6bb05031c344627a7e771",
+      "text": "Disney buys Pixar",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Disney",
+          "start": 0,
+          "end": 6,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Pixar",
+          "start": 12,
+          "end": 17,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "ed31e8927fa409acd31863a9",
+      "document_id": "a8b6bb05031c344627a7e771",
+      "text": "The Walt Disney Company has finalized a US$7.4 billion deal to acquire its long-time partner Pixar in an all stock buy-out.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "The Walt Disney Company",
+          "start": 0,
+          "end": 23,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Pixar",
+          "start": 93,
+          "end": 98,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "0abf8304da331d1381bcb097",
+      "document_id": "a8b6bb05031c344627a7e771",
+      "text": "The deal will make Steve Jobs, current Pixar and Apple CEO, Disney's largest shareholder with about 7% (valued at over $3.5 billion) and a member of the board of directors.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Steve Jobs",
+          "start": 19,
+          "end": 29,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "Pixar",
+          "start": 39,
+          "end": 44,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Apple",
+          "start": 49,
+          "end": 54,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Disney",
+          "start": 60,
+          "end": 66,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": [
+        {
+          "subject_id": "d0444213ea64489868c76af2",
+          "predicate": "CEO_OF",
+          "object_id": "eecadcbd2d7f28f92d476f45"
+        },
+        {
+          "subject_id": "d0444213ea64489868c76af2",
+          "predicate": "CEO_OF",
+          "object_id": "84214bc7c6d8e5d853eb1642"
+        }
+      ]
+    },
+    {
+      "sentence_id": "a5f05ab8758ae9f7beab157d",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "Microsoft to acquire health information search engine",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 0,
+          "end": 9,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "37e4ebd7f19d33f0efed8ad6",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "Microsoft decided to buy a health information search engine called Medstory.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 0,
+          "end": 9,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Medstory",
+          "start": 67,
+          "end": 75,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "1090d836bbfe7fd736ad363a",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "This is the company's first step towards an involvement in the health market.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [],
+      "relations": []
+    },
+    {
+      "sentence_id": "2b974d756c2e50afe59843b4",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "The software that Medstory develops involves artificial intelligence techniques which are applied to both medical and health information stored in medical journals, as well as government documents.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Medstory",
+          "start": 18,
+          "end": 26,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "856143cd5257d4a9789015e2",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "No additional information on the Medstory purchase was disclosed.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Medstory",
+          "start": 33,
+          "end": 41,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "b8baef30d972296edc04fd5a",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "In 2006 Microsoft bought Azyxxi, which is a clinical health care service system.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 8,
+          "end": 17,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Azyxxi",
+          "start": 25,
+          "end": 31,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": [
+        {
+          "subject_id": "b4e44dbb500242d753eab2e8",
+          "predicate": "ACQUIRED",
+          "object_id": "d421f653222abbba5fd94e44"
+        }
+      ]
+    },
+    {
+      "sentence_id": "50c012827da44ad2d2227c75",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "It searches and displays information about the patient from many sources.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [],
+      "relations": []
+    },
+    {
+      "sentence_id": "505d7bf8c41b9b6914fe5254",
+      "document_id": "e60bf12d62b30831cc630140",
+      "text": "The information might be provided by: scanned documents, X-rays and even ultrasound images.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [],
+      "relations": []
+    },
+    {
+      "sentence_id": "0e361a5ab86a497d05c2eb7d",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "Technology giant Microsoft completes acquisition of GitHub",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 17,
+          "end": 26,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "GitHub",
+          "start": 52,
+          "end": 58,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "6272780d43c7084b28b2d2a2",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "On Friday, US-based technology giant Microsoft confirmed acquisition of software code hosting and version controlling website GitHub.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "US",
+          "start": 11,
+          "end": 13,
+          "entity_type": "PLACE"
+        },
+        {
+          "surface": "Microsoft",
+          "start": 37,
+          "end": 46,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "GitHub",
+          "start": 126,
+          "end": 132,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": [
+        {
+          "subject_id": "b4e44dbb500242d753eab2e8",
+          "predicate": "ACQUIRED",
+          "object_id": "f688d68070804722e9b5e57b"
+        }
+      ]
+    },
+    {
+      "sentence_id": "5f35cc6aaf1128dfc1d0a7b8",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "The announcement was made by Microsoft via their official blog, which also mentioned Nat Friedman was to become new Chief Executive Officer of GitHub.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 29,
+          "end": 38,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Nat Friedman",
+          "start": 85,
+          "end": 97,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "GitHub",
+          "start": 143,
+          "end": 149,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "f043d82c43b5a90553bf5368",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "Microsoft had announced plans to acquire GitHub for a price of 7.5 billion US dollars (USD) on June 4.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 0,
+          "end": 9,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "GitHub",
+          "start": 41,
+          "end": 47,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "bea59e9a2689926a5ac620b2",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "On October 19, the European Union's regulators approved the acquisition.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "European Union",
+          "start": 19,
+          "end": 33,
+          "entity_type": "GOV"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "b171f1534bfd05c9a9cb4b6b",
+      "document_id": "88d0348e009bf19a417709cb",
+      "text": "According to the June announcement, Microsoft was to pay the amount in stock.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 36,
+          "end": 45,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "bc56175ff21a46f72cc51733",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "Microsoft",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 0,
+          "end": 9,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "409a29f7f1cef3a1161ca1c1",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "Microsoft là một tập đoàn đa quốc gia của Hoa Kỳ đặt trụ sở chính tại Redmond, Washington; chuyên phát triển, sản xuất, kinh doanh bản quyền phần mềm và hỗ trợ trên diện rộng các sản phẩm và dịch vụ liên quan đến máy tính.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Microsoft",
+          "start": 0,
+          "end": 9,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Hoa Kỳ",
+          "start": 42,
+          "end": 48,
+          "entity_type": "PLACE"
+        },
+        {
+          "surface": "Redmond",
+          "start": 70,
+          "end": 77,
+          "entity_type": "PLACE"
+        },
+        {
+          "surface": "Washington",
+          "start": 79,
+          "end": 89,
+          "entity_type": "PLACE"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "f7755a384c91e1e32e5cfd7b",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "Công ty được sáng lập bởi Bill Gates và Paul Allen vào ngày 4 tháng 4 năm 1975.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Bill Gates",
+          "start": 26,
+          "end": 36,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "Paul Allen",
+          "start": 40,
+          "end": 50,
+          "entity_type": "PERSON"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "2c1200a17189b3d9821b6152",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "MITS đồng ý phân phối chương trình và họ tiếp thị nó với cái tên \"Altair BASIC\".",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "MITS",
+          "start": 0,
+          "end": 4,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "sentence_id": "c654e339cdd613a591153fb3",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "Sau thành công này, Paul Allen và Bill Gates thành lập Microsoft vào tháng 4 năm 1975, Gates giữ vị trí CEO.",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Paul Allen",
+          "start": 20,
+          "end": 30,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "Bill Gates",
+          "start": 34,
+          "end": 44,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "Microsoft",
+          "start": 55,
+          "end": 64,
+          "entity_type": "ORG"
+        },
+        {
+          "surface": "Gates",
+          "start": 87,
+          "end": 92,
+          "entity_type": "PERSON"
+        }
+      ],
+      "relations": [
+        {
+          "subject_id": "d5f5822ce157e732b4d174a8",
+          "predicate": "FOUNDED",
+          "object_id": "b4e44dbb500242d753eab2e8"
+        },
+        {
+          "subject_id": "a53d156f70c30a6b5bd33379",
+          "predicate": "FOUNDED",
+          "object_id": "b4e44dbb500242d753eab2e8"
+        }
+      ]
+    },
+    {
+      "sentence_id": "ccdf6ebafaa7728f638a7f7c",
+      "document_id": "0009b33813aef351bf41e5dd",
+      "text": "Allen chính là người đặt cho công ty cái tên \"Microsoft\".",
+      "complete": true,
+      "reviewer": "agent-pilot-not-independent",
+      "split": "pilot",
+      "entities": [
+        {
+          "surface": "Allen",
+          "start": 0,
+          "end": 5,
+          "entity_type": "PERSON"
+        },
+        {
+          "surface": "Microsoft",
+          "start": 46,
+          "end": 55,
+          "entity_type": "ORG"
+        }
+      ],
+      "relations": []
+    }
+  ]
+}

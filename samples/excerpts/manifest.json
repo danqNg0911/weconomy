@@ -1,0 +1,64 @@
+{
+  "documents": [
+    {
+      "path": "disney-pixar.html",
+      "url": "https://en.wikinews.org/wiki/Disney_buys_Pixar",
+      "source_id": "wikinews_en",
+      "kind": "news",
+      "license": "CC-BY-2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5/",
+      "published_at": "2006-01-24",
+      "language_hint": "en",
+      "retrieved_at": "2026-10-30T08:39:12.946744+00:00",
+      "sha256": "308a965cc5c8f916e15ca47e41b4dbd35a43fa3a3172fa6f14a6e4584c4ea69d",
+      "attribution": "Wikinews; https://en.wikinews.org/wiki/Disney_buys_Pixar; https://en.wikinews.org/wiki/Disney_buys_Pixar?action=history",
+      "capture_method": "Licensed verbatim excerpt read via search tool on 2026-10-30; local HTML wrapper",
+      "notes": "Not a full-page download. Selected paragraphs; citation markers/links removed; no images. Content is real-source text, not generated news."
+    },
+    {
+      "path": "microsoft-medstory.html",
+      "url": "https://en.wikinews.org/wiki/Microsoft_to_acquire_health_information_search_engine",
+      "source_id": "wikinews_en",
+      "kind": "news",
+      "license": "CC-BY-2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5/",
+      "published_at": "2007-02-27",
+      "language_hint": "en",
+      "retrieved_at": "2026-10-30T08:39:12.947747+00:00",
+      "sha256": "bfaca9caaca11c565b5643fe8b0e8ae82c264bdd3766bf03e4850d42ecc68027",
+      "attribution": "Wikinews; https://en.wikinews.org/wiki/Microsoft_to_acquire_health_information_search_engine; https://en.wikinews.org/wiki/Microsoft_to_acquire_health_information_search_engine?action=history",
+      "capture_method": "Licensed verbatim excerpt read via search tool on 2026-10-30; local HTML wrapper",
+      "notes": "Not a full-page download. Selected paragraphs; citation markers/links removed; no images. Content is real-source text, not generated news."
+    },
+    {
+      "path": "microsoft-github.html",
+      "url": "https://en.wikinews.org/wiki/Technology_giant_Microsoft_completes_acquisition_of_GitHub",
+      "source_id": "wikinews_en",
+      "kind": "news",
+      "license": "CC-BY-2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5/",
+      "published_at": "2018-10-29",
+      "language_hint": "en",
+      "retrieved_at": "2026-10-30T08:39:12.947747+00:00",
+      "sha256": "e3f90e6957c5c05417993b97e2f771196b92263e1cdef445f9eebcd524aa8a3e",
+      "attribution": "Wikinews; https://en.wikinews.org/wiki/Technology_giant_Microsoft_completes_acquisition_of_GitHub; https://en.wikinews.org/wiki/Technology_giant_Microsoft_completes_acquisition_of_GitHub?action=history",
+      "capture_method": "Licensed verbatim excerpt read via search tool on 2026-10-30; local HTML wrapper",
+      "notes": "Not a full-page download. Selected paragraphs; citation markers/links removed; no images. Content is real-source text, not generated news."
+    },
+    {
+      "path": "microsoft-vi.html",
+      "url": "https://vi.wikipedia.org/wiki/Microsoft",
+      "source_id": "wikipedia_vi",
+      "kind": "encyclopedia_reference",
+      "license": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "published_at": "",
+      "language_hint": "vi",
+      "retrieved_at": "2026-10-30T08:39:12.947747+00:00",
+      "sha256": "3264394f5d541047e452d1795bcb0c39a9f633de2ca98593ddc4564ff11a7581",
+      "attribution": "Wikipedia contributors; https://vi.wikipedia.org/wiki/Microsoft; https://vi.wikipedia.org/wiki/Microsoft?action=history",
+      "capture_method": "Licensed verbatim excerpt read via search tool on 2026-10-30; local HTML wrapper",
+      "notes": "Not a full-page download. Selected paragraphs; citation markers/links removed; no images. Content is real-source text, not generated news."
+    }
+  ]
+}
