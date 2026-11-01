@@ -1,6 +1,6 @@
 # Trạng thái tool và hướng dẫn bàn giao
 
-Cập nhật ngày **31/10/2026, Asia/Saigon**. Đây là trạng thái triển khai và bằng chứng đã chạy,
+Cập nhật ngày **01/11/2026, Asia/Saigon**; số liệu corpus tham chiếu đo ngày 31/10. Đây là trạng thái triển khai và bằng chứng đã chạy,
 không phải cam kết đã đạt chỉ tiêu đề bài. Nhánh làm việc: `duy`; các thay đổi hiện còn local,
 chưa commit/push. Người clone repository chưa chắc có cùng phiên bản code với máy đã kiểm thử.
 
@@ -33,6 +33,7 @@ và nhập ứng viên vào Neo4j. Tool hiện là pipeline nghiên cứu; đầ
 | GDS | Có query template | Chưa cài/bật và nghiệm thu so sánh với NetworkX |
 | Katana | Nhập URL/JSONL khám phá vào cổng policy của Python | Chưa nghiệm thu chạy crawler Katana; crawler ngoài không chịu cổng Python khi tự tải trang |
 | Docker | Build và chạy offline đã qua; 80 văn bản trùng Windows | Image core chỉ có gazetteer, không có spaCy/underthesea; không coi kết quả NLP hai môi trường là tương đương |
+| Hugging Face | Có `hf-push/hf-pull`, private-only upload, snapshot/checksum và commit pin; kiểm thử local + Hub giả lập | Chưa nghiệm thu tài khoản/repo thật; chưa đồng bộ tự động. Xem [HUGGINGFACE.md](HUGGINGFACE.md) |
 
 ## Số liệu đã xác minh
 
@@ -67,6 +68,8 @@ Bằng chứng local (không được đưa vào Git):
 - [Analytics](../data/runs/20261031T101555-c6e4bee3/analytics.json): sigma `null` do LCC quá nhỏ/thưa hoặc clustering bằng 0.
 - Lần kiểm thử code trước khi bàn giao: **126 tests passed**, Ruff và `git diff --check` qua.
   Đây là kết quả lần chạy ngày 31/10; thay code cần chạy lại checks.
+- Sau khi thêm luồng Hugging Face ngày 01/11: **139 tests passed**, Ruff/lock check/diff check qua;
+  đóng gói/phục hồi offline 80 bài giữ nguyên 7 bảng. Chưa nghiệm thu Hub thật hoặc Docker cho luồng HF.
 
 Các link `data/` chỉ hoạt động trên máy có dữ liệu tương ứng. Clone Git không mang theo corpus,
 model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự công bố lại HTML báo thương mại.
@@ -109,6 +112,7 @@ có thể vượt ngân sách. Xem lại config/phạm vi trước khi gom, khô
 ## Những việc chưa làm hoặc chưa nghiệm thu
 
 - [ ] Corpus đại diện đủ doanh nghiệp, tỷ phú/startup/quỹ/chính phủ và đủ hai ngôn ngữ.
+- [ ] Kết nối và nghiệm thu upload/download thật với private dataset repo của nhóm trên Hugging Face.
 - [ ] 2.000 thực thể, 5.000 sự kiện quan hệ đã kiểm định, 10 loại quan hệ quan sát thực.
 - [ ] Bộ nhãn độc lập, split theo bài/sự kiện/thời gian; đo NER, RE và entity resolution.
 - [ ] Xác minh precision ≥90% cùng recall/F1, per-type/per-language và khoảng tin cậy.

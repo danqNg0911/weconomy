@@ -11,6 +11,10 @@ Các đợt mở rộng sau pilot ghi số đo trong `data/runs/<id>/manifest.js
 **Người mới bắt đầu:** đọc [trạng thái hiện tại, giới hạn và những việc chưa làm](docs/STATUS.md).
 Mục lục tài liệu nằm ở [docs/README.md](docs/README.md).
 
+**Chia sẻ corpus trong nhóm:** đã có CLI `hf-push` / `hf-pull` cho Hugging Face Dataset Hub private,
+checksum và phiên bản commit. Xem [hướng dẫn Hugging Face](docs/HUGGINGFACE.md).
+Hiện mới kiểm thử local/Hub giả lập; chưa upload corpus thật lên tài khoản nhóm.
+
 ## Thu thập thân bài và chạy NER/quan hệ (cập nhật 31/10)
 
 Nhánh `duy` có lệnh chạy RSS → tải HTML gốc → kiểm định thân bài → NER/RE → Parquet:
