@@ -1,0 +1,14 @@
+version: sprint1-corpus-v3
+output: data/runs
+ner_backend: gazetteer
+english_model: en_core_web_sm
+aliases: config/entities.yaml
+sources: config/sources.yaml
+max_documents: 100
+min_text_chars: 80
+min_article_words: 100
+allow_excerpts: false
+near_duplicate_threshold: 0.9
+request_timeout: 30
+max_response_bytes: 5000000
+user_agent: WeconomyResearch/0.1 (local academic pilot; no bulk crawling)

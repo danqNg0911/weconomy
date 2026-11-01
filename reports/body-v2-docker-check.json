@@ -1,0 +1,4 @@
+{
+  "engine_available": false,
+  "error": "Docker Engine did not respond within 8 seconds; no container changes attempted"
+}
