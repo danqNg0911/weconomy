@@ -1,0 +1,57 @@
+{
+  "neo4j_version": "5.26.32",
+  "run": "data\\runs\\20261030T085427-bff128ea",
+  "first_import": {
+    "imported": {
+      "entities": 22,
+      "bronze": 4,
+      "sentences": 23,
+      "events": 2,
+      "relations": 2
+    },
+    "run": "data\\runs\\20261030T085427-bff128ea"
+  },
+  "second_import": {
+    "imported": {
+      "entities": 22,
+      "bronze": 4,
+      "sentences": 23,
+      "events": 2,
+      "relations": 2
+    },
+    "run": "data\\runs\\20261030T085427-bff128ea"
+  },
+  "counts_after_first": {
+    "Entity": 22,
+    "Document": 4,
+    "Sentence": 23,
+    "Event": 2,
+    "Claim": 2,
+    "business_edges": 2
+  },
+  "counts_after_second": {
+    "Entity": 22,
+    "Document": 4,
+    "Sentence": 23,
+    "Event": 2,
+    "Claim": 2,
+    "business_edges": 2
+  },
+  "idempotent_counts": true,
+  "evidence": [
+    {
+      "predicate": "ACQUIRED",
+      "evidence": "In 2006 Microsoft bought Azyxxi, which is a clinical health care service system.",
+      "url": "https://en.wikinews.org/wiki/Microsoft_to_acquire_health_information_search_engine",
+      "license": "CC-BY-2.5",
+      "review_status": "unreviewed"
+    },
+    {
+      "predicate": "FOUNDED",
+      "evidence": "Sau thành công này, Paul Allen và Bill Gates thành lập Microsoft vào tháng 4 năm 1975, Gates giữ vị trí CEO.",
+      "url": "https://vi.wikipedia.org/wiki/Microsoft",
+      "license": "CC-BY-SA-4.0",
+      "review_status": "unreviewed"
+    }
+  ]
+}

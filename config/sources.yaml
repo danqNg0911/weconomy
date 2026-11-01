@@ -1,0 +1,83 @@
+sources:
+  wikinews_en:
+    hosts: [en.wikinews.org]
+    language: en
+    kind: news
+    allowed: true
+    permission_basis: Open licensed text; check per-page license; images excluded
+    terms_url: https://en.wikinews.org/wiki/Wikinews:Copyright
+    license: CC-BY-2.5-or-4.0-per-page
+    min_interval_seconds: 2
+    feeds: ["https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published&notcategories=No%20publish%7CArchived%7CAutoArchived&namespace=0&count=10"]
+  wikipedia_vi:
+    hosts: [vi.wikipedia.org]
+    language: vi
+    kind: encyclopedia_reference
+    allowed: true
+    permission_basis: CC-BY-SA text only; contributors attributed by source history link
+    terms_url: https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use
+    license: CC-BY-SA-4.0
+    min_interval_seconds: 2
+    feeds: []
+  vnexpress:
+    hosts: [vnexpress.net]
+    language: vi
+    kind: news
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
+    terms_url: https://vnexpress.net/dieu-khoan-su-dung
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: VnExpress
+    article_pattern: '-\d+\.html$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
+    min_interval_seconds: 5
+    feeds: [https://vnexpress.net/rss/kinh-doanh.rss]
+  tuoitre:
+    hosts: [tuoitre.vn]
+    language: vi
+    kind: news
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
+    terms_url: https://tuoitre.vn/
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: Tuoi Tre Online
+    article_pattern: '-\d+\.htm$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
+    min_interval_seconds: 5
+    feeds: [https://tuoitre.vn/kinh-doanh.rss]
+  reuters:
+    hosts: [www.reuters.com, reuters.com]
+    language: en
+    kind: news
+    allowed: false
+    permission_basis: Pending licensed access; no paywall or anti-bot bypass
+    terms_url: https://www.reuters.com/info-pages/terms-of-use/
+    license: permission-required
+    min_interval_seconds: 5
+    feeds: []
+  bloomberg:
+    hosts: [www.bloomberg.com, bloomberg.com]
+    language: en
+    kind: news
+    allowed: false
+    permission_basis: Pending licensed access; no paywall bypass
+    terms_url: https://www.bloomberg.com/notices/tos/
+    license: permission-required
+    min_interval_seconds: 5
+    feeds: []
+  techcrunch:
+    hosts: [techcrunch.com]
+    language: en
+    kind: news
+    allowed: true
+    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
+    terms_url: https://techcrunch.com/
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: TechCrunch
+    article_pattern: '/\d{4}/\d{2}/\d{2}/[^/]+/?$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
+    min_interval_seconds: 5
+    feeds:
+      - https://techcrunch.com/category/startups/feed/
+      - https://techcrunch.com/category/venture/feed/
+      - https://techcrunch.com/feed/

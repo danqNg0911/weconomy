@@ -1,0 +1,129 @@
+{
+  "sentences": 23,
+  "relation": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 4,
+    "precision": 1.0,
+    "recall": 0.3333333333333333,
+    "f1": 0.5,
+    "precision_wilson_95": [
+      0.34237195288961925,
+      1
+    ]
+  },
+  "ner_exact_span": {
+    "tp": 33,
+    "fp": 0,
+    "fn": 8,
+    "precision": 1.0,
+    "recall": 0.8048780487804879,
+    "f1": 0.8918918918918919,
+    "precision_wilson_95": [
+      0.8957265699643882,
+      1
+    ]
+  },
+  "by_type": {
+    "ACQUIRED": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "precision_wilson_95": [
+        0.20654329147389294,
+        1
+      ]
+    },
+    "INVESTED_IN": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "MERGED_WITH": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "SUED": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "PARTNERED_WITH": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "SUPPLIES_TO": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "CEO_OF": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": null,
+      "recall": 0.0,
+      "f1": 0.0,
+      "precision_wilson_95": null
+    },
+    "FOUNDED": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "precision_wilson_95": [
+        0.20654329147389294,
+        1
+      ]
+    },
+    "SUBSIDIARY_OF": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    },
+    "REGULATES": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "precision_wilson_95": null
+    }
+  },
+  "splits": {
+    "pilot": 23
+  },
+  "warning": "Pilot labels and same-author review cannot establish held-out production precision"
+}

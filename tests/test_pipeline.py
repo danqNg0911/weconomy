@@ -1,82 +1,83 @@
-import asyncio
 import json
+from pathlib import Path
 
-import httpx
-import yaml
+import pytest
 
-from news_collector import pipeline
-from news_collector.config import Settings
-from news_collector.discovery import inspect_endpoint
-from news_collector.fetching import Client
-from news_collector.storage import Store
+from weconomy.analytics import analyze
+from weconomy.pipeline import load_config, process, read_table
+from weconomy.quality import annotation_tasks, evaluate, prf, validate
 
-
-def test_pilot_cap_resume_and_export(tmp_path, monkeypatch):
-    calls = []
-    def handler(request):
-        path = request.url.path
-        calls.append(path)
-        if path == "/robots.txt":
-            return httpx.Response(200, text="User-agent: *\nAllow: /")
-        if path == "/feed":
-            items = "".join(f"<item><title>Story {i}</title><link>https://example.com/story/{i}</link></item>" for i in range(15))
-            return httpx.Response(200, text=f"<rss version='2.0'><channel>{items}</channel></rss>", headers={"Content-Type": "application/rss+xml"})
-        words = " ".join(f"unique{path[-2:]}word{i}" for i in range(120))
-        return httpx.Response(200, text=f"<html><head><title>Story {path}</title></head><body><article><h1>Story {path}</h1><p>{words}</p></article></body></html>")
-    settings = Settings(data_dir=tmp_path / "data", delay_seconds=0)
-    sources = {"sample": {"base_url": "https://example.com", "language": "en", "article_pattern": "/story/",
-                          "rss_pages": [], "endpoints": [{"url": "https://example.com/feed", "method": "rss"}]}}
-    config = tmp_path / "configs"
-    config.mkdir()
-    monkeypatch.setattr(pipeline, "Client", lambda s: Client(s, httpx.MockTransport(handler)))
-    first = asyncio.run(pipeline.execute(settings, sources, [], config, ["sample"], "run"))
-    assert first["sources"]["sample"]["saved_total"] == 10
-    assert first["sources"]["sample"]["attempted"] == 10
-    count = len(calls)
-    second = asyncio.run(pipeline.execute(settings, sources, [], config, ["sample"], "run"))
-    assert second["sources"]["sample"]["saved_this_run"] == 0
-    assert len(calls) == count
-    values = [json.loads(line) for line in (settings.data_dir / "exports/articles.jsonl").read_text("utf-8").splitlines()]
-    assert len(values) == len({v["article_id"] for v in values}) == 10
-    assert yaml.safe_load((config / "sources.yaml").read_text("utf-8"))["sources"]["sample"]["status"] == "available"
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_sitemap_cycles_depth_and_off_domain():
-    calls = []
-    def handler(request):
-        calls.append(str(request.url))
-        if request.url.path == "/robots.txt":
-            return httpx.Response(200, text="User-agent: *\nAllow: /")
-        if request.url.path == "/index.xml":
-            return httpx.Response(200, text='<sitemapindex><sitemap><loc>https://example.com/index.xml</loc></sitemap><sitemap><loc>https://example.com/child.xml</loc></sitemap><sitemap><loc>https://evil.com/file.xml</loc></sitemap></sitemapindex>')
-        return httpx.Response(200, text='<urlset><url><loc>https://example.com/story/1</loc></url></urlset>')
-    async def check():
-        client = Client(Settings(delay_seconds=0), httpx.MockTransport(handler))
-        entries, evidence = await inspect_endpoint(client, {"base_url": "https://example.com", "article_pattern": "/story/"},
-                                                  {"url": "https://example.com/index.xml", "method": "sitemap"})
-        assert len(entries) == 1
-        assert len(evidence) == 2
-        assert not any("evil.com" in c for c in calls)
-        assert calls.count("https://example.com/index.xml") == 1
-        await client.close()
-    asyncio.run(check())
+def config(tmp_path):
+    result = load_config(ROOT / "config/pipeline.yaml")
+    result["output"] = str(tmp_path / "runs")
+    result["allow_excerpts"] = True
+    return result
 
 
-def test_retry_server_error(monkeypatch):
-    attempts = []
-    sleeps = []
-    async def sleep(delay):
-        sleeps.append(delay)
-    monkeypatch.setattr("news_collector.fetching.asyncio.sleep", sleep)
-    def handler(request):
-        if request.url.path == "/robots.txt":
-            return httpx.Response(200, text="User-agent: *\nAllow: /")
-        attempts.append(1)
-        return httpx.Response(503 if len(attempts) < 3 else 200, text="ok")
-    async def check():
-        client = Client(Settings(delay_seconds=0, max_retries=2), httpx.MockTransport(handler))
-        assert (await client.get("https://example.com/story", "https://example.com")).status_code == 200
-        assert len(attempts) == 3
-        assert 1 in sleeps and 2 in sleeps
-        await client.close()
-    asyncio.run(check())
+def test_real_excerpts_end_to_end_and_immutable_runs(tmp_path):
+    first, report = process(config(tmp_path), manifest=ROOT / "samples/excerpts/manifest.json")
+    second, report2 = process(config(tmp_path), manifest=ROOT / "samples/excerpts/manifest.json")
+    assert first != second
+    assert report["counts"] == report2["counts"]
+    assert report["errors"] == []
+    assert report["counts"]["bronze"] == 4
+    assert report["counts"]["relations"] > 0
+    assert validate(first)["valid"]
+    assert read_table(first, "relations") == read_table(second, "relations")
+    with pytest.raises(ValueError, match="No accepted full-text"):
+        process(config(tmp_path), from_runs=[first, second])
+    analytics = analyze(first, small_world=True)
+    assert analytics["nodes"] == report["counts"]["entities"]
+    assert analytics["small_world_sigma"] is None
+    tasks = tmp_path / "tasks.json"
+    annotation_tasks(first, tasks)
+    with pytest.raises(ValueError, match="reviewer"):
+        evaluate(first, tasks)
+
+
+def test_document_dedup_keeps_bronze_but_not_extra_edges(tmp_path):
+    original = ROOT / "samples/excerpts/manifest.json"
+    docs = json.loads(original.read_text(encoding="utf-8"))["documents"]
+    first = docs[3].copy()
+    content = (original.parent / first["path"]).read_bytes()
+    (tmp_path / "one.html").write_bytes(content)
+    first["path"] = "one.html"
+    second = dict(first, url="https://en.wikinews.org/wiki/Duplicate_fixture")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"documents": [first, second]}), encoding="utf-8")
+    run, report = process(config(tmp_path), manifest=manifest)
+    assert report["duplicate_documents"] == 1
+    assert report["counts"]["bronze"] == 2
+    assert report["counts"]["relations"] == 1
+    assert validate(run)["valid"]
+
+
+def test_bad_checksum_logged_and_empty_parquet_is_typed(tmp_path):
+    row = json.loads((ROOT / "samples/excerpts/manifest.json").read_text(encoding="utf-8"))["documents"][0]
+    row["path"] = "bad.html"
+    (tmp_path / "bad.html").write_text("corrupt", encoding="utf-8")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"documents": [row]}), encoding="utf-8")
+    run, report = process(config(tmp_path), manifest=manifest)
+    assert report["errors"] and report["status"] == "partial"
+    assert read_table(run, "relations") == []
+    assert validate(run)["valid"]
+
+
+def test_precision_recall_counts_false_negatives(tmp_path):
+    run, _ = process(config(tmp_path), manifest=ROOT / "samples/excerpts/manifest.json")
+    path = tmp_path / "labels.json"
+    annotation_tasks(run, path)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    for task in payload["tasks"]:
+        task.update(complete=True, reviewer="unit-test", relations=[], entities=[])
+    # Deliberately wrong complete labels: all predicted edges must become false positives.
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    measured = evaluate(run, path)
+    assert measured["relation"]["fp"] > 0
+    assert measured["relation"]["precision"] == 0
+    assert prf(1, 1, 2)["recall"] == pytest.approx(1/3)
+    assert prf(0, 0, 0)["precision"] is None
