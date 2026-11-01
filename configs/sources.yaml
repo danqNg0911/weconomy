@@ -1,0 +1,251 @@
+sources:
+  vnexpress:
+    base_url: https://vnexpress.net
+    language: vi
+    article_pattern: -\d+\.html$
+    rss_pages:
+    - https://vnexpress.net/rss
+    endpoints:
+    - url: https://vnexpress.net/rss/kinh-doanh.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T03:11:43.917543+00:00'
+      last_error: null
+    - url: https://vnexpress.net/rss/bat-dong-san.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T03:03:14.163180+00:00'
+      last_error: null
+    - url: https://vnexpress.net/rss/du-lich.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T03:03:17.179602+00:00'
+      last_error: null
+    - url: https://vnexpress.net/sitemap.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:03:50.208896+00:00'
+      last_error: null
+    - url: https://vnexpress.net/google-news-sitemap.xml
+      method: sitemap
+      status: unavailable
+      last_checked_at: '2026-10-31T03:03:56.228019+00:00'
+      last_error: 'xmlParseEntityRef: no name, line 42, column 62 (<string>, line
+        42)'
+    - url: https://vnexpress.net/images-2026-sitemap.xml
+      method: sitemap
+      status: unavailable
+      last_checked_at: '2026-10-31T03:04:02.265863+00:00'
+      last_error: 'xmlParseEntityRef: no name, line 42, column 62 (<string>, line
+        42)'
+    status: available
+    last_checked_at: '2026-10-31T03:11:43.925139+00:00'
+    last_errors: []
+  tuoitre:
+    base_url: https://tuoitre.vn
+    language: vi
+    article_pattern: -\d+\.htm$
+    rss_pages:
+    - https://tuoitre.vn/rss.htm
+    endpoints:
+    - url: https://tuoitre.vn/kinh-doanh.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T04:16:04.010527+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/ban-doc.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T03:04:14.402262+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/du-lich.rss
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T03:04:17.368777+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/sitemaps/index.rss
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:04:29.677600+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/sitemaps/latest-news.rss
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:04:32.433596+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/sitemaps/googlenews.ashx
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:04:35.574318+00:00'
+      last_error: null
+    - url: https://tuoitre.vn/sitemaps/video.rss
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:04:44.502950+00:00'
+      last_error: null
+    status: available
+    last_checked_at: '2026-10-31T04:16:04.017294+00:00'
+    last_errors: []
+  reuters:
+    base_url: https://www.reuters.com
+    language: en
+    article_pattern: -\d{4}-\d{2}-\d{2}/?$
+    rss_pages: []
+    endpoints:
+    - url: https://www.reuters.com/arc/outboundfeeds/sitemap-index/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:04:45.109241+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/sitemap-jp-index/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:04:45.114780+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/news-sitemap-index/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T04:20:32.032667+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/plus/sitemap-index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:05:02.640405+00:00'
+      last_error: null
+    - url: https://www.reuters.com/arc/outboundfeeds/sitemap-plj-index/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.642426+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/graphics/sitemap.xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.646357+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/sitemap-index/pictures/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.648410+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/static/video-sitemap/jp/sitemap_video_index.xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.650359+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/static/video-sitemap/us/sitemap_video_index.xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.652358+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/topic-sitemap/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.654359+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/author-sitemap/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T04:20:32.039511+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/pressrelease-sitemap/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.658354+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/arc/outboundfeeds/sitemap-ar-index/?outputType=xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.660353+00:00'
+      last_error: Disallowed by robots.txt
+    - url: https://www.reuters.com/service/archive-sitemap/sitemap.xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:05:02.662353+00:00'
+      last_error: Disallowed by robots.txt
+    status: restricted
+    last_checked_at: '2026-10-31T04:20:32.041556+00:00'
+    last_errors: []
+  bloomberg:
+    base_url: https://www.bloomberg.com
+    language: en
+    article_pattern: /(news/articles|features)/
+    rss_pages: []
+    endpoints:
+    - url: https://www.bloomberg.com/sitemaps/news/index.xml
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T04:21:17.087875+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/news/latest.xml
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:05:12.231847+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/collections/index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:05:27.141288+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/media/video/index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:05:45.793535+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/media/audio/index.xml
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T03:06:03.682778+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/people/profiles/index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:06:21.594719+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/companies/public-company/index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:06:39.543006+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/companies/private-company/index.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:06:57.834930+00:00'
+      last_error: null
+    - url: https://www.bloomberg.com/sitemaps/securites/index.xml
+      method: sitemap
+      status: unavailable
+      last_checked_at: '2026-10-31T03:07:00.778346+00:00'
+      last_error: HTTP 404
+    - url: https://www.bloomberg.com/billionaires/sitemap.xml
+      method: sitemap
+      status: restricted
+      last_checked_at: '2026-10-31T03:07:03.244622+00:00'
+      last_error: HTTP 403
+    status: available
+    last_checked_at: '2026-10-31T04:21:17.095477+00:00'
+    last_errors: []
+  techcrunch:
+    base_url: https://techcrunch.com
+    language: en
+    article_pattern: /\d{4}/\d{2}/\d{2}/[^/]+/?$
+    rss_pages:
+    - https://techcrunch.com
+    endpoints:
+    - url: https://techcrunch.com/feed/
+      method: rss
+      status: available
+      last_checked_at: '2026-10-31T04:22:18.877333+00:00'
+      last_error: null
+    - url: https://techcrunch.com/sitemap.xml
+      method: sitemap
+      status: unknown
+      last_checked_at: '2026-10-31T03:07:27.953201+00:00'
+      last_error: null
+    - url: https://techcrunch.com/news-sitemap.xml
+      method: sitemap
+      status: available
+      last_checked_at: '2026-10-31T04:22:21.855666+00:00'
+      last_error: null
+    status: available
+    last_checked_at: '2026-10-31T04:22:21.861898+00:00'
+    last_errors: []
