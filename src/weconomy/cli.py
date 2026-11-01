@@ -6,6 +6,7 @@ from pathlib import Path
 from .access import Access, katana_urls
 from .analytics import analyze
 from .graph import import_graph
+from .hub import pull_run, push_run
 from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
@@ -57,10 +58,23 @@ def main():
         if name in {"evaluate", "analytics"}:
             p.add_argument("--output", type=Path)
     sub.add_parser("schema")
+    push = sub.add_parser("hf-push", help="Upload a validated run bundle to a private HF dataset repo")
+    push.add_argument("run", type=Path)
+    push.add_argument("--repo", required=True, help="Hugging Face dataset namespace/name")
+    push.add_argument("--dry-run", action="store_true", help="Validate and preview bundle without network")
+    pull = sub.add_parser("hf-pull", help="Download and validate a versioned HF run without overwriting")
+    pull.add_argument("--repo", required=True)
+    pull.add_argument("--run-id", required=True)
+    pull.add_argument("--revision", default="main", help="Commit SHA recommended for reproducibility")
+    pull.add_argument("--output", type=Path, default=Path("data/runs"), help="Local parent directory")
     args = parser.parse_args()
     code = 0
     try:
-        if args.command == "schema":
+        if args.command == "hf-push":
+            result = push_run(args.run, args.repo, dry_run=args.dry_run)
+        elif args.command == "hf-pull":
+            result = pull_run(args.repo, args.run_id, args.output, revision=args.revision)
+        elif args.command == "schema":
             result = {"tables": {key: str(value) for key, value in SCHEMAS.items()},
                       "relations": RELATION_TYPES}
         elif args.command in {"run", "collect", "discover", "merge-runs"}:
