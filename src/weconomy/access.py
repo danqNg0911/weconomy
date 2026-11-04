@@ -31,6 +31,7 @@ class Access:
         self.robots = {}
         self.last_request = {}
         self.paused = set()
+        self.pause_status = {}
         self.discovery_errors = []
 
     def close(self):
@@ -54,7 +55,8 @@ class Access:
     def _request(self, url: str, interval: float):
         host = urlsplit(url).hostname
         if host in self.paused:
-            raise PermissionError(f"{host}: requests paused after HTTP 429 for this run")
+            status = self.pause_status[host]
+            raise PermissionError(f"{host}: requests paused after HTTP {status} for this run")
         retries = self.config.get("request_retries", 2)
         for attempt in range(retries + 1):
             wait = interval - (time.monotonic() - self.last_request.get(host, 0))
@@ -63,8 +65,9 @@ class Access:
             self.last_request[host] = time.monotonic()
             try:
                 with self.client.stream("GET", url) as response:
-                    if response.status_code == 429:
+                    if response.status_code in {403, 429}:
                         self.paused.add(host)
+                        self.pause_status[host] = response.status_code
                     if response.status_code >= 500 and attempt < retries:
                         time.sleep(2 ** attempt)
                         continue

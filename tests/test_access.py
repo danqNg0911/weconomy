@@ -32,9 +32,33 @@ def test_disabled_source_no_request():
         access.close()
 
 
+@pytest.mark.parametrize("source, url", [
+    ("wikinews_en", "https://en.wikinews.org/wiki/X"),
+    ("techcrunch", "https://techcrunch.com/2026/01/01/example/"),
+])
+def test_disabled_source_policy_rejects_before_request(source, url):
+    access = Access(load_config(ROOT / "config/pipeline.yaml"))
+
+    def fail_if_requested(request):
+        raise AssertionError(f"Unexpected request: {request.url}")
+
+    access.client.close()
+    access.client = httpx.Client(transport=httpx.MockTransport(fail_if_requested))
+    try:
+        with pytest.raises(PermissionError, match="Source disabled"):
+            access.fetch(url)
+        with pytest.raises(PermissionError, match="Source disabled"):
+            access.discover(source, 1)
+    finally:
+        access.close()
+
+
 def mock_access(monkeypatch, handler):
     access = Access(load_config(ROOT / "config/pipeline.yaml"))
     monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
+    # Synthetic Wikinews fixture access is enabled here only; production policy stays disabled.
+    access.sources["wikinews_en"]["allowed"] = True
+    access.sources["wikinews_en"]["feeds"] = ["https://en.wikinews.org/fixture.rss"]
     access.sources["wikinews_en"]["min_interval_seconds"] = 0
     access.client.close()
     access.client = httpx.Client(transport=httpx.MockTransport(handler))
@@ -67,6 +91,26 @@ def test_redirect_cannot_escape_policy(monkeypatch):
     try:
         with pytest.raises(PermissionError, match="Unknown"):
             access.fetch("https://en.wikinews.org/wiki/X")
+    finally:
+        access.close()
+
+
+@pytest.mark.parametrize("status", [403, 429])
+def test_access_denial_or_rate_limit_pauses_only_that_host(monkeypatch, status):
+    seen = []
+
+    def handler(request):
+        seen.append(request.url.host)
+        return httpx.Response(status if request.url.host == "en.wikinews.org" else 200)
+
+    access = mock_access(monkeypatch, handler)
+    try:
+        with pytest.raises(httpx.HTTPStatusError):
+            access._request("https://en.wikinews.org/first", 0)
+        with pytest.raises(PermissionError, match=f"HTTP {status}"):
+            access._request("https://en.wikinews.org/second", 0)
+        assert access._request("https://other.example/ok", 0)[0] == 200
+        assert seen == ["en.wikinews.org", "other.example"]
     finally:
         access.close()
 

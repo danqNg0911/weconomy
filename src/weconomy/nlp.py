@@ -22,6 +22,9 @@ VI_TONE_PATTERN = re.compile("|".join(VI_TONE_VARIANTS), re.I)
 
 
 def tone_view(text):
+    text = re.sub(r"(?<!\w)qui(?!\w)",
+                  lambda m: m.group()[:-1] + ("Y" if m.group()[-1].isupper() else "y"),
+                  text, flags=re.I)
     return VI_TONE_PATTERN.sub(lambda m: "".join(
         new.upper() if old.isupper() else new
         for old, new in zip(m.group(), VI_TONE_VARIANTS[m.group().lower()])), text)
@@ -188,7 +191,7 @@ RULES = {
         "SUED": r"(?:đã )?kiện",
         "PARTNERED_WITH": r"(?:đã )?hợp tác với",
         "SUPPLIES_TO": r"cung cấp (?:linh kiện |chip )?cho",
-        "CEO_OF": r"là (?:CEO|giám đốc điều hành) của",
+        "CEO_OF": r"là (?:CEO|tổng giám đốc|giám đốc điều hành) của",
         "FOUNDED": r"(?:đã )?(?:đồng )?thành lập",
         "SUBSIDIARY_OF": r"là công ty con của",
         "REGULATES": r"quản lý hoạt động của",
@@ -220,7 +223,15 @@ ROLE_RULES = {
         ("CEO_OF", r"(?:[’']s\s+)?(?:(?:co-)?founder and )?(?:CEO|chief executive officer)", True),
         ("FOUNDED", r"(?:[’']s\s+)?(?:co-)?founder(?: and (?:CEO|chief executive officer))?", True),
     ],
-    "vi": [],
+    "vi": [
+        ("CEO_OF", r"(?:,\s*|[-—–]\s*)(?:là\s+)?(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?)(?:\s+(?:của|tại))?", False),
+        ("CEO_OF", r"(?:,\s*|[-—–]\s*)?(?:là\s+)?(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?)(?:\s+(?:của|tại))?", True),
+        ("FOUNDED", r"(?:,\s*|[-—–]\s*)?(?:là\s+)?(?:nhà\s+)?(?:đồng\s+)?sáng lập(?:\s+và\s+(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?))?(?:\s+của)?", False),
+        ("FOUNDED", r"(?:,\s*|[-—–]\s*)?(?:là\s+)?(?:nhà\s+)?(?:đồng\s+)?sáng lập(?:\s+và\s+(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?))?(?:\s+của)?", True),
+        ("CEO_OF", r"(?:,\s*|[-—–]\s*)?(?:là\s+)?(?:nhà\s+)?(?:đồng\s+)?sáng lập\s+và\s+(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?)(?:\s+của)?", False),
+        ("CEO_OF", r"(?:,\s*|[-—–]\s*)?(?:là\s+)?(?:nhà\s+)?(?:đồng\s+)?sáng lập\s+và\s+(?:CEO|giám đốc điều hành|tổng giám đốc(?:\s+điều hành)?)(?:\s+của)?", True),
+        ("SUBSIDIARY_OF", r"(?:,\s*|[-—–]\s*|\(\s*)(?:là\s+)?(?:một\s+)?công ty con\s+(?:của|thuộc)", False),
+    ],
 }
 
 
@@ -258,26 +269,100 @@ def extract_relations(text, mentions, language):
     for left, right in zip(mentions, mentions[1:]):
         gap = text[left["end"]:right["start"]].strip()
         # Buying "GitHub's assets" is not acquiring GitHub; coordinated objects need full parsing.
-        if re.match(r"(?:[’']s\b|\s+(?:and|or|và|hoặc)\b)", text[right["end"]:], flags=re.I):
+        coordinated = bool(re.match(r"(?:[’']s\b|\s+(?:and|or|và|hoặc)\b)",
+                                    text[right["end"]:], flags=re.I))
+        if re.match(r"[’']s\b", text[right["end"]:], flags=re.I):
             continue
         if len(gap) > 120 or left["entity"]["entity_id"] == right["entity"]["entity_id"]:
             continue
-        rules = ([(p, pattern, False) for p, pattern in RULES[language].items()]
-                 + [(p, pattern, True) for p, pattern in REVERSE_RULES[language].items()]) if strict else []
+        rules = ([(p, pattern, False, False) for p, pattern in RULES[language].items()]
+                 + [(p, pattern, True, False) for p, pattern in REVERSE_RULES[language].items()]
+                 if not coordinated else []) if strict else []
         if outside_quotes(text, left["start"], right["end"]):
-            rules += ROLE_RULES[language]
-        for predicate, pattern, reverse in rules:
+            rules += [(*rule, True) for rule in ROLE_RULES[language]]
+        for predicate, pattern, reverse, role_rule in rules:
             if not re.fullmatch(pattern, gap, flags=re.I):
                 continue
             subject, object_ = (right, left) if reverse else (left, right)
             subjects, objects = RELATION_TYPES[predicate]
             if (subject["entity"]["entity_type"] not in subjects
-                    or object_["entity"]["entity_type"] not in objects):
+                    or object_["entity"]["entity_type"] not in objects
+                    or (role_rule and predicate == "FOUNDED"
+                        and subject["entity"]["entity_type"] != "PERSON")):
                 continue
             result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
                            "object_id": object_["entity"]["entity_id"], "trigger": gap,
                            "rule_id": f"{language}-{predicate}-{'reverse' if reverse else 'direct'}-v2",
                            "assertion_status": "agreement_reported" if predicate == "AGREED_TO_ACQUIRE" else "reported"})
+    if language == "en" and strict:
+        result.extend(funding_round_relations(text, mentions))
+    return result
+
+
+_FUNDING_RAISE = re.compile(r"\b(?:raised|secured|closed)\b", re.I)
+_FUNDING_CONTEXT = re.compile(
+    r"\s+(?:an?\s+)?(?:(?:US\$|[$£€])?\d[\d,.]*(?:\s+(?:million|billion|m|bn))?\s+)?(?:in\s+)?(?:an?\s+)?"
+    r"(?:pre-seed|seed|series\s+[a-f]|equity(?:\s+financing)?)(?:\s+funding)?\s+round\s*", re.I,
+)
+_FUNDING_TRIGGER = re.compile(r"\b(?:(?:co-)?led by|with participation from)\b", re.I)
+_FUNDING_DEBT = re.compile(r"\b(?:loan|debt|credit facility|convertible|acquisition financing)\b", re.I)
+_FUNDING_SUBJECT_GAP = re.compile(r"\s*(?:(?:has|recently|just|successfully|also)\s+){0,2}", re.I)
+_FUNDING_LIST_GAP = re.compile(r"(?:\s*,\s*(?:and\s+)?|\s+and(?:\s+co-led by)?\s+|\s*&\s*)", re.I)
+
+
+def funding_round_relations(text, mentions):
+    """Connect named endpoints only around explicit completed equity-stage lead clauses."""
+    result = []
+    emitted = set()
+    for trigger in _FUNDING_TRIGGER.finditer(text):
+        delimiters = [m.start() for m in re.finditer(r"[;?!\n]|(?<!\d)\.(?!\d)", text)]
+        before = [pos for pos in delimiters if pos < trigger.start()]
+        after = [pos for pos in delimiters if pos >= trigger.end()]
+        sentence_start = before[-1] + 1 if before else 0
+        sentence_end = after[0] if after else len(text)
+        raises = list(_FUNDING_RAISE.finditer(text, sentence_start, trigger.start()))
+        if not raises:
+            continue
+        raise_verb = raises[-1]
+        context = re.split(r"\b(?:co-)?led by\b|\bwith participation from\b",
+                           text[raise_verb.end():trigger.start()], maxsplit=1, flags=re.I)[0]
+        if not _FUNDING_CONTEXT.fullmatch(context) or _FUNDING_DEBT.search(context):
+            continue
+        prior = [m for m in mentions if sentence_start <= m["start"] and m["end"] <= raise_verb.start()]
+        if not prior:
+            continue
+        receiver = prior[-1]
+        if (receiver["entity"]["entity_type"] != "ORG"
+                or text[sentence_start:receiver["start"]].strip()
+                or not _FUNDING_SUBJECT_GAP.fullmatch(text[receiver["end"]:raise_verb.start()])):
+            continue
+        following = [m for m in mentions if trigger.end() <= m["start"] < sentence_end]
+        if not following or not re.fullmatch(r"\s*(?:the\s+)?", text[trigger.end():following[0]["start"]], re.I):
+            continue
+        investors = [following[0]]
+        for investor in following[1:]:
+            if not _FUNDING_LIST_GAP.fullmatch(text[investors[-1]["end"]:investor["start"]]):
+                break
+            investors.append(investor)
+        tail = text[investors[-1]["end"]:sentence_end]
+        if tail.strip() and not (trigger.group().lower() == "led by"
+                                 and re.match(r"\s*,\s*with participation from\b", tail, re.I)):
+            continue
+        seen = set()
+        for investor in investors:
+            if investor["entity"]["entity_type"] not in RELATION_TYPES["INVESTED_IN"][0]:
+                break
+            key = investor["entity"]["entity_id"]
+            if key == receiver["entity"]["entity_id"] or key in seen:
+                continue
+            seen.add(key)
+            triple = key, receiver["entity"]["entity_id"]
+            if triple in emitted:
+                continue
+            emitted.add(triple)
+            result.append({"subject_id": key, "predicate": "INVESTED_IN",
+                           "object_id": receiver["entity"]["entity_id"], "trigger": trigger.group(),
+                           "rule_id": "en-INVESTED_IN-funding-round-v1", "assertion_status": "reported"})
     return result
 
 

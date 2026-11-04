@@ -1,0 +1,31 @@
+{
+  "captured_at": "2026-11-04 20:06:56 +07:00",
+  "dataset": "data/datasets/international-business-v4-20261104",
+  "counts": {
+    "articles": 229,
+    "nodes": 31,
+    "relations": 16,
+    "claims": 17,
+    "relation_types": 2
+  },
+  "queue": {
+    "accepted": 229,
+    "out_of_scope": 164
+  },
+  "attempts_allocated": 393,
+  "reason": "sources_exhausted",
+  "targets_met": false,
+  "targets": {
+    "articles": null,
+    "nodes": 2000,
+    "relation_types": 10,
+    "relations": 5000
+  },
+  "remaining": {
+    "articles": null,
+    "nodes": 1969,
+    "relation_types": 8,
+    "relations": 4984
+  },
+  "error_count": 0
+}

@@ -5,19 +5,21 @@ from pathlib import Path
 
 from .access import Access, katana_urls
 from .analytics import analyze
+from .dataset import collect_dataset, dataset_status, export_dataset
 from .graph import import_graph
 from .hub import pull_run, push_run
 from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
+from .sources import source_status
 
 
-def main():
+def main(argv=None):
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Evidence-first news knowledge graph")
-    parser.add_argument("--config", default="config/pipeline.yaml")
+    parser.add_argument("--config", type=Path)
     sub = parser.add_subparsers(dest="command", required=True)
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
@@ -32,6 +34,27 @@ def main():
     collect.add_argument("--ner", choices=["gazetteer", "models"], default="models")
     collect.add_argument("--skip-run", type=Path, action="append", default=[],
                          help="Skip URLs already accepted as full text in this run; repeat as needed")
+    dataset_collect = sub.add_parser("collect-dataset", help="Collect a resumable, persistent topic dataset")
+    dataset_collect.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business"))
+    dataset_inputs = dataset_collect.add_mutually_exclusive_group()
+    dataset_inputs.add_argument("--source", action="append", dest="sources")
+    dataset_inputs.add_argument("--urls", type=Path, help="File containing one article URL per line")
+    dataset_inputs.add_argument("--from-run", type=Path, action="append", dest="from_runs",
+                                help="Replay eligible full-page bodies from a saved run; repeat in preference order")
+    for name in ("articles", "nodes", "relations", "relation-types"):
+        dataset_collect.add_argument(f"--{name}", type=int, dest=name.replace("-", "_"))
+    dataset_collect.add_argument("--max-candidates", type=int, default=1000)
+    dataset_collect.add_argument("--batch-size", type=int, default=20)
+    dataset_collect.add_argument("--resume", action="store_true")
+    dataset_collect.add_argument("--ner", choices=["gazetteer", "models"])
+    status = sub.add_parser("dataset-status", help="Show persisted dataset counts and collection state")
+    status.add_argument("dataset", type=Path)
+    dataset_export = sub.add_parser("export-dataset", help="Export committed dataset tables as JSONL")
+    dataset_export.add_argument("dataset", type=Path)
+    dataset_export.add_argument("--output", type=Path, required=True)
+    sources = sub.add_parser("sources", help="Show configured sources or probe one page per source")
+    sources.add_argument("--check", action="store_true")
+    sources.add_argument("--source", action="append", dest="source_ids")
     merge = sub.add_parser("merge-runs", help="Reprocess and deduplicate accepted full-text snapshots offline")
     merge.add_argument("--run", dest="runs", type=Path, action="append", required=True,
                        help="Repeat in revision preference order; last accepted capture of each URL wins")
@@ -67,7 +90,7 @@ def main():
     pull.add_argument("--run-id", required=True)
     pull.add_argument("--revision", default="main", help="Commit SHA recommended for reproducibility")
     pull.add_argument("--output", type=Path, default=Path("data/runs"), help="Local parent directory")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     code = 0
     try:
         if args.command == "hf-push":
@@ -77,8 +100,9 @@ def main():
         elif args.command == "schema":
             result = {"tables": {key: str(value) for key, value in SCHEMAS.items()},
                       "relations": RELATION_TYPES}
-        elif args.command in {"run", "collect", "discover", "merge-runs"}:
-            config = load_config(args.config)
+        elif args.command in {"run", "collect", "discover", "merge-runs", "collect-dataset", "sources"}:
+            default_config = "config/collection.yaml" if args.command == "collect-dataset" else "config/pipeline.yaml"
+            config = load_config(args.config or default_config)
             if args.command in {"run", "collect", "merge-runs"}:
                 if args.ner:
                     config["ner_backend"] = args.ner
@@ -93,6 +117,23 @@ def main():
                                           urls=katana_urls(args.urls) if args.urls else None)
                 result = {"run": str(run), **report}
                 code = int(report["status"] not in {"completed", "no_new_documents"})
+            elif args.command == "collect-dataset":
+                urls = ([line.strip() for line in args.urls.read_text(encoding="utf-8-sig").splitlines()
+                         if line.strip()] if args.urls else None)
+                if args.ner:
+                    config["ner_backend"] = args.ner
+                result = collect_dataset(
+                    config, args.dataset, sources=args.sources, urls=urls, articles=args.articles,
+                    nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                    max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
+                    from_runs=args.from_runs,
+                )
+                if result.get("errors"):
+                    code = 1
+                elif any((args.articles, args.nodes, args.relations, args.relation_types)) and not result.get("targets_met"):
+                    code = 2
+            elif args.command == "sources":
+                result = source_status(config, check=args.check, source_ids=args.source_ids)
             else:
                 if args.limit <= 0 or args.limit > config["max_documents"]:
                     raise ValueError("Discovery limit must be within configured document budget")
@@ -104,6 +145,10 @@ def main():
                 with args.output.open("x", encoding="utf-8") as stream:
                     stream.write("\n".join(urls) + "\n")
                 result = {"urls": len(urls), "output": str(args.output)}
+        elif args.command == "dataset-status":
+            result = dataset_status(args.dataset)
+        elif args.command == "export-dataset":
+            result = export_dataset(args.dataset, args.output)
         elif args.command == "validate":
             result = validate(args.run)
             code = int(not result["valid"])

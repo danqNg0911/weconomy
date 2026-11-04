@@ -61,7 +61,7 @@ def fulltext_snapshots(runs):
 
 
 def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=3, from_run=None,
-            from_runs=None, skip_runs=None):
+            from_runs=None, skip_runs=None, nlp_engine=None):
     if sum(value is not None for value in (manifest, urls, sources, from_run, from_runs)) != 1:
         raise ValueError("Provide exactly one input: manifest, URLs, sources, from_run or from_runs")
     if skip_runs and sources is None:
@@ -89,7 +89,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
     if len(items) > config["max_documents"]:
         raise ValueError("Input exceeds the configured document budget")
     # Invalid local inputs must not allocate a model/client or leave an orphan latest-run directory.
-    nlp = NLP(config)
+    nlp = nlp_engine if nlp_engine is not None else NLP(config)
     access = Access(config)
     run = Path(config["output"]) / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
     try:
@@ -100,6 +100,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
     tables = {key: [] for key in SCHEMAS}
     errors, seen_urls, seen_documents, seen_text = [], set(), set(), []
     entities, events, claim_ids = {}, {}, set()
+    requested_urls = {}
     if sources is not None:
         for source_id in dict.fromkeys(sources):
             try:
@@ -156,6 +157,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     scope = "full_page"
                 raw_hash = hashlib.sha256(raw).hexdigest()
                 doc_id = stable_id(url, raw_hash)
+                requested_urls.setdefault(doc_id, []).append(canonical_url(item["url"]))
                 if doc_id in seen_documents:
                     continue
                 seen_documents.add(doc_id)
@@ -270,6 +272,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
               "merged_from": [str(Path(p).resolve()) for p in (from_runs or [])],
               "skip_runs": [str(Path(p).resolve()) for p in (skip_runs or [])],
               "known_fulltext_urls": len(excluded_urls),
+              "requested_urls_by_document": requested_urls,
               "relation_types_observed": sorted({r["predicate"] for r in tables["relations"]}),
               "quality": {"precision": None, "recall": None, "f1": None,
                           "reason": "Requires independently annotated held-out labels"},
@@ -281,9 +284,13 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
     if config["ner_backend"] == "models":
         for package in ("spacy", "underthesea", config["english_model"]):
             report["packages"][package] = importlib.metadata.version(package)
-    (run / "manifest.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     (run / "config.yaml").write_text(yaml.safe_dump(config, allow_unicode=True), encoding="utf-8")
     # Preserve the exact alias/source policy alongside each immutable run.
     for key in ("aliases", "sources"):
         (run / f"{key}.yaml").write_bytes(Path(config[key]).read_bytes())
+    # A manifest is the durable completion marker consumed by recovery.
+    manifest_path = run / "manifest.json"
+    manifest_path.with_suffix(".json.tmp").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    manifest_path.with_suffix(".json.tmp").replace(manifest_path)
     return run, report

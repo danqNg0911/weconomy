@@ -3,12 +3,12 @@ sources:
     hosts: [en.wikinews.org]
     language: en
     kind: news
-    allowed: true
-    permission_basis: Open licensed text; check per-page license; images excluded
+    allowed: false
+    permission_basis: Explicitly excluded by user; not a newspaper
     terms_url: https://en.wikinews.org/wiki/Wikinews:Copyright
     license: CC-BY-2.5-or-4.0-per-page
     min_interval_seconds: 2
-    feeds: ["https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published&notcategories=No%20publish%7CArchived%7CAutoArchived&namespace=0&count=10"]
+    feeds: []
   wikipedia_vi:
     hosts: [vi.wikipedia.org]
     language: vi
@@ -69,15 +69,63 @@ sources:
     hosts: [techcrunch.com]
     language: en
     kind: news
-    allowed: true
-    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
+    allowed: false
+    permission_basis: Pending automated access permission
     terms_url: https://techcrunch.com/
     license: Publisher copyright; local research only; redistribution not granted
     attribution: TechCrunch
-    article_pattern: '/\d{4}/\d{2}/\d{2}/[^/]+/?$'
     body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     min_interval_seconds: 5
-    feeds:
-      - https://techcrunch.com/category/startups/feed/
-      - https://techcrunch.com/category/venture/feed/
-      - https://techcrunch.com/feed/
+    feeds: []
+  vnexpress_en:
+    hosts: [e.vnexpress.net]
+    language: en
+    kind: news
+    allowed: true
+    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
+    terms_url: https://e.vnexpress.net/rss
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: VnExpress International
+    article_pattern: '-\d+\.html$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
+    min_interval_seconds: 5
+    feeds: [https://e.vnexpress.net/rss/business.rss]
+  vneconomy_en:
+    hosts: [en.vneconomy.vn]
+    language: en
+    kind: news
+    allowed: true
+    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
+    terms_url: https://en.vneconomy.vn/rss.html
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: Vietnam Economic Times
+    article_pattern: '\.htm$'
+    body_xpath: "//*[@id='articleContent']"
+    min_interval_seconds: 5
+    feeds: [https://en.vneconomy.vn/business.rss, https://en.vneconomy.vn/investment.rss]
+  vietnamnews:
+    hosts: [vietnamnews.vn]
+    language: en
+    kind: news
+    allowed: true
+    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
+    terms_url: https://vietnamnews.vn/rss
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: Viet Nam News
+    article_pattern: '/(?:economy|bizhub)/\d+/[^/]+\.html$'
+    body_xpath: "//*[@id='abody']"
+    min_interval_seconds: 5
+    feeds: [https://vietnamnews.vn/rss/economy.rss, https://vietnamnews.vn/rss/bizhub.rss]
+  thanhnien:
+    hosts: [thanhnien.vn]
+    language: vi
+    kind: news
+    allowed: true
+    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
+    terms_url: https://thanhnien.vn/rss.html
+    license: Publisher copyright; local research only; redistribution not granted
+    attribution: Thanh Nien
+    article_pattern: '-\d+\.htm$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
+    min_interval_seconds: 5
+    feeds: [https://thanhnien.vn/rss/the-gioi/kinh-te-the-gioi.rss, https://thanhnien.vn/rss/kinh-te/doanh-nhan.rss]

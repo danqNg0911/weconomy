@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="560" viewBox="0 0 1024 560">
+<rect width="100%" height="100%" fill="#f5f7fa"/>
+<style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#142536}.muted{fill:#607386}.small{font-size:14px}
+.label{font-size:13px;font-weight:700;letter-spacing:.7px}.node{fill:white;stroke:#b9c8d5;stroke-width:1.5}
+.edge{stroke:#147d78;stroke-width:2.5;fill:none}</style><text x="56" y="54" font-size="27" font-weight="700">Từ cạnh ứng viên về dấu vết nguồn</text>
+<text x="56" y="82" class="muted small">Một relation và source document trong export thực tế · không chép câu bài báo</text>
+<rect x="54" y="114" width="916" height="52" rx="8" fill="#e2f1ef" stroke="#b9c8d5"/>
+<text x="72" y="135" class="label">CANDIDATE TRIPLE</text>
+<text x="265" y="147" font-size="15">Zhang Yiming → FOUNDED → TikTok</text>
+<rect x="54" y="179" width="916" height="52" rx="8" fill="white" stroke="#b9c8d5"/>
+<text x="72" y="200" class="label">REVIEW STATUS</text>
+<text x="265" y="212" font-size="15">unreviewed</text>
+<rect x="54" y="244" width="916" height="52" rx="8" fill="white" stroke="#b9c8d5"/>
+<text x="72" y="265" class="label">CLAIM ID</text>
+<text x="265" y="277" font-size="15">198a0084abb14aae117e9e4d</text>
+<rect x="54" y="309" width="916" height="52" rx="8" fill="white" stroke="#b9c8d5"/>
+<text x="72" y="330" class="label">SOURCE DOCUMENT</text>
+<text x="265" y="342" font-size="15">vnexpress_en · 45882bbdf68d42a7abff018c</text>
+<rect x="54" y="374" width="916" height="52" rx="8" fill="white" stroke="#b9c8d5"/>
+<text x="72" y="395" class="label">SOURCE HOST</text>
+<text x="265" y="407" font-size="15">e.vnexpress.net</text>
+<rect x="54" y="439" width="916" height="52" rx="8" fill="white" stroke="#b9c8d5"/>
+<text x="72" y="460" class="label">EVIDENCE SPAN</text>
+<text x="265" y="472" font-size="15">offsets [1652, 1760) in article body · text not reproduced</text>
+<text x="54" y="525" class="muted small">Offset xác định vị trí câu evidence trong thân bài nguồn; không tái hiện câu báo trong hình.</text></svg>

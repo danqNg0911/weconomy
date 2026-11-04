@@ -1,21 +1,31 @@
 # Trạng thái tool và hướng dẫn bàn giao
 
-Cập nhật ngày **01/11/2026, Asia/Saigon**; số liệu corpus tham chiếu đo ngày 31/10. Đây là trạng thái triển khai và bằng chứng đã chạy,
+Cập nhật ngày **04/11/2026, Asia/Saigon**; số liệu corpus tham chiếu ngày 31/10 bên dưới là lịch sử. Đây là trạng thái triển khai và bằng chứng đã chạy,
 không phải cam kết đã đạt chỉ tiêu đề bài. Nhánh làm việc: `duy`; các thay đổi hiện còn local,
 chưa commit/push. Người clone repository chưa chắc có cùng phiên bản code với máy đã kiểm thử.
 
 ## Nên dùng tool vào việc gì lúc này?
 
+Lượt hoàn thiện ngày 04/11 đã sửa căn chỉnh `qui/quy` của underthesea, thêm mẫu vai trò Việt và mẫu vòng gọi vốn Anh có bên tham gia được nêu tên. CLI có thêm `collect-dataset --from-run` để xử lý lại bronze theo batch, giữ checksum và lineage, tiếp tục hoặc bổ sung archive/RSS với cùng cấu hình xử lý. Sau thay đổi NER/rule, dùng dataset mới; fingerprint từ chối trộn kết quả không tương thích. Bộ kiểm thử được hỗ trợ hiện có **214 test pass**, cùng kiểm tra độc lập về xử lý offline, ngân sách cộng dồn và phục hồi batch.
+
+Kiểm tra corpus thật: dataset v4 `data/datasets/international-business-v4-20261104` phát lại 393 body, nhận 229 bài, có 31 node có cạnh / 16 cạnh phân biệt / 17 claims / 2 loại quan hệ và không có lỗi xử lý. Lượt chạy đã kết thúc vì hết candidate; chưa đạt 2.000 / 5.000 / 10. So với bản cũ, một bài lỗi NER được khôi phục; ba claims người sáng lập sai bị loại, hai claims CEO có bằng chứng được khôi phục. Số liệu 31/10 ở các mục dưới là lịch sử của run khác.
+
+Giới hạn đã quan sát: trong corpus này, một số tên tổ chức/nhân vật Việt bị mô hình gán `PLACE` hoặc thiếu span, nên rule có thể bỏ sót quan hệ. Corpus được nhận cũng không có câu gọi vốn thỏa điều kiện của mẫu vòng vốn mới. Các kiểm thử xác nhận logic và lưu trữ, không thay thế bộ nhãn để đo precision/recall.
+
 Có thể dùng để thu thập có giới hạn từ nguồn được bật, lưu HTML gốc, kiểm tra thân bài,
 chạy NER/RE baseline và xuất dữ liệu có provenance để kiểm tra thủ công. Có thể chạy lại offline
 và nhập ứng viên vào Neo4j. Tool hiện là pipeline nghiên cứu; đầu ra chưa phải knowledge graph đã xác thực.
+
+Với corpus chủ đề có thể tiếp tục, chạy `weconomy collect-dataset` rồi `dataset-status` và
+`export-dataset`; xem [các lệnh, tham số và giới hạn](collection.md). Đừng suy ra nguồn nào đang hoạt động
+từ tên trong đề tài: `weconomy sources --check` chỉ probe tối đa một bài mỗi nguồn.
 
 ## Đã có và đã kiểm tra đến đâu
 
 | Thành phần | Trạng thái thực tế | Giới hạn người dùng cần biết |
 |---|---|---|
 | CLI/config/schema | Đã chạy; Parquet bronze/silver/gold có schema cố định | Không có web UI/API phục vụ nhiều người |
-| Discovery RSS | Đã thu thập từ VnExpress, Tuổi Trẻ, TechCrunch | Bị giới hạn bởi feed hiện có; chưa có crawler lịch sử đầy đủ |
+| Discovery RSS | Các lần chạy lịch sử từng thu từ VnExpress, Tuổi Trẻ và TechCrunch | Là số liệu/lựa chọn cũ, không khẳng định publisher đang bật; policy hiện tại và probe xem bằng `weconomy sources`. Chưa có crawler lịch sử đầy đủ |
 | Chính sách truy cập | Host allowlist, robots, redirect, rate/size/timeout; dừng nguồn bị chặn | Không vượt paywall/anti-bot; quyền đọc không cấp quyền phát hành lại toàn văn |
 | Adapter và toàn văn | Trafilatura đối chiếu DOM theo nguồn; lưu bytes gốc và SHA256 | `body_checked` chỉ xác minh thân bài có trong HTML được trả về; chưa lấy nội dung ẩn sau JavaScript, phân trang hoặc paywall |
 | Cách ly dữ liệu | `partial/restricted/unknown` không vào NLP mặc định | Có HTML hoặc có text chưa đủ để được coi là bài toàn văn |
@@ -24,7 +34,8 @@ và nhập ứng viên vào Neo4j. Tool hiện là pipeline nghiên cứu; đầ
 | Entity resolution | Alias có kiểm soát và tên chính xác theo kiểu; fuzzy chỉ gợi ý | Chưa entity linking rộng, phân giải đồng danh hoặc coreference |
 | RE theo câu | Mẫu Việt/Anh; mẫu bị động/chức danh; dependency RE Anh có kiểm tra phủ định/tình thái và tường thuật | Độ bao phủ còn hạn chế; chưa dependency RE Việt hoặc mô hình RE được kiểm định để thay baseline |
 | Provenance | Claim → câu/bài/URL; evidence, offset, trigger, rule ID; snapshot config/policy | `reported` là khẳng định theo nguồn, không phải đã fact-check |
-| Thu thập tiếp/gom corpus | `--skip-run`, `merge-runs`; dedup lại trên corpus đã chọn | Cần chỉ định run; chưa có job ledger/checkpoint tự động từng request |
+| Luồng immutable run legacy | `collect --skip-run`, `merge-runs`; dedup lại trên corpus đã chọn | Luồng này cần chỉ định run và không có ledger/checkpoint liên tục; dùng catalog dataset ở hàng kế tiếp cho collection tiếp diễn |
+| Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, status và JSONL export | RSS hữu hạn, budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
 | Event dedup | Bảo thủ trong tài liệu khi chưa có ngày sự kiện | Chưa xác định sự kiện xuyên bài theo ngày/giao dịch; chưa chứng nhận số sự kiện thực duy nhất |
 | Nhãn và metrics | Sinh task câu đầy đủ; evaluate NER/RE P/R/F1 và Wilson interval | Chưa có nhãn độc lập hoàn chỉnh; không có precision 90% đã kiểm chứng |
 | Neo4j | Import/reimport thật, đối chiếu count theo run, MERGE idempotent | Chưa có workflow duyệt accept/reject và lịch sử duyệt; không tự xóa revision cũ |
@@ -37,12 +48,15 @@ và nhập ứng viên vào Neo4j. Tool hiện là pipeline nghiên cứu; đầ
 
 ## Số liệu đã xác minh
 
+Các số bên dưới mô tả riêng corpus/run lịch sử ngày 31/10; chúng không phải kết quả của `collect-dataset` mới.
+Không cộng replay hoặc suy ra dataset mới đã đạt ngưỡng từ các số liệu này.
+
 Run tham chiếu: `20261031T101555-c6e4bee3`, backend `models`, extractor `body-v2.1`, schema `1.1`.
 
 | Chỉ số trong run | Giá trị |
 |---|---:|
 | Bài qua kiểm tra toàn văn/NLP | 80 |
-| Nguồn | TechCrunch 39; Tuổi Trẻ 20; VnExpress 21 |
+| Nguồn trong corpus tham chiếu lịch sử | TechCrunch 39; Tuổi Trẻ 20; VnExpress 21 (không phản ánh allowlist hiện tại) |
 | Câu/segment | 2.194 |
 | Mentions | 2.159 |
 | Thực thể ứng viên | 1.199: PERSON 382; ORG 244; PLACE 573 |
@@ -91,9 +105,8 @@ model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự c�
 ```powershell
 cd D:\Project\weconomy
 # Sau khi đã cài môi trường/model theo README:
-uv run --no-sync weconomy collect --source vnexpress --source techcrunch --limit 3 --ner models
-# Gán đúng đường dẫn run do lệnh trên trả về:
-$run = 'data/runs/THAY_BANG_RUN_ID_THUC'
+$collected = uv run --no-sync weconomy collect --source vnexpress --source tuoitre --limit 3 --ner models | ConvertFrom-Json
+$run = $collected.run
 uv run --no-sync weconomy validate $run
 uv run --no-sync weconomy export $run --table articles --output "$run/articles-review.jsonl"
 uv run --no-sync weconomy export $run --table relations --output "$run/relations-review.jsonl"
