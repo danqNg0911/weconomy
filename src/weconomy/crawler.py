@@ -1,0 +1,283 @@
+"""Bounded Katana discovery from configured category pages."""
+import json
+import re
+import subprocess
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import yaml
+
+from .access import Access, canonical_url
+
+
+def load_collection(path: Path) -> dict:
+    settings = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    targets = settings.get("targets")
+    crawl = settings.get("crawl", {})
+    if not isinstance(targets, list) or not targets or not isinstance(settings.get("batch_size"), int):
+        raise ValueError("Collection YAML must define targets and batch_size")
+    if (settings["batch_size"] < 1 or not isinstance(crawl.get("max_pages_per_target"), int)
+            or crawl["max_pages_per_target"] < 1 or crawl.get("concurrency", 1) != 1
+            or crawl.get("delay_seconds", 0) < 1 or not re.fullmatch(r"\d+[smh]", crawl.get("crawl_duration", "60s"))):
+        raise ValueError("Collection YAML requires positive crawl limits and serial requests")
+    for target in targets:
+        if (not isinstance(target.get("id"), str) or not isinstance(target.get("url"), str)
+                or not isinstance(target.get("source"), str) or not isinstance(target.get("article_pattern"), str)
+                or not isinstance(target.get("body_xpath"), str) or not isinstance(target.get("max_articles"), int)
+                or target["max_articles"] < 1):
+            raise ValueError("Every target needs id, url, source, article_pattern, body_xpath and max_articles")
+        re.compile(target["article_pattern"])
+    objectives = settings.get("objectives", {})
+    if any(v is not None and (not isinstance(v, int) or v < 0) for v in objectives.values()):
+        raise ValueError("Objectives must be nonnegative integers or null")
+    if not isinstance(settings.get("max_articles"), int) or settings["max_articles"] < 1:
+        raise ValueError("Collection YAML requires a positive max_articles safety cap")
+    return settings
+
+
+def katana_command(target: str, max_pages: int, delay_seconds: int, *, image: str = "projectdiscovery/katana:latest",
+                   depth: int = 1, timeout_seconds: int = 15, max_response_bytes: int = 4_194_304,
+                   robots_out_scope: list[str] | None = None,
+                   crawl_scope: str | None = None, crawl_duration: str = "30s") -> list[str]:
+    parsed_target = urlsplit(canonical_url(target))
+    host = parsed_target.hostname
+    command = ["docker", "run", "--rm", image, "-u", target, "-d", str(depth),
+               "-crawl-scope", crawl_scope or rf"https?://{re.escape(host)}{re.escape(parsed_target.path)}(?:[/?#]|$)",
+               "-field-scope", "fqdn", "-mdp", str(max_pages), "-c", "1", "-p", "1",
+               "-ct", crawl_duration, "-rd", str(delay_seconds), "-timeout", str(timeout_seconds),
+               "-mrs", str(max_response_bytes), "-iqp", "-j", "-silent"]
+    for pattern in robots_out_scope or []:
+        command.extend(["-crawl-out-scope", pattern])
+    return command
+
+
+def parse_katana_output(output: str) -> list[dict]:
+    rows = []
+    for line in output.splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Invalid Katana JSONL output") from exc
+        if not isinstance(row, dict) or not isinstance(row.get("request"), dict):
+            raise ValueError("Katana JSONL row lacks request details")
+        endpoint = row["request"].get("endpoint")
+        if not isinstance(endpoint, str):
+            raise ValueError("Katana JSONL row lacks request.endpoint")
+        rows.append(row)
+    return rows
+
+
+def select_article_urls(rows: list[dict], target: str, article_pattern: str, limit: int) -> list[str]:
+    host = urlsplit(canonical_url(target)).hostname
+    urls = []
+    for row in rows:
+        endpoint = row["request"]["endpoint"]
+        try:
+            url = canonical_url(endpoint)
+        except ValueError:
+            continue
+        parsed = urlsplit(url)
+        if parsed.hostname != host or not re.search(article_pattern, parsed.path, re.I):
+            continue
+        if url not in urls:
+            urls.append(url)
+        if len(urls) >= limit:
+            break
+    return urls
+
+
+def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_factory=Access,
+                 max_articles: int | None = None) -> list[str]:
+    access = access_factory(settings)
+    try:
+        source = access.sources.get(target["source"])
+        if not source or source.get("allowed") is not True:
+            raise PermissionError(f"Source disabled: {target['source']}")
+        host = urlsplit(canonical_url(target["url"])).hostname
+        if host not in source.get("hosts", []):
+            raise ValueError("Category URL host does not match its configured source")
+        access.policy(target["url"])
+        robot = access.robot_policy(f"https://{host}", source["min_interval_seconds"])
+        if not robot.can_fetch(settings["user_agent"], target["url"]):
+            raise PermissionError(f"robots.txt disallows category URL: {target['url']}")
+    except Exception:
+        access.close()
+        raise
+    crawl = settings["crawl"]
+    default_entry = getattr(robot, "default_entry", None)
+    applicable_rules = list(getattr(default_entry, "rulelines", []))
+    agent = settings["user_agent"].split("/", 1)[0].casefold()
+    specific_entries = [entry for entry in getattr(robot, "entries", [])
+                        if entry.applies_to(agent) and "*" not in entry.useragents]
+    for entry in specific_entries:
+        applicable_rules.extend(entry.rulelines)
+    if not specific_entries:
+        applicable_rules.extend(getattr(default_entry, "rulelines", []))
+    denied = [rule.path for rule in applicable_rules if not rule.allowance and rule.path]
+    # Katana fetches pages while discovering links; keep paths denied to wildcard robots policy out of scope.
+    denied_scope = [rf"https?://{re.escape(host)}{re.escape(path)}" for path in denied if path]
+    page_target = rf"https?://{re.escape(host)}" + re.escape(urlsplit(canonical_url(target["url"])).path)
+    command = katana_command(target["url"], crawl["max_pages_per_target"],
+                             crawl["delay_seconds"], image=crawl["image"], depth=crawl["depth"],
+                             timeout_seconds=crawl["timeout_seconds"],
+                             max_response_bytes=crawl["max_response_bytes"], robots_out_scope=denied_scope,
+                             crawl_scope=page_target, crawl_duration=crawl["crawl_duration"])
+    duration_value = int(crawl["crawl_duration"][:-1])
+    duration_scale = {"s": 1, "m": 60, "h": 3600}[crawl["crawl_duration"][-1]]
+    timeout = duration_value * duration_scale + min(crawl["timeout_seconds"] + 5, 20)
+    try:
+        result = runner(command, capture_output=True, text=False, check=True, timeout=timeout)
+    except Exception:
+        access.close()
+        raise
+    stdout = result.stdout.decode("utf-8", errors="replace") if isinstance(result.stdout, bytes) else result.stdout
+    entries = []
+    try:
+        for row in parse_katana_output(stdout):
+            endpoint = row["request"]["endpoint"]
+            try:
+                endpoint = canonical_url(endpoint)
+            except ValueError:
+                continue
+            if urlsplit(endpoint).hostname != host:
+                continue
+            try:
+                access.policy(endpoint)
+            except PermissionError:
+                continue
+            if not robot.can_fetch(settings["user_agent"], endpoint):
+                continue
+            entries.append(row)
+    finally:
+        access.close()
+    return select_article_urls(entries, target["url"],
+                               target["article_pattern"], max_articles or target["max_articles"])
+
+
+def objective_reached(counts: dict, objectives: dict) -> bool:
+    requested = {key: value for key, value in objectives.items() if value is not None}
+    return bool(requested) and all(counts.get(key, 0) >= value for key, value in requested.items())
+
+
+def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None, target_ids=None) -> dict:
+    from . import pipeline
+
+    settings = load_collection(config_path)
+    settings["sources"] = str((config_path.resolve().parent / "sources.yaml").resolve())
+    settings["aliases"] = str((config_path.resolve().parent.parent / settings["aliases"]).resolve())
+    settings["output"] = str((config_path.resolve().parent.parent / settings["output"]).resolve())
+    source_path = Path(settings["sources"])
+    if not source_path.is_file():
+        raise FileNotFoundError(f"Source registry missing: {source_path}")
+    source_rows = yaml.safe_load(source_path.read_text(encoding="utf-8"))["sources"]
+    processor = process_fn or pipeline.process
+    if settings["ner_backend"] == "models":
+        import importlib.util
+        if (importlib.util.find_spec("spacy") is None or importlib.util.find_spec("underthesea") is None
+                or importlib.util.find_spec(settings["english_model"]) is None):
+            raise RuntimeError("NLP model dependencies are missing; install the project's nlp extra and spaCy model")
+    targets = settings["targets"]
+    if target_ids:
+        unknown = set(target_ids) - {target["id"] for target in targets}
+        if unknown:
+            raise ValueError(f"Unknown target(s): {', '.join(sorted(unknown))}")
+        targets = [target for target in targets if target["id"] in target_ids]
+    if not targets:
+        raise ValueError("No crawl targets selected")
+    cap = min(settings["max_articles"], settings["max_documents"])
+    batch_size = min(settings["batch_size"], cap, settings["max_documents"])
+    crawl_settings = settings["crawl"]
+    failures, target_reports = [], []
+    counts = {"articles": 0, "nodes": 0, "relations": 0, "extracted_entities": 0, "entities": 0}
+    discovered_urls = set()
+    attempted_urls = set()
+    accepted_article_urls = set()
+    from .pipeline import read_table
+    graph_nodes = set()
+    extracted_entity_ids = set()
+    access = Access(settings)
+    try:
+        for target in targets:
+            source = access.sources.get(target["source"])
+            host = urlsplit(canonical_url(target["url"])).hostname
+            if not source or source.get("allowed") is not True or host not in source.get("hosts", []):
+                raise ValueError(f"Target source/host policy mismatch: {target['id']}")
+    finally:
+        access.close()
+    configured_total = min(cap, sum(target["max_articles"] for target in targets))
+    for target in targets:
+        remaining = min(cap - len(attempted_urls), target["max_articles"])
+        if remaining <= 0 or objective_reached(counts, settings["objectives"]):
+            break
+        source = source_rows.get(target["source"])
+        if source is None or source.get("allowed") is not True:
+            raise PermissionError(f"Source disabled: {target['source']}")
+        target_urls = crawl_target(target, settings, runner=runner, max_articles=crawl_settings["max_pages_per_target"])
+        target_urls = [url for url in target_urls if url not in attempted_urls]
+        target_report = {"id": target["id"], "discovered": len(target_urls), "processed": 0,
+                         "run_ids": [], "errors": []}
+        discovered_urls.update(target_urls)
+        while len(attempted_urls.intersection(target_urls)) < len(target_urls):
+            if len(attempted_urls) >= cap or objective_reached(counts, settings["objectives"]):
+                break
+            batch = []
+            for url in target_urls:
+                if url in attempted_urls:
+                    continue
+                batch.append(url)
+                if len(batch) >= min(batch_size, cap - len(attempted_urls)):
+                    break
+            if not batch:
+                continue
+            attempted_urls.update(batch)
+            config = {key: value for key, value in settings.items()
+                      if key not in {"targets", "batch_size", "crawl", "objectives", "max_articles"}}
+            config["max_documents"] = max(config["max_documents"], len(batch))
+            config["sources"] = settings["sources"]
+            config["aliases"] = settings["aliases"]
+            config["output"] = settings["output"]
+            config["user_agent"] = settings["user_agent"]
+            config["min_article_words"] = settings["min_article_words"]
+            config["min_text_chars"] = settings["min_text_chars"]
+            config["request_timeout"] = settings["request_timeout"]
+            config["max_response_bytes"] = settings["max_response_bytes"]
+            config["delay_seconds"] = max(source.get("min_interval_seconds", 0), settings["crawl"]["delay_seconds"])
+            run, report = processor(config, urls=batch,
+                                    source_overrides={target["source"]: {"body_xpath": target["body_xpath"],
+                                                                          "language": target["language"]}})
+            target_report["run_ids"].append(str(run))
+            target_report["processed"] += len(batch)
+            target_report["attempted"] = target_report.get("attempted", 0) + len(batch)
+            failures.extend(report.get("errors", []))
+            article_rows = report.get("article_rows") if process_fn is not None else None
+            article_rows = article_rows if article_rows is not None else read_table(run, "articles")
+            counts["attempted"] = len(attempted_urls)
+            accepted_article_urls.update(
+                row["canonical_url"] for row in article_rows
+                if row.get("content_status") == "body_checked" and not row.get("duplicate_of")
+            )
+            counts["articles"] = len(accepted_article_urls)
+            relation_rows = read_table(run, "relations")
+            entities = read_table(run, "entities")
+            endpoint_ids = {endpoint for row in relation_rows
+                            for endpoint in (row["subject_id"], row["object_id"])}
+            graph_nodes.update(endpoint_ids)
+            extracted_entity_ids.update(entity["entity_id"] for entity in entities)
+            counts["extracted_entities"] = len(extracted_entity_ids)
+            counts["entities"] = len(extracted_entity_ids)
+            counts["nodes"] = len(graph_nodes)
+            counts["relations"] += len(relation_rows)
+        target_report["errors"] = [error for error in failures if error.get("url") in target_urls]
+        target_reports.append(target_report)
+    if (not failures and any(value is not None for value in settings["objectives"].values())
+            and not objective_reached(counts, settings["objectives"])):
+        failures.append({"error": "Configured targets or article safety cap were exhausted before all objectives were met"})
+    return {"status": "completed" if not failures else "partial", "counts": counts,
+            "objectives": settings["objectives"], "objectives_met": objective_reached(counts, settings["objectives"]),
+            "note": "entities counts resolved entity rows; nodes counts distinct relation endpoints only",
+            "max_articles": cap, "attempted_urls": len(attempted_urls),
+            "discovered_urls": len(discovered_urls), "configured_target_capacity": configured_total,
+            "articles_remaining": max(0, cap - len(attempted_urls)),
+            "targets": target_reports, "errors": failures}

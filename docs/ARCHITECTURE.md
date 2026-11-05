@@ -28,11 +28,11 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 
 | Quyết định | Lý do | Giới hạn cần theo dõi |
 |---|---|---|
-| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | Model spaCy cài riêng, cần --no-sync |
+| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | Model spaCy và Stanza tiếng Việt tải riêng sau `uv sync`; chạy lệnh ứng dụng với `--no-sync` để giữ model spaCy ngoài lock |
 | feedparser trước, Katana nhập URL tùy chọn | RSS đủ kiểm tra discovery, giảm crawler cần vận hành | RSS không cung cấp lịch sử đầy đủ |
 | Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/RSS riêng | Chưa thử parser toàn trang từng báo thương mại |
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
-| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay, có đường nâng cấp | Gazetteer bị giới hạn tên và không có GOV ban đầu |
+| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng spaCy/Underthesea cho NER và dependency parser tiếng Anh/Việt | Parser Việt là Stanza, khởi tạo lazy; cần tải model Việt riêng; từ điển predicate còn hẹp |
 | Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
 | 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
@@ -61,8 +61,8 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 1. Thu thập đủ quyền từ nguồn thật, đo extraction theo nguồn/ngôn ngữ; giữ metadata xuất bản và snapshot.
 2. Thêm tập nhãn theo article/event/time split; bổ sung alias đã duyệt, định danh ngoài (Wikidata/LEI)
    khi có bằng chứng đồng nhất. Chỉ fuzzy/embedding không đủ kết luận cùng thực thể.
-3. Backend models hiện có dependency RE tiếng Anh cho các argument tường minh. Mở rộng RE tiếng Việt
-   và kiểm định mô hình local trên nhãn độc lập. Tách reported/planned/
+3. Backend models dùng dependency RE tiếng Anh và Stanza tiếng Việt cho một nhóm predicate đã ánh xạ.
+   Kiểm định cả hai trên nhãn độc lập. Tách reported/planned/
    denied/rumoured, vai trò chủ thể/đối tượng, thời gian quan hệ và attribution. Không nâng số cạnh bằng co-occurrence.
 4. Khi batch tăng, thay pairwise shingles hiện O(n²) bằng MinHash/LSH; index xuyên run, partition Parquet
    theo source/date/language. Không cần Kafka để đạt vài nghìn thực thể; SQLite job ledger + batch là bước kế.

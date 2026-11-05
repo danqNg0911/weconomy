@@ -2,6 +2,19 @@
 
 Lệnh `collect-dataset` xây một catalog tăng dần từ bài báo đủ thân bài và qua bộ lọc chủ đề. Chủ đề theo [`initial.md`](../initial.md): tập đoàn đa quốc gia, tỷ phú, quỹ đầu tư quốc tế; lãnh đạo công nghệ/tài chính, startup, VC và chính phủ; các sự kiện đầu tư, M&A, chống độc quyền, cùng hợp tác hoặc gián đoạn chuỗi cung ứng.
 
+## Crawl danh mục bằng Katana
+
+`weconomy crawl` đọc các target ở `config/collection.yaml`, gọi Katana trong Docker, kiểm tra host và robots policy trước khi đưa các URL bài phù hợp regex vào pipeline. Katana chạy theo depth/page/timebox giới hạn; Docker Desktop phải hoạt động. Ví dụ:
+
+```powershell
+uv run --no-sync weconomy crawl --config config/collection.yaml
+uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
+```
+
+Các mục tiêu `articles`, `entities`, `relations` là tùy chọn; mọi lượt vẫn bị giới hạn bởi `max_articles`, `max_documents` và batch size. `entities` là entity rows trích xuất; `nodes` là distinct relation endpoints và chỉ tăng khi relation tồn tại. Hiện rule-based entity/relation processing chưa chứng minh độ chính xác 90%; NER tiếng Việt đặc biệt cần rà nhãn, và crawl tới 100 entities không có nghĩa là đạt 100 graph nodes.
+
+**Kết quả kiểm tra live 05/11/2026:** target VnExpress quốc tế discover 100 URL, thử 10 URL (batch 10), thu 10 bài `body_checked` và 219 entity rows. Relation count là 0, do đó graph nodes là 0; chưa đạt 100 graph nodes và không có phép đo precision. Mẫu entity có nhiều loại sai (`PLACE`/`PERSON` lẫn tổ chức), nên đây chỉ xác nhận luồng crawl và body extraction, không xác nhận chất lượng graph. Lần crawl rộng TechCrunch trước đó vượt thời gian do follow sâu asset/link; đã giới hạn crawl theo target path, depth 1, page cap và timebox 30 giây.
+
 ## Chạy
 
 Trên Windows, dùng trực tiếp `uv`; Makefile chỉ là tiện ích tùy chọn. `--ner models` cần cài NLP extras và model spaCy riêng như trong [hướng dẫn cài đặt](../README.md#cài-đặt-trên-windows):
@@ -9,6 +22,7 @@ Trên Windows, dùng trực tiếp `uv`; Makefile chỉ là tiện ích tùy ch�
 ```powershell
 uv sync --locked --extra dev --extra nlp
 uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,depparse')"
 ```
 
 Sau khi cài model, tiếp tục dùng `--no-sync` để uv không gỡ model ngoài lock:
@@ -19,7 +33,7 @@ uv run --no-sync weconomy dataset-status data/datasets/international-business
 uv run --no-sync weconomy export-dataset data/datasets/international-business --output data/exports/international-business
 ```
 
-Makefile là tùy chọn cho máy có GNU Make. `make install` cài NLP extras và model spaCy; `make collect` nhận biến như `DATASET`, `SOURCES`, `ARTICLES`, `NODES`, `RELATIONS`, `RELATION_TYPES`, `MAX_CANDIDATES`, `BATCH_SIZE`, `NER` và `RESUME`. Ví dụ tiếp tục một dataset với ngưỡng:
+Makefile là tùy chọn cho máy có GNU Make. `make install` cài NLP extras, model spaCy và model Stanza tiếng Việt; `make collect` nhận biến như `DATASET`, `SOURCES`, `ARTICLES`, `NODES`, `RELATIONS`, `RELATION_TYPES`, `MAX_CANDIDATES`, `BATCH_SIZE`, `NER` và `RESUME`. Ví dụ tiếp tục một dataset với ngưỡng:
 
 ```powershell
 make collect SOURCES="vnexpress tuoitre" NODES=2000 RELATIONS=5000 RELATION_TYPES=10 MAX_CANDIDATES=5000 BATCH_SIZE=20 RESUME=1
@@ -66,7 +80,7 @@ uv run --no-sync weconomy sources
 uv run --no-sync weconomy sources --check --source vnexpress_en --source vneconomy_en --source vietnamnews --source thanhnien
 ```
 
-## Kiểm tra hiện tại — 04/11/2026
+## Kết quả collection tham chiếu — 04/11/2026
 
 Probe một bài trên mỗi nguồn ngày 03/11 cho thấy `vnexpress_en`, `vneconomy_en`, `vietnamnews` và `thanhnien` đều trả nội dung qua kiểm tra thân bài (`body_checked`). Hai bài (`vnexpress_en`, `vietnamnews`) được heuristic đưa vào phạm vi; hai bài còn lại ở ngoài phạm vi. Đây là kết quả của bốn trang đã probe, không phải kiểm chứng toàn website, RSS hay quyền tái sử dụng toàn văn.
 

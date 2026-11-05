@@ -27,7 +27,6 @@ def source_status(config, *, check=False, source_ids=None):
             "language": source.get("language"),
             "feeds": source.get("feeds", []),
             "terms_url": source.get("terms_url"),
-            "permission_basis": source.get("permission_basis"),
             "excluded": source_id in {"wikinews_en", "techcrunch", "reuters", "bloomberg"}
             and not source.get("allowed", False),
         })

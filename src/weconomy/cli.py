@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .access import Access, katana_urls
 from .analytics import analyze
+from .crawler import run_collection
 from .dataset import collect_dataset, dataset_status, export_dataset
 from .graph import import_graph
 from .hub import pull_run, push_run
@@ -21,6 +22,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Evidence-first news knowledge graph")
     parser.add_argument("--config", type=Path)
     sub = parser.add_subparsers(dest="command", required=True)
+    crawl = sub.add_parser("crawl", help="Run bounded Katana discovery and process article batches")
+    crawl.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    crawl.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
@@ -93,7 +97,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     code = 0
     try:
-        if args.command == "hf-push":
+        if args.command == "crawl":
+            result = run_collection(args.config, target_ids=args.targets)
+            code = int(result["status"] != "completed")
+        elif args.command == "hf-push":
             result = push_run(args.run, args.repo, dry_run=args.dry_run)
         elif args.command == "hf-pull":
             result = pull_run(args.repo, args.run_id, args.output, revision=args.revision)

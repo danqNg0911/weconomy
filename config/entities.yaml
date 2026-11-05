@@ -40,6 +40,30 @@
 - name: Satya Nadella
   type: PERSON
   aliases: []
+- name: United States
+  type: GOV
+  aliases: [U.S., US, Mỹ, Hoa Kỳ]
+- name: France
+  type: GOV
+  aliases: [Pháp]
+- name: Germany
+  type: GOV
+  aliases: [Đức]
+- name: European Union
+  type: GOV
+  aliases: [EU, Liên minh châu Âu]
+- name: European Commission
+  type: GOV
+  aliases: [EC, Ủy ban châu Âu]
+- name: International Energy Agency
+  type: GOV
+  aliases: [IEA, Cơ quan Năng lượng Quốc tế]
+- name: Donald Trump
+  type: PERSON
+  aliases: [Trump]
+- name: Emmanuel Macron
+  type: PERSON
+  aliases: [Macron]
 - name: LinkedIn
   type: ORG
   aliases: []

@@ -1,131 +1,69 @@
 sources:
-  wikinews_en:
-    hosts: [en.wikinews.org]
-    language: en
-    kind: news
-    allowed: false
-    permission_basis: Explicitly excluded by user; not a newspaper
-    terms_url: https://en.wikinews.org/wiki/Wikinews:Copyright
-    license: CC-BY-2.5-or-4.0-per-page
-    min_interval_seconds: 2
-    feeds: []
-  wikipedia_vi:
-    hosts: [vi.wikipedia.org]
-    language: vi
-    kind: encyclopedia_reference
-    allowed: true
-    permission_basis: CC-BY-SA text only; contributors attributed by source history link
-    terms_url: https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use
-    license: CC-BY-SA-4.0
-    min_interval_seconds: 2
-    feeds: []
   vnexpress:
     hosts: [vnexpress.net]
     language: vi
     kind: news
     allowed: true
-    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
-    terms_url: https://vnexpress.net/dieu-khoan-su-dung
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: VnExpress
-    article_pattern: '-\d+\.html$'
-    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
     min_interval_seconds: 5
-    feeds: [https://vnexpress.net/rss/kinh-doanh.rss]
   tuoitre:
     hosts: [tuoitre.vn]
     language: vi
     kind: news
     allowed: true
-    permission_basis: User-authorized bounded local research on public pages; obey robots; no redistribution grant
-    terms_url: https://tuoitre.vn/
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: Tuoi Tre Online
-    article_pattern: '-\d+\.htm$'
-    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
     min_interval_seconds: 5
-    feeds: [https://tuoitre.vn/kinh-doanh.rss]
   reuters:
     hosts: [www.reuters.com, reuters.com]
     language: en
     kind: news
     allowed: false
-    permission_basis: Pending licensed access; no paywall or anti-bot bypass
-    terms_url: https://www.reuters.com/info-pages/terms-of-use/
-    license: permission-required
     min_interval_seconds: 5
-    feeds: []
   bloomberg:
     hosts: [www.bloomberg.com, bloomberg.com]
     language: en
     kind: news
     allowed: false
-    permission_basis: Pending licensed access; no paywall bypass
-    terms_url: https://www.bloomberg.com/notices/tos/
-    license: permission-required
     min_interval_seconds: 5
-    feeds: []
   techcrunch:
     hosts: [techcrunch.com]
     language: en
     kind: news
-    allowed: false
-    permission_basis: Pending automated access permission
-    terms_url: https://techcrunch.com/
-    license: Publisher copyright; local research only; redistribution not granted
+    allowed: true
     attribution: TechCrunch
-    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     min_interval_seconds: 5
-    feeds: []
   vnexpress_en:
     hosts: [e.vnexpress.net]
     language: en
     kind: news
     allowed: true
-    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
-    terms_url: https://e.vnexpress.net/rss
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: VnExpress International
-    article_pattern: '-\d+\.html$'
-    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
     min_interval_seconds: 5
-    feeds: [https://e.vnexpress.net/rss/business.rss]
-  vneconomy_en:
-    hosts: [en.vneconomy.vn]
-    language: en
+  vneconomy:
+    hosts: [vneconomy.vn, en.vneconomy.vn]
+    language: vi
     kind: news
     allowed: true
-    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
-    terms_url: https://en.vneconomy.vn/rss.html
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: Vietnam Economic Times
-    article_pattern: '\.htm$'
-    body_xpath: "//*[@id='articleContent']"
     min_interval_seconds: 5
-    feeds: [https://en.vneconomy.vn/business.rss, https://en.vneconomy.vn/investment.rss]
   vietnamnews:
     hosts: [vietnamnews.vn]
     language: en
     kind: news
     allowed: true
-    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
-    terms_url: https://vietnamnews.vn/rss
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: Viet Nam News
-    article_pattern: '/(?:economy|bizhub)/\d+/[^/]+\.html$'
-    body_xpath: "//*[@id='abody']"
     min_interval_seconds: 5
-    feeds: [https://vietnamnews.vn/rss/economy.rss, https://vietnamnews.vn/rss/bizhub.rss]
   thanhnien:
     hosts: [thanhnien.vn]
     language: vi
     kind: news
     allowed: true
-    permission_basis: Publisher RSS for bounded local noncommercial research; no paywall or antibot bypass
-    terms_url: https://thanhnien.vn/rss.html
-    license: Publisher copyright; local research only; redistribution not granted
     attribution: Thanh Nien
-    article_pattern: '-\d+\.htm$'
-    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
     min_interval_seconds: 5
-    feeds: [https://thanhnien.vn/rss/the-gioi/kinh-te-the-gioi.rss, https://thanhnien.vn/rss/kinh-te/doanh-nhan.rss]
+  24h:
+    hosts: [24h.com.vn, www.24h.com.vn]
+    language: vi
+    kind: news
+    allowed: true
+    attribution: 24h
+    min_interval_seconds: 5

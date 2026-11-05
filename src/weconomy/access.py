@@ -44,8 +44,8 @@ class Access:
         if len(matches) != 1:
             raise PermissionError(f"Unknown or ambiguous source: {host}")
         key, source = matches[0]
-        if not source["allowed"] or not source.get("permission_basis"):
-            raise PermissionError(f"Source disabled: {key}: {source.get('permission_basis')}")
+        if not source["allowed"]:
+            raise PermissionError(f"Source disabled: {key}")
         # Validate resolved addresses too; never crawl loopback/private infrastructure.
         addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
         if not addresses or any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses):

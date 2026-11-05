@@ -1,4 +1,4 @@
-"""Deterministic baseline plus optional Vietnamese/English statistical NER."""
+﻿"""Deterministic baseline plus optional Vietnamese/English statistical NER."""
 import re
 import unicodedata
 from pathlib import Path
@@ -100,6 +100,7 @@ class NLP:
         )
         self.en = None
         self._en_doc = None
+        self._vi_parser = None
         if self.backend == "models":
             import spacy
             import underthesea
@@ -145,7 +146,8 @@ class NLP:
                     spans.append((*active, "underthesea"))
         # Keep longest span at each overlap; seeds win equal spans.
         chosen = []
-        for start, end, kind, method in sorted(spans, key=lambda x: (-(x[1] - x[0]), x[0])):
+        for start, end, kind, method in sorted(
+                spans, key=lambda x: (x[3] != "gazetteer", -(x[1] - x[0]), x[0])):
             if any(start < b and end > a for a, b, *_ in chosen):
                 continue
             chosen.append((start, end, kind, method))
@@ -160,12 +162,20 @@ class NLP:
         result = extract_relations(text, mentions, language)
         if self.backend == "models" and language == "en" and relation_sentence(text, language):
             doc = self._en_doc if self._en_doc is not None and self._en_doc.text == text else self.en(text)
-            result += dependency_relations(doc, mentions)
-        # A rule and the parser can find the same assertion; keep a single claim per sentence/triple.
+            result += dependency_relations(doc, mentions, open_labels=True)
+        if self.backend == "models" and language == "vi" and relation_sentence(text, language):
+            if self._vi_parser is None:
+                import stanza
+                self._vi_parser = stanza.Pipeline(
+                    "vi", processors="tokenize,pos,lemma,depparse", use_gpu=False,
+                    verbose=False, download_method=None,
+                )
+            result += dependency_relations_vi(self._vi_parser(text), mentions)
         unique = {}
         for claim in result:
             unique.setdefault((claim["subject_id"], claim["predicate"], claim["object_id"]), claim)
         return list(unique.values())
+
 
 
 # Exact between-mention patterns avoid sentence-wide co-occurrence edges.
@@ -199,8 +209,9 @@ RULES = {
 }
 NEGATIVE = re.compile(
     r"\b(?:not|never|no|denied|denies|if|whether|rumou?r(?:ed)?|reportedly|allegedly|"
-    r"không|chưa|phủ nhận|nếu|liệu|tin đồn)\b", re.I
+    r"không|chưa|phủ nhận|nếu|tin đồn)\b", re.I
 )
+VI_UNCERTAIN = re.compile(r"(?:^\s*liệu\b|\b(?:chưa rõ|không biết|cân nhắc|xem xét)\s+liệu\b)", re.I)
 
 # These patterns have the opposite surface order from the graph edge.
 REVERSE_RULES = {
@@ -253,7 +264,8 @@ def outside_quotes(text, start, end):
 
 def relation_sentence(text, language, *, allow_quotes=False):
     # Exclude headline fragments: a headline can compress a proposed deal into a completed-looking verb.
-    if not text.endswith((".", "!")) or language not in RULES or NEGATIVE.search(text):
+    if (not text.endswith((".", "!")) or language not in RULES or NEGATIVE.search(text)
+            or (language == "vi" and VI_UNCERTAIN.search(text))):
         return False
     # shortcut: quoted statements and hypothetical tense abstain until attribution parsing exists.
     if '?' in text or (not allow_quotes and any(char in text for char in ['"', '“', '”'])):
@@ -262,7 +274,8 @@ def relation_sentence(text, language, *, allow_quotes=False):
 
 
 def extract_relations(text, mentions, language):
-    if not relation_sentence(text, language, allow_quotes=True):
+    if (not relation_sentence(text, language, allow_quotes=True)
+            or re.search(r"\b(?:stake in|shares in|assets)\b", text, re.I)):
         return []
     strict = relation_sentence(text, language)
     result = []
@@ -281,6 +294,8 @@ def extract_relations(text, mentions, language):
         if outside_quotes(text, left["start"], right["end"]):
             rules += [(*rule, True) for rule in ROLE_RULES[language]]
         for predicate, pattern, reverse, role_rule in rules:
+            if re.search(r"\b(?:stake in|shares in|assets)\b", text, re.I):
+                continue
             if not re.fullmatch(pattern, gap, flags=re.I):
                 continue
             subject, object_ = (right, left) if reverse else (left, right)
@@ -296,6 +311,119 @@ def extract_relations(text, mentions, language):
                            "assertion_status": "agreement_reported" if predicate == "AGREED_TO_ACQUIRE" else "reported"})
     if language == "en" and strict:
         result.extend(funding_round_relations(text, mentions))
+    return result
+
+
+def open_relation_label(trigger: str) -> str:
+    words = re.findall(r"[\w]+", trigger.casefold())
+    return "_".join(words).upper()
+
+
+def open_relations(text, mentions, language):
+    return []
+
+
+VI_PREDICATES = {
+    "đầu tư": "INVESTED_IN", "sáp nhập": "MERGED_WITH", "hợp tác": "PARTNERED_WITH",
+    "kiện": "SUED", "thành lập": "FOUNDED", "cung cấp": "SUPPLIES_TO",
+    "cấp phép": "LICENSE_TO", "đề nghị": "REQUESTS", "giục": "URGES",
+    "giải phóng": "RELEASES", "điều tiết": "MANAGES",
+}
+VI_MODAL = re.compile(r"\b(?:sẽ|có thể|có khả năng|dự kiến|định|muốn|sắp)\b", re.I)
+
+
+def dependency_relations_vi(doc, mentions):
+    """Extract mapped Vietnamese predicates from explicit dependency arguments."""
+    text = doc.text
+    if not relation_sentence(text, "vi") or VI_MODAL.search(text):
+        return []
+
+    result = []
+    object_deps = {"obj", "iobj", "obl", "obl:with", "obl:iobj", "obl:to", "obl:from"}
+    np_modifiers = {"nmod", "appos", "flat", "flat:name", "compound", "amod", "det",
+                    "nummod", "nmod:poss", "name"}
+
+    for sentence in doc.sentences:
+        children = {}
+        for word in sentence.words:
+            children.setdefault(word.head, []).append(word)
+
+        def mentions_for_argument(head):
+            stack, found = [head], {}
+            while stack:
+                word = stack.pop()
+                for mention in mentions:
+                    if mention["start"] < word.end_char and mention["end"] > word.start_char:
+                        found[mention["entity"]["entity_id"]] = mention
+                stack.extend(child for child in children.get(word.id, [])
+                             if child.deprel in np_modifiers or child.deprel.startswith(("compound:", "nmod:")))
+            return list(found.values())
+
+        for verb in sentence.words:
+            lemma = (verb.lemma or verb.text).casefold()
+            predicate_words = [verb]
+            predicate = VI_PREDICATES.get(lemma)
+            if lemma == "mua" and any((child.lemma or child.text).casefold() == "lại"
+                                      for child in children.get(verb.id, [])):
+                predicate, predicate_words = "ACQUIRED", [verb, *[
+                    child for child in children[verb.id] if (child.lemma or child.text).casefold() == "lại"]]
+            elif lemma == "cung":
+                complement = next((child for child in children.get(verb.id, [])
+                                   if child.deprel == "xcomp" and (child.lemma or child.text).casefold() == "cấp"), None)
+                if complement:
+                    predicate, predicate_words = "SUPPLIES_TO", [verb, complement]
+            elif lemma == "điều":
+                complement = next((child for child in children.get(verb.id, [])
+                                   if child.deprel == "xcomp" and (child.lemma or child.text).casefold() == "tiết"), None)
+                if complement:
+                    predicate, predicate_words = "MANAGES", [verb, complement]
+            if not predicate:
+                continue
+
+            passive = [child for child in children.get(verb.id, [])
+                       if child.deprel in {"nsubj:pass", "nsubjpass"}]
+            if passive:
+                subject_nodes = [child for child in children.get(verb.id, [])
+                                 if child.deprel == "obl:agent"]
+                object_nodes = passive
+            else:
+                subject_nodes = [child for child in children.get(verb.id, []) if child.deprel == "nsubj"]
+                object_nodes = []
+                for predicate_word in predicate_words:
+                    for child in children.get(predicate_word.id, []):
+                        if child.deprel in object_deps:
+                            object_nodes.append(child)
+                        elif child.deprel == "compound:dir":
+                            object_nodes.extend(grandchild for grandchild in children.get(child.id, [])
+                                                if grandchild.deprel in object_deps)
+
+            if predicate in {"REQUESTS", "URGES"}:
+                object_nodes += [child for node in object_nodes for child in children.get(node.id, [])
+                                 if child.deprel == "conj"]
+            subjects = {m["entity"]["entity_id"]: m for node in subject_nodes
+                        for m in mentions_for_argument(node)}
+            objects = {m["entity"]["entity_id"]: m for node in object_nodes
+                       for m in mentions_for_argument(node)}
+            if predicate in {"REQUESTS", "URGES"} and len(subjects) > 1:
+                institutional = {key: m for key, m in subjects.items()
+                                 if m["entity"]["entity_type"] in {"GOV", "ORG"}}
+                if institutional:
+                    subjects = institutional
+            if len(subjects) != 1 or not objects or (len(objects) > 1 and predicate not in {"REQUESTS", "URGES"}):
+                continue
+            subject = next(iter(subjects.values()))
+            constraints = RELATION_TYPES.get(predicate)
+            for object_ in objects.values():
+                if subject["entity"]["entity_id"] == object_["entity"]["entity_id"]:
+                    continue
+                if constraints and (subject["entity"]["entity_type"] not in constraints[0]
+                                    or object_["entity"]["entity_type"] not in constraints[1]):
+                    continue
+                result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
+                               "object_id": object_["entity"]["entity_id"],
+                               "trigger": text[min(w.start_char for w in predicate_words):
+                                               max(w.end_char for w in predicate_words)],
+                               "rule_id": f"vi-{predicate}-dependency-v1", "assertion_status": "reported"})
     return result
 
 
@@ -366,12 +494,20 @@ def funding_round_relations(text, mentions):
     return result
 
 
-def dependency_relations(doc, mentions):
+def dependency_relations(doc, mentions, *, open_labels=False):
     """English explicit verb arguments only; never infer endpoints from pronouns or co-occurrence."""
     verbs = {"acquire": ("ACQUIRED", None), "buy": ("ACQUIRED", None),
              "purchase": ("ACQUIRED", None), "sue": ("SUED", None), "found": ("FOUNDED", None),
              "invest": ("INVESTED_IN", "in"), "partner": ("PARTNERED_WITH", "with"),
-             "merge": ("MERGED_WITH", "with")}
+             "merge": ("MERGED_WITH", "with"), "license": ("LICENSES", "to"),
+             "supply": ("SUPPLIES_TO", "to"), "provide": ("PROVIDES_TO", "to"),
+             "sell": ("SELLS_TO", None),
+             "finance": ("FINANCES", None), "fund": ("FUNDS", None),
+             "hire": ("HIRES", None), "appoint": ("APPOINTS", None),
+             "regulate": ("REGULATES", None), "sanction": ("SANCTIONS", None),
+             "export": ("EXPORTS_TO", "to"), "import": ("IMPORTS_FROM", "from"),
+             "owe": ("OWES", None), "own": ("OWNS", None),
+             "control": ("CONTROLS", None)}
 
     def endpoint(token):
         found = [m for m in mentions if m["start"] <= token.idx and token.idx + len(token.text) <= m["end"]]
@@ -379,18 +515,47 @@ def dependency_relations(doc, mentions):
 
     result = []
     for verb in doc:
-        if verb.pos_ != "VERB" or verb.lemma_ not in verbs:
+        if verb.pos_ != "VERB":
+            continue
+        relation = verbs.get(verb.lemma_)
+        if relation is not None and relation[1] is not None:
+            prep_child = next((child for child in verb.children
+                               if child.dep_ == "prep" and child.lower_ == relation[1]), None)
+            if prep_child is None:
+                relation = (open_relation_label(f"{verb.lemma_} {relation[1]}"), relation[1]) if open_labels else None
+            elif any(child.dep_ == "dobj" for child in verb.children) and open_labels:
+                relation = (open_relation_label(f"{verb.lemma_} {relation[1]}"), relation[1])
+        if relation is None and open_labels and any(child.dep_ == "dobj" for child in verb.children):
+            prep = next((child.lower_ for child in verb.children
+                         if child.dep_ == "prep" and list(child.children)), None)
+            label = open_relation_label(f"{verb.lemma_} {prep}") if prep else open_relation_label(verb.lemma_)
+            relation = (label, prep)
+        if relation is None:
             continue
         children = list(verb.children)
+        if open_labels and verb.lemma_ in {"be", "say", "announce", "report", "tell", "claim", "think",
+                                           "imagine", "expect", "plan", "intend", "hope"}:
+            continue
+        if any(child.tag_ == "MD" or child.lemma_ in {"plan", "intend", "hope", "expect", "propose"}
+               for child in children) or verb.lemma_ in {"plan", "intend", "hope", "expect", "propose"}:
+            continue
         attributed = (verb.dep_ == "ccomp" and verb.head.dep_ == "ROOT"
                       and verb.head.lemma_ in {"say", "announce", "confirm", "report", "reveal"})
         scope = children + list(verb.head.children) if attributed else children
-        # Accept explicit assertions under affirmative reporting verbs, never plans or unresolved pronouns.
-        if (verb.dep_ in {"xcomp", "relcl", "advcl", "conj"}
-                or (verb.dep_ == "ccomp" and not attributed)
-                or any(c.dep_ == "neg" or c.tag_ == "MD" for c in scope)):
+        if verb.head.tag_ == "MD" or verb.head.lemma_ in {"plan", "intend", "hope", "expect", "propose", "imagine"}:
             continue
-        predicate, prep = verbs[verb.lemma_]
+        # Accept explicit assertions under affirmative reporting verbs, never plans or unresolved pronouns.
+        if ((open_labels and verb.dep_ in {"xcomp", "relcl", "advcl", "conj"})
+                or (not open_labels and verb.dep_ in {"xcomp", "relcl", "advcl", "conj"})
+                or (verb.dep_ == "ccomp" and not attributed)
+                or any(c.dep_ == "neg" or c.tag_ == "MD" for c in scope)
+                or any(c.tag_ == "MD" or c.lemma_ in {"plan", "intend", "hope", "expect", "propose"}
+                       for c in [verb, *children, verb.head])):
+            continue
+        predicate, prep = relation
+        verb_subjects = [child for child in children if child.dep_ in {"nsubj", "nsubjpass"}]
+        if open_labels and (len(verb_subjects) != 1 or endpoint(verb_subjects[0]) is None):
+            continue
         subjects = [c for c in children if c.dep_ == "nsubj"]
         objects = [c for c in children if c.dep_ == "dobj"] if prep is None else [
             obj for c in children if c.dep_ == "prep" and c.lower_ == prep
@@ -407,9 +572,9 @@ def dependency_relations(doc, mentions):
         subject, object_ = endpoint(subjects[0]), endpoint(objects[0])
         if not subject or not object_ or subject["entity"]["entity_id"] == object_["entity"]["entity_id"]:
             continue
-        subject_types, object_types = RELATION_TYPES[predicate]
-        if (subject["entity"]["entity_type"] not in subject_types
-                or object_["entity"]["entity_type"] not in object_types):
+        constraints = RELATION_TYPES.get(predicate)
+        if constraints and (subject["entity"]["entity_type"] not in constraints[0]
+                            or object_["entity"]["entity_type"] not in constraints[1]):
             continue
         result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
                        "object_id": object_["entity"]["entity_id"], "trigger": verb.text,

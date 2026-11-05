@@ -1,14 +1,73 @@
-version: collection-v1
+version: katana-collection-v1
 output: data/runs
 ner_backend: models
 english_model: en_core_web_sm
 aliases: config/entities.yaml
 sources: config/sources.yaml
 max_documents: 100
+max_articles: 100
 min_text_chars: 80
 min_article_words: 100
 allow_excerpts: false
 near_duplicate_threshold: 0.9
 request_timeout: 30
 max_response_bytes: 5000000
-user_agent: WeconomyResearch/0.1 (local noncommercial academic research; rate-limited)
+user_agent: WeconomyResearch/0.1 (local academic research; rate-limited)
+targets:
+  - id: vnexpress_world_business
+    url: https://vnexpress.net/kinh-doanh/quoc-te
+    source: vnexpress
+    article_pattern: '-\d+\.html$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
+    language: vi
+    max_articles: 100
+  - id: thanhnien_world_economy
+    url: https://thanhnien.vn/the-gioi/kinh-te-the-gioi.htm
+    source: thanhnien
+    article_pattern: '-\d+\.htm$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
+    language: vi
+    max_articles: 100
+  - id: techcrunch_venture
+    url: https://techcrunch.com/category/venture/
+    source: techcrunch
+    article_pattern: '/\d{4}/\d{2}/\d{2}/[^/?#]+/?$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
+    language: en
+    max_articles: 100
+  - id: techcrunch_startups
+    url: https://techcrunch.com/category/startups/
+    source: techcrunch
+    article_pattern: '/\d{4}/\d{2}/\d{2}/[^/?#]+/?$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
+    language: en
+    max_articles: 100
+  - id: vneconomy_world_business
+    url: https://vneconomy.vn/kinh-doanh-the-gioi.htm
+    source: vneconomy
+    article_pattern: '\.htm$'
+    body_xpath: "//*[@id='articleContent']"
+    language: vi
+    max_articles: 100
+  - id: 24h_world_economy
+    url: https://www.24h.com.vn/kinh-te-the-gioi-c1106.html
+    source: 24h
+    article_pattern: '/[^/?#]+-c\d+a\d+\.html$'
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' news-detail ')]"
+    language: vi
+    max_articles: 100
+batch_size: 10
+crawl:
+  image: projectdiscovery/katana:latest
+  depth: 1
+  delay_seconds: 2
+  max_pages_per_target: 30
+  crawl_duration: 30s
+  timeout_seconds: 15
+  max_response_bytes: 4194304
+  concurrency: 1
+objectives:
+  articles: null
+  nodes: null
+  entities: 100
+  relations: null

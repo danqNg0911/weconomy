@@ -4,6 +4,7 @@
 install:
 	uv sync --locked --extra dev --extra nlp
 	uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+	uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,depparse')"
 
 # test_core.py is the legacy pilot suite and requires its separate pilot dependencies.
 test:

@@ -460,7 +460,7 @@ def _replay_index(config, dataset, runs):
                     continue
                 if row.get("capture_scope") != "full_page":
                     continue
-                required = ("source_id", "license", "attribution", "retrieved_at", "url", "raw_sha256")
+                required = ("source_id", "attribution", "retrieved_at", "url", "raw_sha256")
                 if any(not row.get(key) for key in required):
                     raise ValueError(f"Archive provenance is incomplete: {run}/{row.get('document_id')}")
                 url = canonical_url(row["url"])
@@ -480,8 +480,7 @@ def _replay_index(config, dataset, runs):
                         or matching[0][0].casefold() in _REPLAY_EXCLUDED
                         or matching[0][1].get("kind", "").casefold() != "news"
                         or matching[0][1].get("allowed") is not True
-                        or not matching[0][1].get("permission_basis") or row.get("kind") != "news"
-                        or matching[0][0] != row["source_id"]):
+                        or row.get("kind") != "news" or matching[0][0] != row["source_id"]):
                     continue
                 source_key = _hash(_json([str(run), _hash(manifest_path.read_bytes())]).encode())[:20]
                 archive_root = dataset / "replay_sources" / source_key
@@ -515,9 +514,7 @@ def _replay_policy_allows(config, url, source_id):
             and matching[0][0] == source_id
             and matching[0][0].casefold() not in _REPLAY_EXCLUDED
             and matching[0][1].get("kind", "").casefold() == "news"
-            and matching[0][1].get("allowed") is True
-            and bool(matching[0][1].get("permission_basis")))
-
+            and matching[0][1].get("allowed") is True)
 
 def _stage_replay_batch(batch_root, replay_rows):
     """Create a small from_run-compatible immutable input and lineage sidecar."""
@@ -559,8 +556,8 @@ def _graph_claims(conn):
     valid_claims = []
     for row in claims:
         kinds = schema.RELATION_TYPES.get(row.get("predicate"))
-        if (kinds and entity_types.get(row.get("subject_id")) in kinds[0]
-                and entity_types.get(row.get("object_id")) in kinds[1]):
+        if (not kinds or (entity_types.get(row.get("subject_id")) in kinds[0]
+                          and entity_types.get(row.get("object_id")) in kinds[1])):
             valid_claims.append(row)
     connected = {entity_id for r in valid_claims
                  for entity_id in (r["subject_id"], r["object_id"])}
@@ -569,12 +566,12 @@ def _graph_claims(conn):
 
 def _snapshot(conn):
     articles = _rows(conn, "articles")
-    valid_claims, connected = _graph_claims(conn)
+    claims, connected = _graph_claims(conn)
     return {"articles": len(articles), "nodes": len(connected),
             "relations": len({(r.get("subject_id"), r.get("predicate"), r.get("object_id"))
-                               for r in valid_claims}),
-            "claims": len(valid_claims),
-            "relation_types": len({r["predicate"] for r in valid_claims})}
+                               for r in claims}),
+            "claims": len(claims),
+            "relation_types": len({r["predicate"] for r in claims})}
 
 
 def _status(conn):
@@ -620,8 +617,8 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
                "relation_types": relation_types}
     if any(v is not None and v <= 0 for v in targets.values()):
         raise ValueError("Thresholds must be positive")
-    if relation_types is not None and relation_types > len(schema.RELATION_TYPES):
-        raise ValueError("relation_types exceeds the supported relation types")
+    if relation_types is not None and relation_types <= 0:
+        raise ValueError("relation_types must be positive")
     if (max_candidates <= 0 or batch_size <= 0
             or sum(value is not None for value in (urls, sources, from_runs)) > 1
             or (from_runs is not None and not from_runs)):

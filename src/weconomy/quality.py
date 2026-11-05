@@ -62,8 +62,8 @@ def evaluate(run, labels):
         if sid not in sentence_rows or sentence_rows[sid]["text"] != task["text"]:
             raise ValueError("Labels do not match this run's sentence IDs/text")
         for relation in task["relations"]:
-            if relation["predicate"] not in RELATION_TYPES:
-                raise ValueError("Unknown relation label")
+            if not isinstance(relation.get("predicate"), str) or not relation["predicate"].strip():
+                raise ValueError("Relation label must be non-empty text")
             gold.add((sid, relation["subject_id"], relation["predicate"], relation["object_id"]))
         for entity in task["entities"]:
             start, end = entity["start"], entity["end"]
@@ -79,7 +79,7 @@ def evaluate(run, labels):
             base = sentence_rows[sid]["start"]
             predicted_ner.add((sid, row["start"] - base, row["end"] - base, row["entity_type"]))
     by_type = {}
-    for predicate in RELATION_TYPES:
+    for predicate in sorted({r[2] for r in gold | predicted}):
         g = {r for r in gold if r[2] == predicate}
         p = {r for r in predicted if r[2] == predicate}
         by_type[predicate] = prf(len(g & p), len(p - g), len(g - p))
@@ -143,12 +143,14 @@ def validate(run):
         article = documents.get(claim["document_id"])
         if (not article or claim["event_id"] not in events or claim["subject_id"] not in entities
                 or claim["object_id"] not in entities or claim["sentence_id"] not in sentences
+                or not claim.get("trigger") or not claim.get("rule_id")
                 or article["text"][claim["evidence_start"]:claim["evidence_end"]] != claim["evidence"]):
             failures.append(f"Invalid claim provenance: {claim['claim_id']}")
-        if claim["predicate"] not in RELATION_TYPES:
+        predicate = claim.get("predicate")
+        if not isinstance(predicate, str) or not predicate.strip():
             failures.append(f"Invalid predicate: {claim['claim_id']}")
-        elif claim["subject_id"] in entities and claim["object_id"] in entities:
-            stypes, otypes = RELATION_TYPES[claim["predicate"]]
+        elif predicate in RELATION_TYPES and claim["subject_id"] in entities and claim["object_id"] in entities:
+            stypes, otypes = RELATION_TYPES[predicate]
             if (entities[claim["subject_id"]]["entity_type"] not in stypes or
                     entities[claim["object_id"]]["entity_type"] not in otypes):
                 failures.append(f"Invalid relation endpoint types: {claim['claim_id']}")

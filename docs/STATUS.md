@@ -1,12 +1,12 @@
 # Trạng thái tool và hướng dẫn bàn giao
 
-Cập nhật ngày **04/11/2026, Asia/Saigon**; số liệu corpus tham chiếu ngày 31/10 bên dưới là lịch sử. Đây là trạng thái triển khai và bằng chứng đã chạy,
+Cập nhật ngày **05/11/2026, Asia/Saigon**; số liệu corpus v4 tham chiếu ngày 04/11 bên dưới là lịch sử. Đây là trạng thái triển khai và bằng chứng đã chạy,
 không phải cam kết đã đạt chỉ tiêu đề bài. Nhánh làm việc: `duy`; các thay đổi hiện còn local,
 chưa commit/push. Người clone repository chưa chắc có cùng phiên bản code với máy đã kiểm thử.
 
 ## Nên dùng tool vào việc gì lúc này?
 
-Lượt hoàn thiện ngày 04/11 đã sửa căn chỉnh `qui/quy` của underthesea, thêm mẫu vai trò Việt và mẫu vòng gọi vốn Anh có bên tham gia được nêu tên. CLI có thêm `collect-dataset --from-run` để xử lý lại bronze theo batch, giữ checksum và lineage, tiếp tục hoặc bổ sung archive/RSS với cùng cấu hình xử lý. Sau thay đổi NER/rule, dùng dataset mới; fingerprint từ chối trộn kết quả không tương thích. Bộ kiểm thử được hỗ trợ hiện có **214 test pass**, cùng kiểm tra độc lập về xử lý offline, ngân sách cộng dồn và phục hồi batch.
+Lượt ngày 05/11 thêm Stanza dependency parsing cho tiếng Việt, sửa bộ lọc phủ định làm từ “liệu” trong “nhiên liệu” chặn quan hệ, và thêm kiểm thử cho hướng cạnh chủ động/bị động. NLP suite hiện có **84 test pass**. Phát lại 275 câu đã lưu từ crawl thử cho kết quả 2 cạnh REQUESTS; đây là smoke evaluation, chưa đo precision/recall độc lập. Toàn bộ test suite hiện có 7 lỗi trong test access do working tree cấu hình không còn nguồn `wikinews_en` mà các fixture đang tham chiếu; 243 test còn lại qua. Lượt 04/11 bên dưới giữ nguyên như mốc lịch sử.
 
 Kiểm tra corpus thật: dataset v4 `data/datasets/international-business-v4-20261104` phát lại 393 body, nhận 229 bài, có 31 node có cạnh / 16 cạnh phân biệt / 17 claims / 2 loại quan hệ và không có lỗi xử lý. Lượt chạy đã kết thúc vì hết candidate; chưa đạt 2.000 / 5.000 / 10. So với bản cũ, một bài lỗi NER được khôi phục; ba claims người sáng lập sai bị loại, hai claims CEO có bằng chứng được khôi phục. Số liệu 31/10 ở các mục dưới là lịch sử của run khác.
 
@@ -32,7 +32,7 @@ từ tên trong đề tài: `weconomy sources --check` chỉ probe tối đa m�
 | Tiền xử lý/routing | Unicode, khoảng trắng, câu/offset; định tuyến Việt/Anh | Chia câu vẫn có quy tắc và giới hạn với viết tắt; chưa hỗ trợ ngôn ngữ khác |
 | NER | Gazetteer; spaCy tiếng Anh và underthesea tiếng Việt đã chạy | Có thể bỏ sót/sai kiểu thực thể; chưa có điểm chất lượng độc lập |
 | Entity resolution | Alias có kiểm soát và tên chính xác theo kiểu; fuzzy chỉ gợi ý | Chưa entity linking rộng, phân giải đồng danh hoặc coreference |
-| RE theo câu | Mẫu Việt/Anh; mẫu bị động/chức danh; dependency RE Anh có kiểm tra phủ định/tình thái và tường thuật | Độ bao phủ còn hạn chế; chưa dependency RE Việt hoặc mô hình RE được kiểm định để thay baseline |
+| RE theo câu | Mẫu Việt/Anh; dependency RE tiếng Anh và Stanza tiếng Việt cho predicate đã ánh xạ; lọc phủ định/tình thái | Độ bao phủ tiếng Việt còn hạn chế; kết quả chưa được đánh giá trên nhãn độc lập |
 | Provenance | Claim → câu/bài/URL; evidence, offset, trigger, rule ID; snapshot config/policy | `reported` là khẳng định theo nguồn, không phải đã fact-check |
 | Luồng immutable run legacy | `collect --skip-run`, `merge-runs`; dedup lại trên corpus đã chọn | Luồng này cần chỉ định run và không có ledger/checkpoint liên tục; dùng catalog dataset ở hàng kế tiếp cho collection tiếp diễn |
 | Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, status và JSONL export | RSS hữu hạn, budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
@@ -90,7 +90,7 @@ model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự c�
 
 ## Người mới bắt đầu như thế nào?
 
-1. Đọc [README](../README.md) để cài Python/uv, dependencies và model spaCy được ghim phiên bản.
+1. Đọc [README](../README.md) để cài Python/uv, dependencies, model spaCy và model Stanza tiếng Việt.
    Muốn dùng `--ner models`, cài extras `nlp`; sau khi cài model riêng, dùng `uv run --no-sync`
    để uv không xóa model ngoài lock. Không dùng hoặc ghi đè `.env` của người khác.
 2. Chạy mẫu offline `samples/excerpts/manifest.json` với `--allow-excerpts` như README.

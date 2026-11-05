@@ -18,7 +18,7 @@ Các lệnh ghi output từ chối ghi đè. Đổi tên file output nếu đã 
 
 ## Thu thập run nhỏ và xuất để rà soát
 
-Cài extras và model spaCy theo [README](../README.md#cài-đặt-trên-windows). Dùng publisher ID đang bật trong `config/sources.yaml`; ví dụ dưới đây giới hạn mỗi nguồn ở tối đa ba URL thử.
+Cài NLP extras, model spaCy và model Stanza tiếng Việt theo [README](../README.md#cài-đặt-trên-windows). Các lệnh collect vẫn dùng `--ner models` như trước. Dùng publisher ID đang bật trong `config/sources.yaml`; ví dụ dưới đây giới hạn mỗi nguồn ở tối đa ba URL thử.
 
 ```powershell
 $collected = uv run --no-sync weconomy collect --source vnexpress --source tuoitre --limit 3 --ner models | ConvertFrom-Json

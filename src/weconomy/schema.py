@@ -19,7 +19,7 @@ S = pa.string()
 INT = pa.int64()
 SCHEMAS = {
     "bronze": schema([(x, S) for x in (
-        "document_id", "url", "source_id", "kind", "license", "attribution", "retrieved_at",
+        "document_id", "url", "source_id", "kind", "attribution", "retrieved_at",
         "published_at", "language_hint", "raw_html", "raw_sha256", "response_headers", "capture_scope",
         "raw_path", "discovery_endpoint"
     )] + [("raw_bytes", pa.binary())]),
@@ -42,6 +42,7 @@ SCHEMAS = {
     )]),
 }
 
+# Optional compatibility hints for known predicates; open relation labels are supported.
 RELATION_TYPES = {
     "ACQUIRED": (["ORG"], ["ORG"]),
     "AGREED_TO_ACQUIRE": (["ORG"], ["ORG"]),

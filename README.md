@@ -2,7 +2,7 @@
 
 Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri thức ứng viên** từ tin kinh doanh tiếng Việt và tiếng Anh về tập đoàn đa quốc gia, tỷ phú và quỹ đầu tư quốc tế. Phạm vi đề tài kết nối lãnh đạo công nghệ/tài chính, startup, quỹ đầu tư mạo hiểm và chính phủ qua đầu tư, M&A, kiện chống độc quyền, hợp tác hoặc đứt gãy chuỗi cung ứng. Mỗi quan hệ giữ dấu vết về câu, bài và nguồn để người nghiên cứu kiểm tra.
 
-**Cập nhật 04/11/2026:** bộ kiểm thử được hỗ trợ có **214 test pass**. Dataset v4 đã xử lý lại 393 bản lưu toàn văn, nhận 229 bài và kết thúc với `sources_exhausted`, không có lỗi xử lý. [Snapshot JSON của lần chạy](docs/assets/status-current.json) ghi số liệu dưới đây; dùng `dataset-status` để xem một dataset khác.
+**Cập nhật 05/11/2026:** NLP suite có **84 test pass** sau khi thêm dependency parsing tiếng Việt. Bộ đầy đủ có 7 test access lỗi do config nguồn hiện tại không khớp fixture `wikinews_en`; 243 test còn lại qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Cả hai kết quả này chưa phải phép đo precision độc lập.
 
 | Chỉ số | Mục tiêu | Đã ghi nhận ở v4 |
 |---|---:|---:|
@@ -12,7 +12,9 @@ Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri th
 | Loại quan hệ quan sát được | 10 | 2 |
 | Precision | Trên 90% | Chưa đo độc lập |
 
-Mục tiêu số lượng **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
+Mục tiêu số lượng graph **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
+
+Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
 
 ![Ví dụ các cạnh ứng viên trong export v4 thực tế](docs/assets/relation-candidates.png)
 
@@ -28,16 +30,28 @@ Mục tiêu số lượng **chưa đạt**. So với bản cũ, bản sửa khô
 
 ## Cài đặt trên Windows
 
-Cần Python 3.11–3.13, `uv` và kết nối mạng cho lần cài đầu. Bộ NLP dùng spaCy tiếng Anh và underthesea tiếng Việt. Cài model spaCy ghim phiên bản riêng; dùng `--no-sync` ở các lần chạy sau để `uv` không gỡ model này.
+Cần Python 3.11–3.13, `uv` và kết nối mạng cho lần cài đầu. Bộ NLP dùng spaCy tiếng Anh, underthesea cho NER tiếng Việt và Stanza cho dependency parsing tiếng Việt. Các lệnh `collect`/`collect-dataset` không đổi; lần đầu dùng `--ner models` cần cài model spaCy và tải model Stanza một lần. Sau đó dùng `--no-sync` để `uv` không gỡ model spaCy cài riêng.
 
 ```powershell
 cd D:\Project\weconomy
 uv sync --locked --extra nlp --extra dev
 uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,depparse')"
 uv run --no-sync weconomy sources
 ```
 
 Lệnh `sources` liệt kê nguồn theo policy hiện tại. Có thể probe tối đa một bài mỗi nguồn bằng `sources --check`; probe không xác nhận toàn bộ publisher, RSS hay quyền tái sử dụng nội dung.
+
+## Crawl danh mục bằng Katana
+
+Tool crawl mới đọc danh mục từ `config/collection.yaml`, gọi Katana qua Docker CLI, chỉ theo URL cùng host/path danh mục, rồi kiểm tra robots và lọc URL bài theo regex trước khi chuyển cho pipeline hiện có. Trên Windows cần Docker Desktop đang chạy; image Katana phải tải được. Dùng:
+
+```powershell
+uv run --no-sync weconomy crawl --config config/collection.yaml
+uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
+```
+
+YAML đặt mục tiêu mềm (ví dụ `entities: 100`) và trần cứng `max_articles: 100`; `nodes` chỉ đếm entity endpoints có relation, còn `entities` là số entity rows được trích xuất. Crawl hiện chạy theo batch và dừng khi đạt các mục tiêu cấu hình hoặc hết cap/target/timebox. Mục tiêu entity không đồng nghĩa đồ thị đạt 100 node/cạnh hay precision. Chất lượng NER tiếng Việt của bộ model hiện tại còn thấp; kiểm tra dữ liệu và gán nhãn độc lập trước khi dùng kết quả.
 
 ## Thu thập dataset có thể tiếp tục
 

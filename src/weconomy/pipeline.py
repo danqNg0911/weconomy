@@ -61,7 +61,7 @@ def fulltext_snapshots(runs):
 
 
 def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=3, from_run=None,
-            from_runs=None, skip_runs=None, nlp_engine=None):
+            from_runs=None, skip_runs=None, nlp_engine=None, source_overrides=None):
     if sum(value is not None for value in (manifest, urls, sources, from_run, from_runs)) != 1:
         raise ValueError("Provide exactly one input: manifest, URLs, sources, from_run or from_runs")
     if skip_runs and sources is None:
@@ -91,6 +91,12 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
     # Invalid local inputs must not allocate a model/client or leave an orphan latest-run directory.
     nlp = nlp_engine if nlp_engine is not None else NLP(config)
     access = Access(config)
+    if source_overrides:
+        for source_id, override in source_overrides.items():
+            if source_id not in access.sources:
+                access.close()
+                raise ValueError(f"Unknown source for article extraction: {source_id}")
+            access.sources[source_id].update(override)
     run = Path(config["output"]) / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
     try:
         run.mkdir(parents=True, exist_ok=False)
@@ -129,7 +135,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     scope = item.get("capture_scope", "unknown")
                 elif manifest is not None:
                     # Offline snapshots require explicit source provenance and a redistribution basis.
-                    for key in ("source_id", "license", "attribution", "retrieved_at", "kind"):
+                    for key in ("source_id", "attribution", "retrieved_at", "kind"):
                         if not item.get(key):
                             raise ValueError(f"Missing snapshot provenance: {key}")
                     local = (manifest.parent / item["path"]).resolve()
@@ -151,6 +157,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     if "text/html" not in headers.get("content-type", "").lower():
                         raise ValueError("Article response is not HTML")
                     source = fetched["source"]
+                    source = {**source, **(source_overrides or {}).get(fetched["source_id"], {})}
                     metadata = dict(source, source_id=fetched["source_id"], retrieved_at=now(),
                                     attribution=f"{source.get('attribution', fetched['source_id'])}; {url}",
                                     language_hint=source["language"])
@@ -167,8 +174,8 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                 (run / raw_path).write_bytes(raw)
                 tables["bronze"].append({
                     "document_id": doc_id, "url": url, "source_id": metadata["source_id"],
-                    "kind": metadata["kind"], "license": metadata["license"],
-                    "attribution": metadata["attribution"], "retrieved_at": metadata["retrieved_at"],
+                    "kind": metadata["kind"], "attribution": metadata["attribution"],
+                    "retrieved_at": metadata["retrieved_at"],
                     "published_at": metadata.get("published_at", ""),
                     "language_hint": metadata.get("language_hint", ""), "raw_html": raw_html,
                     "raw_sha256": raw_hash, "response_headers": json.dumps(headers),

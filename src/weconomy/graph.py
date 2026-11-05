@@ -4,7 +4,6 @@ import os
 from neo4j import GraphDatabase
 
 from .pipeline import read_table
-from .schema import RELATION_TYPES
 
 CONSTRAINTS = [f"CREATE CONSTRAINT {label.lower()}_id IF NOT EXISTS FOR (n:{label}) REQUIRE n.{key} IS UNIQUE"
                for label, key in [("Entity", "entity_id"), ("Document", "document_id"),
@@ -13,7 +12,7 @@ CONSTRAINTS = [f"CREATE CONSTRAINT {label.lower()}_id IF NOT EXISTS FOR (n:{labe
 QUERIES = {
     "entities": "UNWIND $rows AS r MERGE (e:Entity {entity_id:r.entity_id}) SET e += r",
     "bronze": """UNWIND $rows AS r MERGE (d:Document {document_id:r.document_id})
-        SET d.url=r.url, d.source_id=r.source_id, d.license=r.license, d.attribution=r.attribution,
+        SET d.url=r.url, d.source_id=r.source_id, d.attribution=r.attribution,
             d.published_at=r.published_at, d.retrieved_at=r.retrieved_at, d.kind=r.kind, d.raw_sha256=r.raw_sha256,
             d.content_status=r.content_status, d.nlp_eligible=r.nlp_eligible""",
     "sentences": """UNWIND $rows AS r MATCH (d:Document {document_id:r.document_id})
@@ -32,7 +31,7 @@ QUERIES = {
 
 
 def event_edge_query(predicate):
-    if predicate not in RELATION_TYPES:
+    if not isinstance(predicate, str) or not predicate.isidentifier() or predicate.upper() != predicate:
         raise ValueError("Invalid relation type")
     return f"""UNWIND $rows AS r MATCH (a:Entity {{entity_id:r.subject_id}}),
         (b:Entity {{entity_id:r.object_id}})
@@ -69,7 +68,7 @@ def import_graph(run, batch_size=500):
                     rows = tables[name]
                     for offset in range(0, len(rows), batch_size):
                         tx.run(query, rows=rows[offset:offset+batch_size]).consume()
-                for predicate in RELATION_TYPES:
+                for predicate in sorted({r["predicate"] for r in tables["events"]}):
                     rows = [r for r in tables["events"] if r["predicate"] == predicate]
                     for offset in range(0, len(rows), batch_size):
                         tx.run(event_edge_query(predicate), rows=rows[offset:offset+batch_size]).consume()

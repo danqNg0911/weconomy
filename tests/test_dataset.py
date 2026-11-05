@@ -144,6 +144,20 @@ def test_duplicates_across_batches_and_same_edge_stories(tmp_path, monkeypatch):
     assert status["counts"]["nodes"] == 2
 
 
+def test_open_relation_types_are_counted_without_static_type_constraints(tmp_path):
+    conn = dataset._connect(tmp_path / "open-relations")
+    try:
+        dataset._put(conn, "entities", "a", {"entity_id": "a", "entity_type": "ORG"})
+        dataset._put(conn, "entities", "b", {"entity_id": "b", "entity_type": "PLACE"})
+        dataset._put(conn, "relations", "c", {"subject_id": "a", "predicate": "LICENSES_TECHNOLOGY_TO",
+                                                   "object_id": "b"})
+        claims, connected = dataset._graph_claims(conn)
+        assert len(claims) == 1
+        assert connected == {"a", "b"}
+    finally:
+        conn.close()
+
+
 def test_relation_types_validation_and_export_is_unique_and_one_shot(tmp_path, monkeypatch):
     url = "https://example.org/one"
     config, _ = _setup(tmp_path, monkeypatch, {url: _story()})
@@ -342,7 +356,7 @@ def test_offline_replay_stages_only_currently_allowed_archive_bodies(tmp_path, m
     assert article["archive_source_run"] == str(archive)
     assert article["archive_source_document_id"] == article["document_id"]
     assert bronze["archive_raw_sha256"] == bronze["raw_sha256"]
-    assert bronze["license"] == "TEST_ONLY synthetic fixture"
+    assert "license" not in bronze
 
 
 def test_replay_resume_is_deduplicated_and_rejects_changed_source_archive(tmp_path, monkeypatch):
