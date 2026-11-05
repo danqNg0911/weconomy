@@ -3,7 +3,7 @@ import json
 import sys
 from pathlib import Path
 
-from .access import Access, katana_urls
+from .access import katana_urls
 from .analytics import analyze
 from .crawler import run_collection
 from .dataset import collect_dataset, dataset_status, export_dataset
@@ -13,6 +13,9 @@ from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
 from .sources import source_status
+
+_DEFAULT_DATASET = Path("data/datasets/international-business-katana")
+_DEFAULT_EXPORT = Path("data/exports/international-business-katana")
 
 
 def main(argv=None):
@@ -25,6 +28,17 @@ def main(argv=None):
     crawl = sub.add_parser("crawl", help="Run bounded Katana discovery and process article batches")
     crawl.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
     crawl.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    collect = sub.add_parser("collect", help="Crawl with Katana and add the results to the default dataset")
+    collect.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    collect.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    collect.add_argument("--dataset", type=Path, default=_DEFAULT_DATASET)
+    collect.add_argument("--articles", type=int)
+    collect.add_argument("--nodes", type=int, default=1000)
+    collect.add_argument("--relations", type=int, default=5000)
+    collect.add_argument("--relation-types", type=int, default=10)
+    collect.add_argument("--max-candidates", type=int, default=10000)
+    collect.add_argument("--batch-size", type=int, default=20)
+    collect.add_argument("--resume", action="store_true")
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
@@ -32,16 +46,9 @@ def main(argv=None):
     inputs.add_argument("--from-run", type=Path, help="Reprocess saved bronze HTML without network requests")
     run.add_argument("--ner", choices=["gazetteer", "models"])
     run.add_argument("--allow-excerpts", action="store_true", help="Diagnostic NLP on declared excerpts only")
-    collect = sub.add_parser("collect", help="RSS -> full article body checks -> NER/relations -> immutable run")
-    collect.add_argument("--source", action="append", required=True, help="Repeat for multiple sources")
-    collect.add_argument("--limit", type=int, default=3, help="Maximum article URLs attempted per source")
-    collect.add_argument("--ner", choices=["gazetteer", "models"], default="models")
-    collect.add_argument("--skip-run", type=Path, action="append", default=[],
-                         help="Skip URLs already accepted as full text in this run; repeat as needed")
     dataset_collect = sub.add_parser("collect-dataset", help="Collect a resumable, persistent topic dataset")
-    dataset_collect.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business"))
-    dataset_inputs = dataset_collect.add_mutually_exclusive_group()
-    dataset_inputs.add_argument("--source", action="append", dest="sources")
+    dataset_collect.add_argument("--dataset", type=Path, default=_DEFAULT_DATASET)
+    dataset_inputs = dataset_collect.add_mutually_exclusive_group(required=True)
     dataset_inputs.add_argument("--urls", type=Path, help="File containing one article URL per line")
     dataset_inputs.add_argument("--from-run", type=Path, action="append", dest="from_runs",
                                 help="Replay eligible full-page bodies from a saved run; repeat in preference order")
@@ -52,10 +59,10 @@ def main(argv=None):
     dataset_collect.add_argument("--resume", action="store_true")
     dataset_collect.add_argument("--ner", choices=["gazetteer", "models"])
     status = sub.add_parser("dataset-status", help="Show persisted dataset counts and collection state")
-    status.add_argument("dataset", type=Path)
+    status.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
     dataset_export = sub.add_parser("export-dataset", help="Export committed dataset tables as JSONL")
-    dataset_export.add_argument("dataset", type=Path)
-    dataset_export.add_argument("--output", type=Path, required=True)
+    dataset_export.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
+    dataset_export.add_argument("--output", type=Path, default=_DEFAULT_EXPORT)
     sources = sub.add_parser("sources", help="Show configured sources or probe one page per source")
     sources.add_argument("--check", action="store_true")
     sources.add_argument("--source", action="append", dest="source_ids")
@@ -68,10 +75,6 @@ def main(argv=None):
     export.add_argument("--table", choices=["articles", "sentences", "mentions", "entities", "relations", "events"],
                         required=True)
     export.add_argument("--output", type=Path, required=True)
-    discovery = sub.add_parser("discover")
-    discovery.add_argument("source")
-    discovery.add_argument("--limit", type=int, default=10)
-    discovery.add_argument("--output", type=Path, required=True)
     for name in ("validate", "analytics", "import-neo4j", "label-tasks", "evaluate"):
         p = sub.add_parser(name)
         p.add_argument("run", type=Path)
@@ -100,6 +103,23 @@ def main(argv=None):
         if args.command == "crawl":
             result = run_collection(args.config, target_ids=args.targets)
             code = int(result["status"] != "completed")
+        elif args.command == "collect":
+            crawl = run_collection(args.config, target_ids=args.targets)
+            from_runs = [Path(run) for target in crawl["targets"] for run in target["run_ids"]]
+            if not from_runs:
+                result = {"status": "failed", "crawl": crawl, "dataset": None}
+                code = 1
+            else:
+                config = load_config(args.config)
+                dataset = collect_dataset(
+                    config, args.dataset, from_runs=from_runs, articles=args.articles,
+                    nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                    max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
+                )
+                code = (1 if dataset.get("errors") else
+                        2 if not dataset["targets_met"] or crawl["status"] != "completed" else 0)
+                result = {"status": "completed" if code == 0 else "partial",
+                          "crawl": crawl, "dataset": dataset}
         elif args.command == "hf-push":
             result = push_run(args.run, args.repo, dry_run=args.dry_run)
         elif args.command == "hf-pull":
@@ -107,16 +127,13 @@ def main(argv=None):
         elif args.command == "schema":
             result = {"tables": {key: str(value) for key, value in SCHEMAS.items()},
                       "relations": RELATION_TYPES}
-        elif args.command in {"run", "collect", "discover", "merge-runs", "collect-dataset", "sources"}:
+        elif args.command in {"run", "merge-runs", "collect-dataset", "sources"}:
             default_config = "config/collection.yaml" if args.command == "collect-dataset" else "config/pipeline.yaml"
             config = load_config(args.config or default_config)
-            if args.command in {"run", "collect", "merge-runs"}:
+            if args.command in {"run", "merge-runs"}:
                 if args.ner:
                     config["ner_backend"] = args.ner
-                if args.command == "collect":
-                    run, report = process(config, sources=args.source, limit_per_source=args.limit,
-                                          skip_runs=args.skip_run)
-                elif args.command == "merge-runs":
+                if args.command == "merge-runs":
                     run, report = process(config, from_runs=args.runs)
                 else:
                     config["allow_excerpts"] = args.allow_excerpts
@@ -130,7 +147,7 @@ def main(argv=None):
                 if args.ner:
                     config["ner_backend"] = args.ner
                 result = collect_dataset(
-                    config, args.dataset, sources=args.sources, urls=urls, articles=args.articles,
+                    config, args.dataset, urls=urls, articles=args.articles,
                     nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
                     max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
                     from_runs=args.from_runs,
@@ -141,17 +158,6 @@ def main(argv=None):
                     code = 2
             elif args.command == "sources":
                 result = source_status(config, check=args.check, source_ids=args.source_ids)
-            else:
-                if args.limit <= 0 or args.limit > config["max_documents"]:
-                    raise ValueError("Discovery limit must be within configured document budget")
-                access = Access(config)
-                try:
-                    urls = access.discover(args.source, args.limit)
-                finally:
-                    access.close()
-                with args.output.open("x", encoding="utf-8") as stream:
-                    stream.write("\n".join(urls) + "\n")
-                result = {"urls": len(urls), "output": str(args.output)}
         elif args.command == "dataset-status":
             result = dataset_status(args.dataset)
         elif args.command == "export-dataset":

@@ -11,7 +11,7 @@ Người mới nên đọc theo thứ tự:
 7. [Kiến trúc](ARCHITECTURE.md): luồng xử lý, ranh giới module và đường mở rộng.
 8. [Roadmap](ROADMAP.md): checklist nghiệm thu và công việc các giai đoạn.
 9. [Hugging Face](HUGGINGFACE.md): kết nối, chia sẻ private qua Organization, upload/download corpus theo commit.
-10. [Các lệnh CLI bổ sung](commands.md): run legacy, fixture offline, reprocess, gán nhãn, Neo4j và Docker.
+10. [Các lệnh CLI bổ sung](commands.md): immutable run, fixture offline, replay, gán nhãn, Neo4j và Docker.
 
 [gds.cypher](gds.cypher) là template chưa nghiệm thu, không phải bằng chứng GDS đã chạy.
 Số liệu trong báo cáo pilot là lịch sử của từng lần chạy; đọc STATUS và manifest corpus tương ứng

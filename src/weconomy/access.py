@@ -1,14 +1,12 @@
-"""One policy gate for feeds, pages and externally discovered URLs."""
+"""One policy gate for pages and externally discovered URLs."""
 import ipaddress
 import json
-import re
 import socket
 import time
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 
-import feedparser
 import httpx
 import yaml
 
@@ -32,7 +30,6 @@ class Access:
         self.last_request = {}
         self.paused = set()
         self.pause_status = {}
-        self.discovery_errors = []
 
     def close(self):
         self.client.close()
@@ -123,51 +120,6 @@ class Access:
                 continue
             return {"url": url, "source_id": key, "source": source, "body": body, "headers": headers}
         raise ValueError("Too many redirects")
-
-    def discover(self, source_id: str, limit: int):
-        return [record["url"] for record in self.discover_records(source_id, limit)]
-
-    def discover_records(self, source_id: str, limit: int, *, exclude_urls=None):
-        if source_id not in self.sources:
-            raise ValueError("Unknown source")
-        source = self.sources[source_id]
-        if not source["allowed"]:
-            raise PermissionError(f"Source disabled: {source_id}")
-        if limit <= 0:
-            raise ValueError("Discovery limit must be positive")
-        records, urls = [], set(exclude_urls or ())
-        for feed in source["feeds"]:
-            try:
-                result = self.fetch(feed)
-            except (httpx.HTTPError, OSError, ValueError, PermissionError) as exc:
-                self.discovery_errors.append({"source_id": source_id, "url": feed, "stage": "discovery",
-                                              "error": f"{type(exc).__name__}: {exc}"})
-                continue
-            parsed = feedparser.parse(result["body"])
-            if parsed.bozo and not parsed.entries:
-                raise ValueError("Invalid RSS/Atom feed")
-            for entry in parsed.entries:
-                if not entry.get("link"):
-                    continue
-                try:
-                    url = canonical_url(entry.link)
-                    key, _ = self.policy(url)
-                except (PermissionError, ValueError, OSError):
-                    continue
-                if source.get("article_pattern") and not re.search(source["article_pattern"], urlsplit(url).path):
-                    continue
-                if key == source_id and url not in urls:
-                    urls.add(url)
-                    records.append({"url": url, "source_id": source_id, "discovery_endpoint": feed,
-                                    "discovery_method": "rss", "title": entry.get("title", ""),
-                                    "published_at": entry.get("published", ""),
-                                    "rss_summary": entry.get("summary", "")})
-                if len(records) >= limit:
-                    return records
-        if not records and self.discovery_errors:
-            raise ValueError(f"No article URLs found for {source_id}; see discovery errors")
-        return records
-
 
 def katana_urls(path: Path):
     """Import discovery output only; page downloads still go through Access.fetch."""

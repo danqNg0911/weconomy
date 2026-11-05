@@ -2,7 +2,7 @@
 
 Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri thức ứng viên** từ tin kinh doanh tiếng Việt và tiếng Anh về tập đoàn đa quốc gia, tỷ phú và quỹ đầu tư quốc tế. Phạm vi đề tài kết nối lãnh đạo công nghệ/tài chính, startup, quỹ đầu tư mạo hiểm và chính phủ qua đầu tư, M&A, kiện chống độc quyền, hợp tác hoặc đứt gãy chuỗi cung ứng. Mỗi quan hệ giữ dấu vết về câu, bài và nguồn để người nghiên cứu kiểm tra.
 
-**Cập nhật 05/11/2026:** NLP suite có **84 test pass** sau khi thêm dependency parsing tiếng Việt. Bộ đầy đủ có 7 test access lỗi do config nguồn hiện tại không khớp fixture `wikinews_en`; 243 test còn lại qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Cả hai kết quả này chưa phải phép đo precision độc lập.
+**Cập nhật 05/11/2026:** discovery hiện dùng Katana; đường RSS, `feedparser` và pilot `news_collector` đã được gỡ. Lệnh `collect` tự crawl và nạp vào catalog mặc định; `collect-dataset` vẫn nhận URL/run rõ ràng. Bộ kiểm tra hiện có **236 test pass** và Ruff qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Các kết quả này chưa phải phép đo precision độc lập.
 
 | Chỉ số | Mục tiêu | Đã ghi nhận ở v4 |
 |---|---:|---:|
@@ -14,7 +14,7 @@ Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri th
 
 Mục tiêu số lượng graph **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
 
-Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
+Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Crawl config hiện đặt objectives theo graph (1.000 node, 5.000 cạnh, 10 loại); safety cap 100 bài vẫn giới hạn lượt mặc định. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
 
 ![Ví dụ các cạnh ứng viên trong export v4 thực tế](docs/assets/relation-candidates.png)
 
@@ -30,7 +30,7 @@ Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 1
 
 ## Cài đặt trên Windows
 
-Cần Python 3.11–3.13, `uv` và kết nối mạng cho lần cài đầu. Bộ NLP dùng spaCy tiếng Anh, underthesea cho NER tiếng Việt và Stanza cho dependency parsing tiếng Việt. Các lệnh `collect`/`collect-dataset` không đổi; lần đầu dùng `--ner models` cần cài model spaCy và tải model Stanza một lần. Sau đó dùng `--no-sync` để `uv` không gỡ model spaCy cài riêng.
+Cần Python 3.11–3.13, `uv` và kết nối mạng cho lần cài đầu. Bộ NLP dùng spaCy tiếng Anh, underthesea cho NER tiếng Việt và Stanza cho dependency parsing tiếng Việt. Lần đầu dùng `--ner models` cần cài model spaCy và tải model Stanza một lần. Sau đó dùng `--no-sync` để `uv` không gỡ model spaCy cài riêng.
 
 ```powershell
 cd D:\Project\weconomy
@@ -40,7 +40,7 @@ uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,
 uv run --no-sync weconomy sources
 ```
 
-Lệnh `sources` liệt kê nguồn theo policy hiện tại. Có thể probe tối đa một bài mỗi nguồn bằng `sources --check`; probe không xác nhận toàn bộ publisher, RSS hay quyền tái sử dụng nội dung.
+Lệnh `sources` liệt kê nguồn theo policy hiện tại. `sources --check` kiểm tra policy và robots.txt ở host gốc; lệnh này không khám phá/tải bài và không xác minh quyền tái sử dụng nội dung.
 
 ## Crawl danh mục bằng Katana
 
@@ -51,45 +51,40 @@ uv run --no-sync weconomy crawl --config config/collection.yaml
 uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
 ```
 
-YAML đặt mục tiêu mềm (ví dụ `entities: 100`) và trần cứng `max_articles: 100`; `nodes` chỉ đếm entity endpoints có relation, còn `entities` là số entity rows được trích xuất. Crawl hiện chạy theo batch và dừng khi đạt các mục tiêu cấu hình hoặc hết cap/target/timebox. Mục tiêu entity không đồng nghĩa đồ thị đạt 100 node/cạnh hay precision. Chất lượng NER tiếng Việt của bộ model hiện tại còn thấp; kiểm tra dữ liệu và gán nhãn độc lập trước khi dùng kết quả.
+Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objective và các safety cap như `max_articles`, `max_documents`, page cap và timebox. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
 
 ## Thu thập dataset có thể tiếp tục
 
-Mặc định, lệnh dùng `config/collection.yaml` và lưu catalog cùng các batch vào `data/datasets/international-business`. Dòng lệnh dưới đây đặt đúng các ngưỡng chính và ngân sách tối đa 5.000 URL được phân bổ để thử:
+Lệnh thường dùng là `collect`: nó chạy Katana, lấy run vừa tạo và nạp vào catalog mặc định `data/datasets/international-business-katana`. Catalog cũ `data/datasets/international-business` được giữ nguyên vì dùng pipeline trước. Truyền `--dataset PATH` chỉ khi muốn lưu sang chỗ khác.
 
 ```powershell
-uv run --no-sync weconomy collect-dataset `
-  --dataset data/datasets/international-business `
-  --nodes 2000 --relations 5000 --relation-types 10 `
-  --max-candidates 5000 --batch-size 20 --ner models
+uv run --no-sync weconomy collect
 ```
 
-`--max-candidates` là giới hạn số URL thử trên toàn dataset, không phải số bài hợp lệ hay cam kết đạt ngưỡng. Có thể chỉ định nguồn bằng cách lặp `--source <id>`; dùng ID đang được bật trong `config/sources.yaml`. Nếu không chỉ định nguồn, collector xét các nguồn tin có feed và được cho phép trong policy hiện tại.
+Mục tiêu mặc định là 1.000 node, 5.000 cạnh và 10 loại. Safety cap crawl hiện là 100 URL nên lệnh có thể dừng khi mục tiêu chưa đạt. Tiếp tục cùng catalog bằng `--resume`:
 
 Nếu dataset đã tồn tại, tiếp tục với cùng đường dẫn và thêm `--resume`:
 
 ```powershell
-uv run --no-sync weconomy collect-dataset `
-  --dataset data/datasets/international-business `
-  --nodes 2000 --relations 5000 --relation-types 10 `
-  --max-candidates 5000 --batch-size 20 --ner models --resume
+uv run --no-sync weconomy collect --resume
 ```
 
 Xem trạng thái và xuất các bảng đã commit thành JSONL:
 
 ```powershell
-uv run --no-sync weconomy dataset-status data/datasets/international-business
-uv run --no-sync weconomy export-dataset data/datasets/international-business `
-  --output data/exports/international-business
+uv run --no-sync weconomy dataset-status
+uv run --no-sync weconomy export-dataset
 ```
 
 Export gồm `articles.jsonl`, `entities.jsonl`, `relations.jsonl`, `claims.jsonl` và manifest. CLI từ chối ghi đè export đã tồn tại; chọn thư mục đầu ra mới nếu cần xuất lại. Mã thoát `0` nghĩa là hoàn tất hoặc đã đạt mọi ngưỡng được yêu cầu; `2` nghĩa là kết thúc lượt nhưng ngưỡng chưa đạt; `1` báo lỗi. Đọc `counts`, `remaining`, `errors` và `targets_met` trước khi sử dụng kết quả.
 
-GNU Make là tiện ích tùy chọn; trên Windows, các lệnh `uv` ở trên không cần Make. Ví dụ chạy và tiếp tục bằng Make:
+`dataset-status` và `export-dataset` cũng mặc định dùng catalog nói trên. Export mặc định ở `data/exports/international-business-katana`; dùng `--output PATH` nếu muốn lưu nơi khác hoặc tạo export mới.
+
+GNU Make là tiện ích tùy chọn; `make collect` chạy cùng luồng crawl → dataset:
 
 ```powershell
-make collect NODES=2000 RELATIONS=5000 RELATION_TYPES=10 MAX_CANDIDATES=5000 BATCH_SIZE=20 NER=models
-make collect NODES=2000 RELATIONS=5000 RELATION_TYPES=10 MAX_CANDIDATES=5000 BATCH_SIZE=20 NER=models RESUME=1
+make collect
+make collect RESUME=1
 make dataset-status
 make export-dataset
 ```
@@ -109,21 +104,20 @@ Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy
 
 ## Xử lý lại HTML đã lưu
 
-`collect-dataset --from-run` trích xuất và chạy NLP lại từ bronze của một run đã lưu, theo từng batch. Lặp cờ này để ghép nhiều run; bản chụp được kiểm tra checksum và policy nguồn hiện tại trước khi xử lý. Đầu ra giữ dấu vết về run, document và checksum gốc. Ví dụ sau dùng đường dẫn run của bạn thay cho `RUN_ID`:
+`collect-dataset --from-run` trích xuất và chạy NLP lại từ bronze của một run đã lưu, theo từng batch. Lặp cờ này để ghép nhiều run; bản chụp được kiểm tra checksum và policy nguồn hiện tại trước khi xử lý. Đầu ra giữ dấu vết về run, document và checksum gốc. Ví dụ trên dùng đường dẫn run của bạn thay cho `RUN_ID`.
 
 ```powershell
 uv run --no-sync weconomy collect-dataset `
-  --dataset data/datasets/replayed-business `
   --from-run data/runs/RUN_ID --batch-size 20 --max-candidates 1000 --ner models
 ```
 
-Có thể bổ sung run khác hoặc tiếp tục thu RSS vào cùng dataset bằng `--resume` khi cấu hình xử lý tương thích. Khi đổi NER/rule, tạo dataset mới để giữ kết quả cũ và đo trước–sau. Xem [hướng dẫn replay và ngân sách](docs/collection.md).
+Có thể bổ sung run khác vào cùng dataset bằng `--resume` khi cấu hình xử lý tương thích. Khi đổi NER/rule, tạo dataset mới để giữ kết quả cũ và đo trước–sau. Xem [hướng dẫn crawl/replay và ngân sách](docs/collection.md).
 
 ## Policy nguồn và giới hạn
 
-Nguồn được chọn từ `config/sources.yaml`; policy có thể thay đổi. Wikinews bị loại khỏi collection dataset; Reuters, Bloomberg và TechCrunch hiện tắt trong policy. Collector tôn trọng allowlist, robots, giới hạn tốc độ/kích thước và redirect; không vượt paywall hay cơ chế chống bot. Hãy kiểm tra lại nguồn trước khi chạy.
+Nguồn được chọn từ `config/sources.yaml`; policy có thể thay đổi. Collector tôn trọng allowlist, robots, giới hạn tốc độ/kích thước và redirect; không vượt paywall hay cơ chế chống bot. Hãy kiểm tra policy và target trước khi chạy.
 
-Quyền truy cập trang hoặc RSS không cấp quyền tái phân phối toàn văn. Dữ liệu báo được giữ local và không đưa snapshot báo thương mại vào Git. `body_checked` chỉ xác nhận nội dung có trong HTML đã nhận; nó không chứng minh đã lấy được phần ẩn, phân trang hay sau paywall. Bộ lọc chủ đề là heuristic, không phải phép đo độ chính xác.
+Quyền truy cập trang không cấp quyền tái phân phối toàn văn. Dữ liệu báo được giữ local và không đưa snapshot báo thương mại vào Git. `body_checked` chỉ xác nhận nội dung có trong HTML đã nhận; nó không chứng minh đã lấy được phần ẩn, phân trang hay sau paywall. Bộ lọc chủ đề là heuristic, không phải phép đo độ chính xác.
 
 Các fixture trong `samples/` là trích đoạn có ghi nhận giấy phép, dùng kiểm tra extraction/NLP offline; chúng không đại diện cho tin tức hiện hành hay corpus thu thập đầy đủ. Không dùng chúng thay kết quả thu thập thực.
 
@@ -132,11 +126,11 @@ Các fixture trong `samples/` là trích đoạn có ghi nhận giấy phép, d�
 ```powershell
 uv run --no-sync weconomy schema
 uv run --no-sync weconomy sources --check
-uv run --no-sync pytest -q tests --ignore tests/test_core.py
-uv run --no-sync ruff check src/weconomy tests --exclude test_core.py
+uv run --no-sync pytest -q tests
+uv run --no-sync ruff check src/weconomy tests
 ```
 
-Ví dụ run immutable, reprocess, gán nhãn, Neo4j và Docker nằm trong [các lệnh bổ sung](docs/commands.md); trạng thái triển khai và mục lục tài liệu ở [docs/README.md](docs/README.md). Quy trình Hugging Face nằm trong [HUGGINGFACE.md](docs/HUGGINGFACE.md). Bộ test `tests/test_core.py` là pilot suite cũ, cần dependencies riêng.
+Ví dụ run immutable, reprocess, gán nhãn, Neo4j và Docker nằm trong [các lệnh bổ sung](docs/commands.md); trạng thái triển khai và mục lục tài liệu ở [docs/README.md](docs/README.md). Quy trình Hugging Face nằm trong [HUGGINGFACE.md](docs/HUGGINGFACE.md).
 
 ## Tài liệu
 

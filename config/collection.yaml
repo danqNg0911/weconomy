@@ -68,6 +68,7 @@ crawl:
   concurrency: 1
 objectives:
   articles: null
-  nodes: null
-  entities: 100
-  relations: null
+  nodes: 1000
+  entities: null
+  relations: 5000
+  relation_types: 10

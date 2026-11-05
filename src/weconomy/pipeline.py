@@ -60,13 +60,12 @@ def fulltext_snapshots(runs):
     return [selected[url] for url in sorted(selected)]
 
 
-def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=3, from_run=None,
-            from_runs=None, skip_runs=None, nlp_engine=None, source_overrides=None):
-    if sum(value is not None for value in (manifest, urls, sources, from_run, from_runs)) != 1:
-        raise ValueError("Provide exactly one input: manifest, URLs, sources, from_run or from_runs")
-    if skip_runs and sources is None:
-        raise ValueError("skip_runs is only valid for source collection")
-    excluded_urls = {canonical_url(row["url"]) for row in fulltext_snapshots(skip_runs or [])}
+def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
+            nlp_engine=None, source_overrides=None):
+    if sum(value is not None for value in (manifest, urls, from_run, from_runs)) != 1:
+        raise ValueError("Provide exactly one input: manifest, URLs, from_run or from_runs")
+    if urls is not None and not urls:
+        raise ValueError("Provide at least one article URL")
     if manifest is not None:
         manifest = Path(manifest).resolve()
         items = json.loads(manifest.read_text(encoding="utf-8"))["documents"]
@@ -80,10 +79,6 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
         items = fulltext_snapshots(from_runs)
         if not items:
             raise ValueError("No accepted full-text captures to merge")
-    elif sources is not None:
-        if not sources or limit_per_source <= 0 or len(set(sources)) * limit_per_source > config["max_documents"]:
-            raise ValueError("Collection limit exceeds the configured document budget")
-        items = []
     else:
         items = [{"url": u} for u in urls]
     if len(items) > config["max_documents"]:
@@ -107,18 +102,6 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
     errors, seen_urls, seen_documents, seen_text = [], set(), set(), []
     entities, events, claim_ids = {}, {}, set()
     requested_urls = {}
-    if sources is not None:
-        for source_id in dict.fromkeys(sources):
-            try:
-                records = (access.discover_records(source_id, limit_per_source, exclude_urls=excluded_urls)
-                           if excluded_urls else access.discover_records(source_id, limit_per_source))
-                items.extend(records)
-                if not records and not excluded_urls:
-                    errors.append({"source_id": source_id, "stage": "discovery", "error": "No article URLs found"})
-            except Exception as exc:
-                errors.append({"source_id": source_id, "stage": "discovery", "error": str(exc)})
-        errors.extend(access.discovery_errors)
-        (run / "discovery.json").write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
     try:
         for item in items:
             article = None
@@ -277,16 +260,14 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
               "quarantined_documents": quarantined, "extractor_version": EXTRACTOR_VERSION,
               "reprocessed_from": str(from_run) if from_run else None,
               "merged_from": [str(Path(p).resolve()) for p in (from_runs or [])],
-              "skip_runs": [str(Path(p).resolve()) for p in (skip_runs or [])],
-              "known_fulltext_urls": len(excluded_urls),
               "requested_urls_by_document": requested_urls,
               "relation_types_observed": sorted({r["predicate"] for r in tables["relations"]}),
               "quality": {"precision": None, "recall": None, "f1": None,
                           "reason": "Requires independently annotated held-out labels"},
               "targets": {"nodes": 2000, "edges": 5000, "relation_types": 10, "precision": 0.9},
               "packages": {p: importlib.metadata.version(p) for p in
-                           ("weconomy", "trafilatura", "pyarrow", "feedparser", "networkx", "neo4j")},
-              "status": ("partial" if errors or quarantined or (not tables["articles"] and not excluded_urls)
+                           ("weconomy", "trafilatura", "pyarrow", "networkx", "neo4j")},
+              "status": ("partial" if errors or quarantined
                          else "completed" if tables["articles"] else "no_new_documents")}
     if config["ner_backend"] == "models":
         for package in ("spacy", "underthesea", config["english_model"]):

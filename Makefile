@@ -6,38 +6,35 @@ install:
 	uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 	uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,depparse')"
 
-# test_core.py is the legacy pilot suite and requires its separate pilot dependencies.
 test:
-	uv run --no-sync pytest -q tests --ignore tests/test_core.py
+	uv run --no-sync pytest -q tests
 
 lint:
-	uv run --no-sync ruff check src/weconomy tests --exclude test_core.py
+	uv run --no-sync ruff check src/weconomy tests
 
 schema:
 	uv run --no-sync weconomy schema
 
-DATASET ?= data/datasets/international-business
-OUTPUT ?= data/exports/international-business
-SOURCES ?=
-FROM_RUNS ?=
+DATASET ?= data/datasets/international-business-katana
+OUTPUT ?= data/exports/international-business-katana
+CONFIG ?= config/collection.yaml
+TARGETS ?=
 ARTICLES ?=
-NODES ?=
-RELATIONS ?=
-RELATION_TYPES ?=
-MAX_CANDIDATES ?= 1000
+NODES ?= 1000
+RELATIONS ?= 5000
+RELATION_TYPES ?= 10
+MAX_CANDIDATES ?= 10000
 BATCH_SIZE ?= 20
-NER ?= models
 RESUME ?= 0
 
-COLLECT_ARGS = $(foreach source,$(SOURCES),--source $(source)) \
-	$(foreach run,$(FROM_RUNS),--from-run "$(run)") \
+COLLECT_ARGS = $(foreach target,$(TARGETS),--target $(target)) \
 	$(if $(filter-out 0,$(ARTICLES)),--articles $(ARTICLES)) \
 	$(if $(filter-out 0,$(NODES)),--nodes $(NODES)) \
 	$(if $(filter-out 0,$(RELATIONS)),--relations $(RELATIONS)) \
 	$(if $(filter-out 0,$(RELATION_TYPES)),--relation-types $(RELATION_TYPES))
 
 collect:
-	uv run --no-sync weconomy collect-dataset --dataset "$(DATASET)" --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE) --ner $(NER) $(COLLECT_ARGS) $(if $(filter-out 0,$(RESUME)),--resume)
+	uv run --no-sync weconomy collect --config "$(CONFIG)" --dataset "$(DATASET)" --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE) $(COLLECT_ARGS) $(if $(filter-out 0,$(RESUME)),--resume)
 
 dataset-status:
 	uv run --no-sync weconomy dataset-status "$(DATASET)"

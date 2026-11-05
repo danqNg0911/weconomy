@@ -93,7 +93,7 @@ def test_run_collection_counts_toward_node_goal_and_never_exceeds_attempt_cap(tm
         "crawl": {"image": "projectdiscovery/katana:latest", "depth": 1, "delay_seconds": 1,
                   "max_pages_per_target": 20, "crawl_duration": "30s", "timeout_seconds": 2, "max_response_bytes": 4096,
                   "concurrency": 1},
-        "objectives": {"articles": None, "nodes": 3, "relations": None},
+        "objectives": {"articles": None, "nodes": 3, "relations": None, "relation_types": None},
     }), encoding="utf-8")
     monkeypatch.setattr(crawler, "crawl_target", lambda target, settings, **kwargs: [
         f"https://example.test/story-{i}.html" for i in range(1, 6)])
@@ -110,14 +110,17 @@ def test_run_collection_counts_toward_node_goal_and_never_exceeds_attempt_cap(tm
         [] if table == "mentions" else
         [{"entity_id": f"{run}-e{i}"} for i in range(2 if run == "batch-1" else 1)]
         if table == "entities" else
-        ([{"claim_id": "r1", "subject_id": f"{run}-e0", "object_id": f"{run}-e1"}]
+        ([{"claim_id": "r1", "subject_id": f"{run}-e0", "predicate": "FOUNDED", "object_id": f"{run}-e1"},
+          {"claim_id": "r1-copy", "subject_id": f"{run}-e0", "predicate": "FOUNDED", "object_id": f"{run}-e1"}]
          if run == "batch-1" else
-         [{"claim_id": "r2", "subject_id": "batch-1-e0", "object_id": "batch-2-e0"}]) if table == "relations" else
+         [{"claim_id": "r2", "subject_id": "batch-1-e0", "predicate": "CEO_OF", "object_id": "batch-2-e0"}]) if table == "relations" else
         [{"canonical_url": f"https://example.test/{run}-{i}", "content_status": "body_checked", "duplicate_of": ""}
          for i in range(2)]))
     result = crawler.run_collection(config_path, process_fn=FakePipeline.process)
     assert result["objectives_met"] is True, result
     assert result["counts"]["nodes"] == 3
+    assert result["counts"]["relations"] == 2
+    assert result["counts"]["relation_types"] == 2
     assert result["counts"]["entities"] == 3
     assert result["attempted_urls"] == 4
     assert FakePipeline.calls == 2

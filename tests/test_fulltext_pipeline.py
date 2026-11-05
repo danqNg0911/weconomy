@@ -35,7 +35,7 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
     source_path.write_text(yaml.safe_dump({"sources": {"fixture": {
         "hosts": ["example.org"], "allowed": True, "permission_basis": "Unit test fixture",
         "language": "en", "kind": "news", "license": "fixture", "min_interval_seconds": 0,
-        "feeds": ["https://example.org/feed"], "body_xpath": "//article",
+        "body_xpath": "//article",
     }}}), encoding="utf-8")
     config["sources"] = str(source_path)
     calls = []
@@ -44,10 +44,6 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
         calls.append(request.url.path)
         if request.url.path == "/robots.txt":
             return httpx.Response(200, text="User-agent: *\nAllow: /")
-        if request.url.path == "/feed":
-            return httpx.Response(200, text='''<rss version="2.0"><channel>
-                <item><link>https://example.org/full</link></item>
-                <item><link>https://example.org/preview</link></item></channel></rss>''')
         if request.url.path == "/alias":
             return httpx.Response(302, headers={"location": "/full"})
         words = " ".join(f"body{i}" for i in range(150))
@@ -65,7 +61,7 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
 
     monkeypatch.setattr("weconomy.pipeline.Access", make_access)
     monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
-    run, report = process(config, sources=["fixture"], limit_per_source=2)
+    run, report = process(config, urls=["https://example.org/full", "https://example.org/preview"])
     assert report["content_statuses"] == {"body_checked": 1, "partial": 1}
     assert report["counts"]["bronze"] == 2 and report["counts"]["relations"] == 1
     assert report["nlp_documents"] == 1 and report["quarantined_documents"] == 1
@@ -91,18 +87,6 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
     assert dedup_report["duplicate_documents"] == 1
     assert dedup_report["counts"]["relations"] == 1
     assert validate(deduplicated)["valid"]
-    full_requests = calls.count("/full")
-    resumed, resumed_report = process(config, sources=["fixture"], limit_per_source=2, skip_runs=[merged])
-    assert calls.count("/full") == full_requests
-    assert resumed_report["known_fulltext_urls"] == 1
-    assert resumed_report["counts"]["articles"] == 1  # Failed preview may be tried again.
-    assert validate(resumed)["valid"]
-    monkeypatch.setattr(Access, "discover_records", lambda *args, **kwargs: [])
-    unchanged, unchanged_report = process(config, sources=["fixture"], skip_runs=[merged])
-    assert unchanged_report["status"] == "no_new_documents"
-    assert unchanged_report["counts"]["articles"] == 0
-    assert unchanged_report["errors"] == []
-    assert validate(unchanged)["valid"]
     redirected, redirected_report = process(config, urls=["https://example.org/alias", "https://example.org/full"])
     assert redirected_report["counts"]["bronze"] == 1
     assert redirected_report["counts"]["relations"] == 1
@@ -142,8 +126,7 @@ def test_nlp_failure_does_not_publish_half_a_document(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("case", ["missing_manifest", "invalid_json", "oversize_manifest", "two_inputs",
-                                  "missing_run", "empty_sources", "source_budget", "empty_merge",
-                                  "skip_without_sources"])
+                                  "missing_run", "empty_urls", "source_budget", "empty_merge"])
 def test_invalid_input_does_not_create_run_directory(tmp_path, case):
     config = load_config(ROOT / "config/pipeline.yaml")
     config["output"] = str(tmp_path / "runs")
@@ -161,15 +144,13 @@ def test_invalid_input_does_not_create_run_directory(tmp_path, case):
         args = {"manifest": path, "urls": []}
     elif case == "missing_run":
         args = {"from_run": tmp_path / "missing"}
-    elif case == "empty_sources":
-        args = {"sources": []}
+    elif case == "empty_urls":
+        args = {"urls": []}
     elif case == "empty_merge":
         args = {"from_runs": []}
-    elif case == "skip_without_sources":
-        args = {"urls": [], "skip_runs": [tmp_path / "missing"]}
     else:
         config["max_documents"] = 1
-        args = {"sources": ["vnexpress"], "limit_per_source": 2}
+        args = {"urls": ["https://example.org/a", "https://example.org/b"]}
     with pytest.raises((ValueError, FileNotFoundError)):
         process(config, **args)
     assert not Path(config["output"]).exists()

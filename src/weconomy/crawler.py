@@ -190,12 +190,15 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
     batch_size = min(settings["batch_size"], cap, settings["max_documents"])
     crawl_settings = settings["crawl"]
     failures, target_reports = [], []
-    counts = {"articles": 0, "nodes": 0, "relations": 0, "extracted_entities": 0, "entities": 0}
+    counts = {"articles": 0, "nodes": 0, "relations": 0, "relation_types": 0,
+              "extracted_entities": 0, "entities": 0}
     discovered_urls = set()
     attempted_urls = set()
     accepted_article_urls = set()
     from .pipeline import read_table
     graph_nodes = set()
+    graph_edges = set()
+    relation_types = set()
     extracted_entity_ids = set()
     access = Access(settings)
     try:
@@ -261,14 +264,17 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
             counts["articles"] = len(accepted_article_urls)
             relation_rows = read_table(run, "relations")
             entities = read_table(run, "entities")
-            endpoint_ids = {endpoint for row in relation_rows
-                            for endpoint in (row["subject_id"], row["object_id"])}
-            graph_nodes.update(endpoint_ids)
+            graph_nodes.update(endpoint for row in relation_rows
+                               for endpoint in (row["subject_id"], row["object_id"]))
+            graph_edges.update((row["subject_id"], row["predicate"], row["object_id"])
+                               for row in relation_rows)
+            relation_types.update(row["predicate"] for row in relation_rows)
             extracted_entity_ids.update(entity["entity_id"] for entity in entities)
             counts["extracted_entities"] = len(extracted_entity_ids)
             counts["entities"] = len(extracted_entity_ids)
             counts["nodes"] = len(graph_nodes)
-            counts["relations"] += len(relation_rows)
+            counts["relations"] = len(graph_edges)
+            counts["relation_types"] = len(relation_types)
         target_report["errors"] = [error for error in failures if error.get("url") in target_urls]
         target_reports.append(target_report)
     if (not failures and any(value is not None for value in settings["objectives"].values())

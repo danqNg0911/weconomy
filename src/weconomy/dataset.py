@@ -167,28 +167,6 @@ def _set_meta(conn, key, value):
     conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES(?,?)", (key, _json(value)))
 
 
-def _config_sources(config, requested):
-    path = Path(config["sources"])
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    entries = data.get("sources", {})
-    names = requested if requested is not None else list(entries)
-    selected = []
-    for name in names:
-        item = entries.get(name)
-        if not isinstance(item, dict):
-            if requested is not None:
-                raise ValueError(f"Unknown source: {name}")
-            continue
-        kind = str(item.get("kind", "")).casefold()
-        if requested is not None and (kind != "news" or item.get("allowed") is not True
-                                      or not item.get("feeds")):
-            raise ValueError(f"Source is disabled or is not an allowed news source: {name}")
-        if (kind == "news" and item.get("allowed") is True and item.get("feeds")
-                and name.casefold() not in {"wikinews", "wikinews_en", "encyclopedia"}):
-            selected.append((name, item))
-    return selected
-
-
 def _policy_result(client, url):
     try:
         source_id, source = client.policy(url)
@@ -418,9 +396,8 @@ def _recover(conn, dataset):
             conn.commit()
 
 
-_REPLAY_EXCLUDED = {"wikinews", "wikinews_en", "techcrunch", "voa", "voice of america"}
-_REPLAY_EXCLUDED_HOSTS = {"en.wikinews.org", "wikinews.org", "techcrunch.com",
-                          "www.voanews.com", "voanews.com"}
+_REPLAY_EXCLUDED = {"wikinews", "wikinews_en", "voa", "voice of america"}
+_REPLAY_EXCLUDED_HOSTS = {"en.wikinews.org", "wikinews.org", "www.voanews.com", "voanews.com"}
 
 
 def _replay_index(config, dataset, runs):
@@ -578,7 +555,7 @@ def _status(conn):
     counts = _snapshot(conn)
     queue = {row["status"]: row["n"] for row in conn.execute(
         "SELECT status,COUNT(*) n FROM queue GROUP BY status")}
-    reason = _meta(conn, "reason", "sources_exhausted")
+    reason = _meta(conn, "reason", "inputs_exhausted")
     targets = _meta(conn, "targets")
     targets_met = _targets_met(counts, targets) if targets is not None else reason == "targets_met"
     return {"counts": counts, "queue": queue,
@@ -589,7 +566,7 @@ def _status(conn):
             "remaining": ({k: max(0, v - counts.get(k, 0)) if v is not None else None
                            for k, v in targets.items()} if targets is not None else None),
             "scope": _meta(conn, "scope", "international business; domain heuristic"),
-            "candidate_basis": _meta(conn, "candidate_basis", "finite RSS feed discovery")}
+            "candidate_basis": _meta(conn, "candidate_basis", "explicit candidate input")}
 
 
 def dataset_status(dataset: Path) -> dict:
@@ -605,13 +582,12 @@ def dataset_status(dataset: Path) -> dict:
         return _status(conn)
 
 
-def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
-                    urls: list[str] | None = None, articles: int | None = None,
+def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, articles: int | None = None,
                     nodes: int | None = None, relations: int | None = None,
                     relation_types: int | None = None, max_candidates: int = 1000,
                     batch_size: int = 20, resume: bool = False,
                     from_runs: list[Path] | None = None) -> dict:
-    """Collect finite feed candidates in bounded batches until thresholds or budget."""
+    """Collect explicitly supplied URLs or saved runs into a resumable dataset."""
     dataset = Path(dataset).resolve()
     targets = {"articles": articles, "nodes": nodes, "relations": relations,
                "relation_types": relation_types}
@@ -620,7 +596,7 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
     if relation_types is not None and relation_types <= 0:
         raise ValueError("relation_types must be positive")
     if (max_candidates <= 0 or batch_size <= 0
-            or sum(value is not None for value in (urls, sources, from_runs)) > 1
+            or sum(value is not None for value in (urls, from_runs)) != 1
             or (from_runs is not None and not from_runs)):
         raise ValueError("Invalid candidate budget, batch size, or input selection")
     with _writer_lock(dataset):
@@ -663,10 +639,9 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
                              (batch_id,))
             conn.commit()
             _recover(conn, dataset)
-            # Load models before discovery and attempt allocation, then reuse them
-            # across every immutable run in this collection invocation.
+            # Load models before allocation and reuse them across the invocation.
             nlp_engine = nlp.NLP(config)
-            invocation = {"sources": sources, "urls": urls,
+            invocation = {"urls": urls,
                           "from_runs": [str(Path(p).resolve()) for p in from_runs] if from_runs else None}
             _set_meta(conn, "last_invocation", invocation)
             _set_meta(conn, "targets", targets)
@@ -696,21 +671,6 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
                             continue
                         candidates.append((url, source_id))
                     basis = "explicit URLs passing current source policy"
-                elif from_runs is None:
-                    selected = _config_sources(config, sources)
-                    basis = "finite RSS feeds from eligible configured news sources"
-                    for source, _ in selected:
-                        remaining = max_candidates - len(candidates)
-                        if remaining <= 0:
-                            break
-                        try:
-                            found = client.discover_records(source, remaining, exclude_urls=existing_urls)
-                            candidate_counts[source] = len(found)
-                            for record in found:
-                                url = canonical_url(record["url"] if isinstance(record, dict) else record)
-                                candidates.append((url, source))
-                        except Exception as exc:
-                            errors.append({"source": source, "error": str(exc)})
                 unique_candidates = {}
                 for candidate_url, candidate_source in candidates:
                     if candidate_url in existing_urls:
@@ -720,7 +680,7 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
             finally:
                 if from_runs is None:
                     client.close()
-            source_hash = _hash(_json({"sources": sources, "urls": urls,
+            source_hash = _hash(_json({"urls": urls,
                                        "replay_signatures": replay_signatures,
                                        "source_file": _file_hash(config.get("sources", ""))}).encode())
             _set_meta(conn, "source_policy_hash", source_hash)
@@ -730,8 +690,7 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
             for url, source in candidates:
                 if url in existing_urls or conn.execute("SELECT 1 FROM queue WHERE url=?", (url,)).fetchone():
                     continue
-                # Explicit URLs passed policy before queueing; feed discoveries are
-                # policy-checked by Access.discover_records.
+                # Explicit article URLs were checked against the current source policy.
                 conn.execute("INSERT INTO queue VALUES(?,?,?,?,?,?)",
                              (url, source, "queued", None, None, time.time()))
                 if from_runs is not None:
@@ -760,7 +719,7 @@ def collect_dataset(config, dataset: Path, *, sources: list[str] | None = None,
                                     "ORDER BY allocated_at,url LIMIT ?",
                                     (slots,)).fetchall()
                 if not rows:
-                    _set_meta(conn, "reason", "sources_exhausted")
+                    _set_meta(conn, "reason", "inputs_exhausted")
                     break
                 batch_id = uuid4().hex
                 batch_root = dataset / "batches" / batch_id

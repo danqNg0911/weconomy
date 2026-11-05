@@ -6,7 +6,7 @@ chưa commit/push. Người clone repository chưa chắc có cùng phiên bản
 
 ## Nên dùng tool vào việc gì lúc này?
 
-Lượt ngày 05/11 thêm Stanza dependency parsing cho tiếng Việt, sửa bộ lọc phủ định làm từ “liệu” trong “nhiên liệu” chặn quan hệ, và thêm kiểm thử cho hướng cạnh chủ động/bị động. NLP suite hiện có **84 test pass**. Phát lại 275 câu đã lưu từ crawl thử cho kết quả 2 cạnh REQUESTS; đây là smoke evaluation, chưa đo precision/recall độc lập. Toàn bộ test suite hiện có 7 lỗi trong test access do working tree cấu hình không còn nguồn `wikinews_en` mà các fixture đang tham chiếu; 243 test còn lại qua. Lượt 04/11 bên dưới giữ nguyên như mốc lịch sử.
+Lượt ngày 05/11 thêm Stanza dependency parsing cho tiếng Việt và cập nhật discovery sang Katana-only. Lệnh `collect` tự crawl rồi nạp các run vừa tạo vào dataset; hard safety cap hiện vẫn là 100 bài. Pilot `news_collector` không còn trong repo. Phát lại 275 câu đã lưu từ crawl thử cho kết quả 2 cạnh REQUESTS; đây là smoke evaluation, chưa đo precision/recall độc lập. Lượt 04/11 bên dưới giữ nguyên như mốc lịch sử.
 
 Kiểm tra corpus thật: dataset v4 `data/datasets/international-business-v4-20261104` phát lại 393 body, nhận 229 bài, có 31 node có cạnh / 16 cạnh phân biệt / 17 claims / 2 loại quan hệ và không có lỗi xử lý. Lượt chạy đã kết thúc vì hết candidate; chưa đạt 2.000 / 5.000 / 10. So với bản cũ, một bài lỗi NER được khôi phục; ba claims người sáng lập sai bị loại, hai claims CEO có bằng chứng được khôi phục. Số liệu 31/10 ở các mục dưới là lịch sử của run khác.
 
@@ -16,16 +16,17 @@ Có thể dùng để thu thập có giới hạn từ nguồn được bật, l
 chạy NER/RE baseline và xuất dữ liệu có provenance để kiểm tra thủ công. Có thể chạy lại offline
 và nhập ứng viên vào Neo4j. Tool hiện là pipeline nghiên cứu; đầu ra chưa phải knowledge graph đã xác thực.
 
-Với corpus chủ đề có thể tiếp tục, chạy `weconomy collect-dataset` rồi `dataset-status` và
-`export-dataset`; xem [các lệnh, tham số và giới hạn](collection.md). Đừng suy ra nguồn nào đang hoạt động
-từ tên trong đề tài: `weconomy sources --check` chỉ probe tối đa một bài mỗi nguồn.
+Lệnh dùng thường ngày là `weconomy collect`; `weconomy crawl` và `collect-dataset` vẫn dùng riêng
+khi cần. Xem [các lệnh, tham số và giới hạn](collection.md). `weconomy sources --check`
+kiểm tra policy/robots ở host gốc, không tải hoặc probe bài báo.
 
 ## Đã có và đã kiểm tra đến đâu
 
 | Thành phần | Trạng thái thực tế | Giới hạn người dùng cần biết |
 |---|---|---|
 | CLI/config/schema | Đã chạy; Parquet bronze/silver/gold có schema cố định | Không có web UI/API phục vụ nhiều người |
-| Discovery RSS | Các lần chạy lịch sử từng thu từ VnExpress, Tuổi Trẻ và TechCrunch | Là số liệu/lựa chọn cũ, không khẳng định publisher đang bật; policy hiện tại và probe xem bằng `weconomy sources`. Chưa có crawler lịch sử đầy đủ |
+| Discovery hiện tại | `weconomy crawl`, Katana, targets trong `config/collection.yaml` | URL discovery hữu hạn theo page/time/article caps; không dùng RSS |
+| Thu thập thường ngày | `weconomy collect`: crawl rồi ingest các run vào catalog mặc định | 100 URL hard cap hiện tại; có thể dừng dưới mục tiêu graph |
 | Chính sách truy cập | Host allowlist, robots, redirect, rate/size/timeout; dừng nguồn bị chặn | Không vượt paywall/anti-bot; quyền đọc không cấp quyền phát hành lại toàn văn |
 | Adapter và toàn văn | Trafilatura đối chiếu DOM theo nguồn; lưu bytes gốc và SHA256 | `body_checked` chỉ xác minh thân bài có trong HTML được trả về; chưa lấy nội dung ẩn sau JavaScript, phân trang hoặc paywall |
 | Cách ly dữ liệu | `partial/restricted/unknown` không vào NLP mặc định | Có HTML hoặc có text chưa đủ để được coi là bài toàn văn |
@@ -34,15 +35,15 @@ từ tên trong đề tài: `weconomy sources --check` chỉ probe tối đa m�
 | Entity resolution | Alias có kiểm soát và tên chính xác theo kiểu; fuzzy chỉ gợi ý | Chưa entity linking rộng, phân giải đồng danh hoặc coreference |
 | RE theo câu | Mẫu Việt/Anh; dependency RE tiếng Anh và Stanza tiếng Việt cho predicate đã ánh xạ; lọc phủ định/tình thái | Độ bao phủ tiếng Việt còn hạn chế; kết quả chưa được đánh giá trên nhãn độc lập |
 | Provenance | Claim → câu/bài/URL; evidence, offset, trigger, rule ID; snapshot config/policy | `reported` là khẳng định theo nguồn, không phải đã fact-check |
-| Luồng immutable run legacy | `collect --skip-run`, `merge-runs`; dedup lại trên corpus đã chọn | Luồng này cần chỉ định run và không có ledger/checkpoint liên tục; dùng catalog dataset ở hàng kế tiếp cho collection tiếp diễn |
-| Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, status và JSONL export | RSS hữu hạn, budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
+| Xử lý immutable run | `run --from-run`, `merge-runs`; replay hoặc gộp các run đã có | Không thực hiện discovery; dùng `crawl` để khám phá URL và `collect-dataset` để ingest/replay vào catalog |
+| Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, status và JSONL export | Chỉ nhận URL/run tường minh, không tự discover; budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
 | Event dedup | Bảo thủ trong tài liệu khi chưa có ngày sự kiện | Chưa xác định sự kiện xuyên bài theo ngày/giao dịch; chưa chứng nhận số sự kiện thực duy nhất |
 | Nhãn và metrics | Sinh task câu đầy đủ; evaluate NER/RE P/R/F1 và Wilson interval | Chưa có nhãn độc lập hoàn chỉnh; không có precision 90% đã kiểm chứng |
 | Neo4j | Import/reimport thật, đối chiếu count theo run, MERGE idempotent | Chưa có workflow duyệt accept/reject và lịch sử duyệt; không tự xóa revision cũ |
 | NetworkX | Components, degree centrality, PageRank, communities, clustering; shortest paths trên LCC | Phép chiếu hiện vô hướng, đơn, không trọng số; chưa betweenness và các phép chiếu có hướng/trọng số |
 | Small-world | Có lệnh sigma và điều kiện từ chối khi graph không phù hợp | Corpus hiện quá nhỏ/thưa ở phần có cạnh; chưa có kết luận small-world |
 | GDS | Có query template | Chưa cài/bật và nghiệm thu so sánh với NetworkX |
-| Katana | Nhập URL/JSONL khám phá vào cổng policy của Python | Chưa nghiệm thu chạy crawler Katana; crawler ngoài không chịu cổng Python khi tự tải trang |
+| Katana | Crawl danh mục bounded, sau đó URL bài qua cổng policy của Python | Cần Docker; discovery chỉ theo target đã cấu hình và bị giới hạn bởi page/time caps |
 | Docker | Build và chạy offline đã qua; 80 văn bản trùng Windows | Image core chỉ có gazetteer, không có spaCy/underthesea; không coi kết quả NLP hai môi trường là tương đương |
 | Hugging Face | Có `hf-push/hf-pull`, private-only upload, snapshot/checksum và commit pin; kiểm thử local + Hub giả lập | Chưa nghiệm thu tài khoản/repo thật; chưa đồng bộ tự động. Xem [HUGGINGFACE.md](HUGGINGFACE.md) |
 
@@ -71,8 +72,8 @@ hoặc thực thể đã duyệt. Có 11 predicate trong schema nhưng mới qua
 Corpus gồm cả 2 bài VnExpress năm 2021; không phải toàn bộ là tin mới trong hai tuần.
 
 Ở đợt thử nguồn trước khi gom, 18 trang bị cách ly vì chưa xác minh được selector thân bài;
-các trang đó được giữ trong run nguồn, không tính vào 80 bài của corpus này. Feed VnExpress
-`doanh-nghiep.rss` đã bỏ khỏi config mặc định vì trả nhiều hồ sơ sản phẩm cũ.
+các trang đó được giữ trong run nguồn, không tính vào 80 bài của corpus này. Lịch sử: feed VnExpress
+`doanh-nghiep.rss` từng bị bỏ khỏi config vì trả nhiều hồ sơ sản phẩm cũ; RSS không còn thuộc đường discovery hiện hành.
 
 Bằng chứng local (không được đưa vào Git):
 
@@ -95,9 +96,9 @@ model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự c�
    để uv không xóa model ngoài lock. Không dùng hoặc ghi đè `.env` của người khác.
 2. Chạy mẫu offline `samples/excerpts/manifest.json` với `--allow-excerpts` như README.
    Mẫu này là trích đoạn có ghi công, không dùng để chứng minh đã thu thập toàn văn.
-3. Kiểm tra [policy nguồn](../config/sources.yaml) và tham số trong [pipeline config](../config/pipeline.yaml).
-   `collect` và `merge-runs` mặc định dùng models; `run` mặc định theo config, hiện là gazetteer.
-4. Thu thập ít bài trước, lấy đường dẫn `run` từ JSON đầu ra, đọc `status/counts/errors/content_statuses`.
+3. Kiểm tra [policy nguồn](../config/sources.yaml) và [crawl config](../config/collection.yaml).
+   Dùng `weconomy collect` cho crawl + catalog; `crawl` và `collect-dataset` là các bước riêng khi cần.
+4. Crawl ít target trước, lấy đường dẫn `run` từ `targets[].run_ids`, đọc `status/counts/errors`.
    Không chọn thư mục cuối cùng rồi mặc định đó là corpus cần dùng.
 5. Validate trước khi xuất/nhập graph; đọc [hướng dẫn toàn văn](FULLTEXT.md),
    [schema](SCHEMA.md) và [gán nhãn](ANNOTATION.md) để hiểu đầu ra.
@@ -105,8 +106,8 @@ model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự c�
 ```powershell
 cd D:\Project\weconomy
 # Sau khi đã cài môi trường/model theo README:
-$collected = uv run --no-sync weconomy collect --source vnexpress --source tuoitre --limit 3 --ner models | ConvertFrom-Json
-$run = $collected.run
+$crawl = uv run --no-sync weconomy crawl --config config/collection.yaml --target vnexpress_world_business | ConvertFrom-Json
+$run = $crawl.targets[0].run_ids[0]
 uv run --no-sync weconomy validate $run
 uv run --no-sync weconomy export $run --table articles --output "$run/articles-review.jsonl"
 uv run --no-sync weconomy export $run --table relations --output "$run/relations-review.jsonl"

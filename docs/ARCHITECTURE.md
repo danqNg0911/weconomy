@@ -4,8 +4,8 @@
 
 ```mermaid
 flowchart LR
-    RSS[RSS / Atom] --> Gate[Policy + robots + rate limit]
-    K[URL / Katana JSONL] --> Gate
+    K[Katana category discovery] --> Gate[Policy + robots + rate limit]
+    U[Explicit article URLs] --> Gate
     Gate --> B[Bronze: HTML + nguồn + giấy phép]
     Local[Trích đoạn thật có ghi công] --> B
     B --> T[Trafilatura + normalization]
@@ -29,8 +29,8 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 | Quyết định | Lý do | Giới hạn cần theo dõi |
 |---|---|---|
 | Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | Model spaCy và Stanza tiếng Việt tải riêng sau `uv sync`; chạy lệnh ứng dụng với `--no-sync` để giữ model spaCy ngoài lock |
-| feedparser trước, Katana nhập URL tùy chọn | RSS đủ kiểm tra discovery, giảm crawler cần vận hành | RSS không cung cấp lịch sử đầy đủ |
-| Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/RSS riêng | Chưa thử parser toàn trang từng báo thương mại |
+| Katana khám phá danh mục | Dùng target URL, giới hạn scope/page/time và policy hiện tại | Phụ thuộc cấu trúc trang danh mục và các cap hữu hạn |
+| Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/body selector riêng | Chưa thử parser toàn trang từng báo thương mại |
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
 | Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng spaCy/Underthesea cho NER và dependency parser tiếng Anh/Việt | Parser Việt là Stanza, khởi tạo lazy; cần tải model Việt riêng; từ điển predicate còn hẹp |
 | Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
@@ -42,7 +42,7 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 
 ## Contracts giữa module
 
-- `access.py` là cổng cho mọi request của Python. Source bị khóa không được download cả RSS.
+- `access.py` là cổng cho mọi request tải bằng Python. Katana chỉ khám phá URL; URL tải bài vẫn qua policy, robots và rate limit trong pipeline.
   Chuyển hướng phải qua policy lại. robots không tải được thì dừng, không tự suy ra cho phép.
 - Manifest offline là đầu vào do người dùng quản lý, phải có giấy phép/ghi công/source/kind/thời điểm;
   không dùng nó để hợp thức hóa tập dữ liệu không có quyền. Snapshot có SHA thì kiểm tra SHA.
