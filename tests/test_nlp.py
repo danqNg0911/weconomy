@@ -5,8 +5,6 @@ import pytest
 
 from weconomy.nlp import (
     NLP,
-    align_token,
-    dependency_relations_vi,
     extract_relations,
     normalize,
     route,
@@ -42,6 +40,17 @@ def test_direct_rules(nlp, text, lang, predicate):
     assert len(found) == 1
     assert found[0]["predicate"] == predicate
     assert found[0]["subject_id"] != found[0]["object_id"]
+
+
+@pytest.mark.parametrize("text,predicate", [
+    ("Microsoft k\u00fd k\u1ebft h\u1ee3p t\u00e1c v\u1edbi Vingroup.", "PARTNERED_WITH"),
+    ("Microsoft \u0111\u01b0\u1ee3c vinh danh b\u1edfi Vingroup.", "HONORS"),
+    ("Vingroup \u0111\u00e3 ra m\u1eaft Microsoft.", "LAUNCHES"),
+])
+def test_vietnamese_business_relations_from_new_verb_phrases(nlp, text, predicate):
+    found = extract_relations(text, nlp.mentions(text, "vi"), "vi")
+    assert len(found) == 1
+    assert found[0]["predicate"] == predicate
 
 
 def test_vietnamese_nhien_lieu_does_not_trigger_uncertainty_filter(nlp):
@@ -100,155 +109,48 @@ def test_sentence_decimal_and_last_fragment():
         "The deal is worth $7.4 billion.", "Last fragment", "New line."]
 
 
-def test_vietnamese_tokenizer_inserted_quote_spaces_keep_original_offsets(nlp):
-    # Underthesea can return a token '‘ quân' for source '‘quân'. Token spacing is not source spacing.
+class FakeRelex:
+    def __init__(self, entities, relations):
+        self.entities, self.relations = entities, relations
+        self.calls = 0
+
+    def inference(self, **kwargs):
+        self.calls += 1
+        return [self.entities], [self.relations]
+
+
+@pytest.mark.parametrize("text,language,entities,relations,predicate,subject,object_", [
+    ("Microsoft invested in GitHub.", "en", [
+        {"start": 0, "end": 9, "text": "Microsoft", "label": "organization", "score": 0.9},
+        {"start": 22, "end": 28, "text": "GitHub", "label": "organization", "score": 0.9},
+    ], [{"head": {"start": 0, "end": 9}, "tail": {"start": 22, "end": 28},
+         "relation": "invested in", "score": 0.9}], "INVESTED_IN", "Microsoft", "GitHub"),
+    ("Vingroup đầu tư vào Microsoft.", "vi", [
+        {"start": 0, "end": 8, "text": "Vingroup", "label": "tổ chức", "score": 0.9},
+        {"start": 20, "end": 29, "text": "Microsoft", "label": "tổ chức", "score": 0.9},
+    ], [{"head": {"start": 0, "end": 8}, "tail": {"start": 20, "end": 29},
+         "relation": "đầu tư vào", "score": 0.9}], "INVESTED_IN", "Vingroup", "Microsoft"),
+])
+def test_gliner_joint_extraction_maps_both_languages_once(
+        nlp, text, language, entities, relations, predicate, subject, object_):
+    from unittest.mock import patch
     nlp.backend = "models"
-    nlp.vi_ner = lambda _: [
-        ("Vingroup", "N", "B-NP", "B-ORG"), ("có", "V", "B-VP", "O"),
-        ("‘ quân", "N", "B-NP", "O"), ("bài ’", "N", "I-NP", "O"),
-        ("mới", "A", "B-AP", "O"), (".", "CH", "O", "O"),
-    ]
-    text = "Vingroup có ‘quân bài’ mới."
-    found = nlp.mentions(text, "vi")
-    assert [(m["surface"], m["start"], m["end"]) for m in found] == [("Vingroup", 0, 8)]
+    model = FakeRelex(entities, relations)
+    nlp.models[language] = model
+    mentions = nlp.mentions(text, language)
+    with patch("weconomy.nlp.extract_relations", return_value=[]):
+        claims = nlp.relations(text, mentions, language)
+    assert len(claims) == 1
+    assert claims[0]["predicate"] == predicate
+    assert claims[0]["subject_id"] == nlp.resolve(subject, "ORG")["entity_id"]
+    assert claims[0]["object_id"] == nlp.resolve(object_, "ORG")["entity_id"]
+    assert model.calls == 1
 
 
-def test_alignment_does_not_jump_over_source_words_or_change_letters():
-    with pytest.raises(ValueError, match="offsets"):
-        align_token("Other Microsoft", "Microsoft", 0)
-    with pytest.raises(ValueError, match="offsets"):
-        align_token("Vingroup", "Vingroub", 0)
-    assert align_token("Hồ Chí Minh", "Hồ_Chí_Minh", 0) == (0, 11)
-    assert align_token("name_with_underscore", "name_with_underscore", 0) == (0, 20)
-    assert align_token("Tuỳ vào", "Tùy", 0) == (0, 3)
-    assert align_token("Hoà Bình", "Hòa Bình", 0) == (0, 8)
-    with pytest.raises(ValueError):
-        align_token("Túy", "Tùy", 0)  # A different tone is not spelling normalization.
-
-
-@pytest.fixture(scope="module")
-def model_nlp():
-    pytest.importorskip("en_core_web_sm")
-    result = NLP(load_config(ROOT / "config/pipeline.yaml"))
-    import spacy
-    result.backend = "models"
-    result.en = spacy.load("en_core_web_sm")
-    return result
-
-
-@pytest.mark.parametrize("text,predicate,subject,object_", [
-    ("Microsoft recently acquired GitHub.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("GitHub was recently acquired by Microsoft.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("Bill Gates founded Microsoft in 1975.", "FOUNDED", "Bill Gates", "Microsoft"),
-    ("Microsoft invested heavily in GitHub.", "INVESTED_IN", "Microsoft", "GitHub"),
-    ("Microsoft acquired GitHub.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("Microsoft has acquired software company GitHub, the companies announced on Tuesday.",
-     "ACQUIRED", "Microsoft", "GitHub"),
-    ("Microsoft announced that Apple recently acquired GitHub.", "ACQUIRED", "Apple", "GitHub"),
-])
-def test_model_dependency_arguments_and_rule_dedup(model_nlp, text, predicate, subject, object_):
-    found = model_nlp.relations(text, model_nlp.mentions(text, "en"), "en")
-    assert len(found) == 1
-    assert found[0]["predicate"] == predicate
-    assert found[0]["subject_id"] == model_nlp.resolve(subject, "ORG")["entity_id"]
-    assert found[0]["object_id"] == model_nlp.resolve(object_, "ORG")["entity_id"]
-
-
-@pytest.mark.parametrize("text", [
-    "Microsoft may acquire GitHub.", "Microsoft plans to acquire GitHub.",
-    "Microsoft acquired a stake in GitHub.", "Microsoft acquired GitHub’s assets.",
-    "Microsoft did not acquire GitHub.", "It acquired GitHub.",
-    "Microsoft recently acquired GitHub and Apple.",
-    "Microsoft denied that Apple acquired GitHub.",
-    "Microsoft said Apple may acquire GitHub.",
-    "Microsoft might announce that Apple recently acquired GitHub.",
-    "Microsoft imagined Apple recently acquired GitHub.",
-    "Microsoft announced that it recently acquired GitHub.",
-])
-def test_dependency_abstains_on_modal_partial_ownership_and_unresolved_subjects(model_nlp, text):
-    from weconomy.nlp import dependency_relations
-    mentions = model_nlp.mentions(text, "en")
-    assert not dependency_relations(model_nlp.en(text), mentions)
-
-
-def test_model_extracts_open_predicate_for_unlisted_explicit_relation(model_nlp):
-    text = "Microsoft licenses technology to GitHub."
-    mentions = model_nlp.mentions(text, "en")
-    found = model_nlp.relations(text, mentions, "en")
-    assert len(found) == 1
-    assert found[0]["predicate"] == "LICENSE_TO"
-    assert found[0]["trigger"] == "licenses"
-
-
-def fake_vi_doc(text, rows):
-    from types import SimpleNamespace
-    words = [SimpleNamespace(id=i, text=token, lemma=lemma, head=head, deprel=dep,
-                             start_char=start, end_char=end)
-             for i, (token, lemma, head, dep, start, end) in enumerate(rows, 1)]
-    return SimpleNamespace(text=text, sentences=[SimpleNamespace(words=words)])
-
-
-@pytest.mark.parametrize("text,rows,predicate,subject,object_", [
-    ("Microsoft gần đây đã mua lại GitHub.", [
-        ("Microsoft", "Microsoft", 4, "nsubj", 0, 9), ("gần", "gần", 4, "advcl", 10, 13),
-        ("đã", "đã", 4, "advmod", 18, 20), ("mua", "mua", 0, "root", 21, 24),
-        ("lại", "lại", 4, "advmod", 25, 28), ("GitHub", "GitHub", 4, "obj", 29, 35),
-    ], "ACQUIRED", "Microsoft", "GitHub"),
-    ("GitHub đã được Microsoft mua lại.", [
-        ("GitHub", "GitHub", 5, "nsubj:pass", 0, 6), ("đã", "đã", 5, "advmod", 7, 9),
-        ("được", "được", 5, "aux:pass", 10, 14), ("Microsoft", "Microsoft", 5, "obl:agent", 15, 24),
-        ("mua", "mua", 0, "root", 25, 28), ("lại", "lại", 5, "advmod", 29, 32),
-    ], "ACQUIRED", "Microsoft", "GitHub"),
-    ("Vingroup đầu tư vào Microsoft.", [
-        ("Vingroup", "Vingroup", 2, "nsubj", 0, 8), ("đầu tư", "đầu tư", 0, "root", 9, 15),
-        ("vào", "vào", 2, "compound:dir", 16, 19), ("Microsoft", "Microsoft", 3, "obj", 20, 29),
-    ], "INVESTED_IN", "Vingroup", "Microsoft"),
-])
-def test_vietnamese_dependency_arguments(nlp, text, rows, predicate, subject, object_):
-    found = dependency_relations_vi(fake_vi_doc(text, rows), nlp.mentions(text, "vi"))
-    assert len(found) == 1
-    assert found[0]["predicate"] == predicate
-    assert found[0]["subject_id"] == nlp.resolve(subject, "ORG")["entity_id"]
-    assert found[0]["object_id"] == nlp.resolve(object_, "ORG")["entity_id"]
-
-
-def test_vietnamese_dependency_maps_explicit_request(nlp):
-    text = "Microsoft đề nghị GitHub hợp tác."
-    rows = [
-        ("Microsoft", "Microsoft", 2, "nsubj", 0, 9), ("đề nghị", "đề nghị", 0, "root", 10, 17),
-        ("GitHub", "GitHub", 2, "obj", 18, 24),
-    ]
-    found = dependency_relations_vi(fake_vi_doc(text, rows), nlp.mentions(text, "vi"))
-    assert len(found) == 1 and found[0]["predicate"] == "REQUESTS"
-
-
-def test_vietnamese_request_finds_country_inside_government_subject_and_coordination(nlp):
-    text = "Chính quyền Mỹ đề nghị Pháp và Đức dùng kho dự trữ."
-    rows = [
-        ("Chính quyền", "chính quyền", 3, "nsubj", 0, 11), ("Mỹ", "Mỹ", 1, "nmod", 12, 14),
-        ("đề nghị", "đề nghị", 0, "root", 15, 22), ("Pháp", "Pháp", 3, "obj", 23, 27),
-        ("và", "và", 6, "cc", 28, 30), ("Đức", "Đức", 4, "conj", 31, 34),
-    ]
-    found = dependency_relations_vi(fake_vi_doc(text, rows), nlp.mentions(text, "vi"))
-    expected_subject = nlp.resolve("United States", "GOV")["entity_id"]
-    expected_objects = {nlp.resolve(name, "GOV")["entity_id"] for name in ("France", "Germany")}
-    assert {(claim["subject_id"], claim["object_id"]) for claim in found} == {
-        (expected_subject, object_id) for object_id in expected_objects}
-
-
-def test_vietnamese_dependency_abstains_on_future_claim(nlp):
-    text = "Microsoft sẽ mua lại GitHub."
-    rows = [
-        ("Microsoft", "Microsoft", 3, "nsubj", 0, 9), ("sẽ", "sẽ", 3, "advmod", 10, 13),
-        ("mua", "mua", 0, "root", 14, 17), ("lại", "lại", 3, "advmod", 18, 21),
-        ("GitHub", "GitHub", 3, "obj", 22, 28),
-    ]
-    assert not dependency_relations_vi(fake_vi_doc(text, rows), nlp.mentions(text, "vi"))
-
-
-def test_curated_vietnamese_country_aliases_override_overlapping_ner(nlp):
+def test_gliner_aliases_keep_curated_entity_types(nlp):
     nlp.backend = "models"
-    nlp.vi_ner = lambda _: [("Pháp Emmanuel Macron", "Np", "B-NP", "B-LOC")]
+    nlp.models["vi"] = FakeRelex(
+        [{"start": 0, "end": 20, "text": "Pháp Emmanuel Macron", "label": "địa điểm", "score": 0.9}], [])
     found = nlp.mentions("Pháp Emmanuel Macron", "vi")
     assert [(m["surface"], m["entity"]["entity_type"]) for m in found] == [
         ("Pháp", "GOV"), ("Emmanuel Macron", "PERSON")]

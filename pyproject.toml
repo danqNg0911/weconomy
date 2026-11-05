@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-nlp = ["spacy>=3.8,<4", "underthesea>=6.8,<9", "stanza>=1.10,<2", "torch>=2,<3"]
+nlp = ["gliner==0.2.29", "torch>=2,<3"]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
 hub = ["huggingface-hub>=1,<3"]
 

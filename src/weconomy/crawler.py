@@ -3,11 +3,13 @@ import json
 import re
 import subprocess
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import yaml
+from lxml import etree, html
 
 from .access import Access, canonical_url
+from .progress import heartbeat
 
 
 def load_collection(path: Path) -> dict:
@@ -23,10 +25,12 @@ def load_collection(path: Path) -> dict:
     for target in targets:
         if (not isinstance(target.get("id"), str) or not isinstance(target.get("url"), str)
                 or not isinstance(target.get("source"), str) or not isinstance(target.get("article_pattern"), str)
+                or not isinstance(target.get("article_link_xpath"), str) or not target["article_link_xpath"]
                 or not isinstance(target.get("body_xpath"), str) or not isinstance(target.get("max_articles"), int)
                 or target["max_articles"] < 1):
-            raise ValueError("Every target needs id, url, source, article_pattern, body_xpath and max_articles")
+            raise ValueError("Every target needs id, url, source, article_link_xpath, article_pattern, body_xpath and max_articles")
         re.compile(target["article_pattern"])
+        etree.XPath(target["article_link_xpath"])
     objectives = settings.get("objectives", {})
     if any(v is not None and (not isinstance(v, int) or v < 0) for v in objectives.values()):
         raise ValueError("Objectives must be nonnegative integers or null")
@@ -38,7 +42,8 @@ def load_collection(path: Path) -> dict:
 def katana_command(target: str, max_pages: int, delay_seconds: int, *, image: str = "projectdiscovery/katana:latest",
                    depth: int = 1, timeout_seconds: int = 15, max_response_bytes: int = 4_194_304,
                    robots_out_scope: list[str] | None = None,
-                   crawl_scope: str | None = None, crawl_duration: str = "30s") -> list[str]:
+                   crawl_scope: str | None = None, crawl_duration: str = "30s",
+                   display_out_of_scope: bool = False) -> list[str]:
     parsed_target = urlsplit(canonical_url(target))
     host = parsed_target.hostname
     command = ["docker", "run", "--rm", image, "-u", target, "-d", str(depth),
@@ -46,6 +51,8 @@ def katana_command(target: str, max_pages: int, delay_seconds: int, *, image: st
                "-field-scope", "fqdn", "-mdp", str(max_pages), "-c", "1", "-p", "1",
                "-ct", crawl_duration, "-rd", str(delay_seconds), "-timeout", str(timeout_seconds),
                "-mrs", str(max_response_bytes), "-iqp", "-j", "-silent"]
+    if display_out_of_scope:
+        command.append("-do")
     for pattern in robots_out_scope or []:
         command.extend(["-crawl-out-scope", pattern])
     return command
@@ -88,8 +95,62 @@ def select_article_urls(rows: list[dict], target: str, article_pattern: str, lim
     return urls
 
 
+def _target_page_body(rows: list[dict], target: dict) -> str:
+    target_url = canonical_url(target["url"])
+    page = None
+    for row in rows:
+        try:
+            if canonical_url(row["request"]["endpoint"]) == target_url:
+                page = row
+                break
+        except ValueError:
+            continue
+    body = (page or {}).get("response", {}).get("body")
+    if not isinstance(body, str) or not body:
+        raise ValueError(f"Katana did not return the target page body: {target_url}")
+    return body
+
+
+def _category_page_links(body: str | bytes, page_url: str, target: dict) -> tuple[list[str], list[str]]:
+    tree = html.fromstring(body)
+    host = urlsplit(page_url).hostname
+    urls, next_pages = [], []
+    for href in tree.xpath(target["article_link_xpath"]):
+        try:
+            url = canonical_url(urljoin(page_url, href))
+        except (TypeError, ValueError):
+            continue
+        parsed = urlsplit(url)
+        if parsed.hostname == host and re.search(target["article_pattern"], parsed.path, re.I) and url not in urls:
+            urls.append(url)
+    for anchor in tree.xpath("//a[@href]"):
+        labels = " ".join([anchor.get("rel", ""), anchor.get("aria-label", ""),
+                           anchor.get("title", ""), anchor.get("class", ""),
+                           anchor.text_content(), " ".join(anchor.xpath(".//@alt | .//@title | .//@aria-label"))])
+        context = " ".join(" ".join((node.get("class", ""), node.get("id", ""),
+                                    node.get("aria-label", ""))) for node in [anchor, *anchor.iterancestors()])
+        next_label = re.search(r"\bnext\b|\b(?:trang\s*)?(?:sau|tiếp(?:\s+theo)?)\b", labels, re.I)
+        next_class = re.search(r"(?:next[-_ ]?(?:page|pagination)|query-pagination-next)",
+                               anchor.get("class", ""), re.I)
+        if not next_class and not (next_label and re.search(r"pagination|pager|page-nav", context, re.I)):
+            continue
+        href = anchor.get("href")
+        try:
+            url = canonical_url(urljoin(page_url, href))
+        except (TypeError, ValueError):
+            continue
+        parsed = urlsplit(url)
+        if parsed.hostname == host and url != canonical_url(page_url) and url not in next_pages:
+            next_pages.append(url)
+    return urls, next_pages
+
+
+def _target_article_links(rows: list[dict], target: dict) -> set[str]:
+    return set(_category_page_links(_target_page_body(rows, target), target["url"], target)[0])
+
+
 def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_factory=Access,
-                 max_articles: int | None = None) -> list[str]:
+                 max_articles: int | None = None, progress=None) -> list[str]:
     access = access_factory(settings)
     try:
         source = access.sources.get(target["source"])
@@ -102,40 +163,87 @@ def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_
         robot = access.robot_policy(f"https://{host}", source["min_interval_seconds"])
         if not robot.can_fetch(settings["user_agent"], target["url"]):
             raise PermissionError(f"robots.txt disallows category URL: {target['url']}")
-    except Exception:
-        access.close()
-        raise
-    crawl = settings["crawl"]
-    default_entry = getattr(robot, "default_entry", None)
-    applicable_rules = list(getattr(default_entry, "rulelines", []))
-    agent = settings["user_agent"].split("/", 1)[0].casefold()
-    specific_entries = [entry for entry in getattr(robot, "entries", [])
-                        if entry.applies_to(agent) and "*" not in entry.useragents]
-    for entry in specific_entries:
-        applicable_rules.extend(entry.rulelines)
-    if not specific_entries:
-        applicable_rules.extend(getattr(default_entry, "rulelines", []))
-    denied = [rule.path for rule in applicable_rules if not rule.allowance and rule.path]
-    # Katana fetches pages while discovering links; keep paths denied to wildcard robots policy out of scope.
-    denied_scope = [rf"https?://{re.escape(host)}{re.escape(path)}" for path in denied if path]
-    page_target = rf"https?://{re.escape(host)}" + re.escape(urlsplit(canonical_url(target["url"])).path)
-    command = katana_command(target["url"], crawl["max_pages_per_target"],
-                             crawl["delay_seconds"], image=crawl["image"], depth=crawl["depth"],
-                             timeout_seconds=crawl["timeout_seconds"],
-                             max_response_bytes=crawl["max_response_bytes"], robots_out_scope=denied_scope,
-                             crawl_scope=page_target, crawl_duration=crawl["crawl_duration"])
-    duration_value = int(crawl["crawl_duration"][:-1])
-    duration_scale = {"s": 1, "m": 60, "h": 3600}[crawl["crawl_duration"][-1]]
-    timeout = duration_value * duration_scale + min(crawl["timeout_seconds"] + 5, 20)
-    try:
-        result = runner(command, capture_output=True, text=False, check=True, timeout=timeout)
-    except Exception:
-        access.close()
-        raise
-    stdout = result.stdout.decode("utf-8", errors="replace") if isinstance(result.stdout, bytes) else result.stdout
-    entries = []
-    try:
-        for row in parse_katana_output(stdout):
+
+        crawl = settings["crawl"]
+        default_entry = getattr(robot, "default_entry", None)
+        applicable_rules = list(getattr(default_entry, "rulelines", []))
+        agent = settings["user_agent"].split("/", 1)[0].casefold()
+        specific_entries = [entry for entry in getattr(robot, "entries", [])
+                            if entry.applies_to(agent) and "*" not in entry.useragents]
+        for entry in specific_entries:
+            applicable_rules.extend(entry.rulelines)
+        if not specific_entries:
+            applicable_rules.extend(getattr(default_entry, "rulelines", []))
+        denied = [rule.path for rule in applicable_rules if not rule.allowance and rule.path]
+        denied_scope = [rf"https?://{re.escape(host)}{re.escape(path)}" for path in denied if path]
+        page_target = rf"https?://{re.escape(host)}" + re.escape(urlsplit(canonical_url(target["url"])).path)
+        command = katana_command(target["url"], crawl["max_pages_per_target"],
+                                 crawl["delay_seconds"], image=crawl["image"], depth=crawl["depth"],
+                                 timeout_seconds=crawl["timeout_seconds"],
+                                 max_response_bytes=crawl["max_response_bytes"], robots_out_scope=denied_scope,
+                                 crawl_scope=page_target, crawl_duration=crawl["crawl_duration"],
+                                 display_out_of_scope=bool(target.get("article_link_xpath")))
+        duration_value = int(crawl["crawl_duration"][:-1])
+        duration_scale = {"s": 1, "m": 60, "h": 3600}[crawl["crawl_duration"][-1]]
+        timeout = duration_value * duration_scale + min(crawl["timeout_seconds"] + 5, 20)
+        if progress:
+            progress({"event": "katana_start", "url": target["url"]})
+        with heartbeat(progress, f"Katana crawl {target['url']}"):
+            result = runner(command, capture_output=True, text=False, check=True, timeout=timeout)
+        stdout = result.stdout.decode("utf-8", errors="replace") if isinstance(result.stdout, bytes) else result.stdout
+        rows = parse_katana_output(stdout)
+
+        if target.get("article_link_xpath"):
+            body = _target_page_body(rows, target)
+            page_url = canonical_url(target["url"])
+            page_limit = crawl["max_pages_per_target"]
+            url_limit = min(max_articles or target["max_articles"], target["max_articles"])
+            visited_pages = {page_url}
+            article_urls = []
+            for page_number in range(1, page_limit + 1):
+                page_links, next_pages = _category_page_links(body, page_url, target)
+                added = 0
+                for endpoint in page_links:
+                    if endpoint in article_urls:
+                        continue
+                    try:
+                        access.policy(endpoint)
+                    except PermissionError:
+                        continue
+                    if not robot.can_fetch(settings["user_agent"], endpoint):
+                        continue
+                    article_urls.append(endpoint)
+                    added += 1
+                    if len(article_urls) >= url_limit:
+                        break
+                if progress:
+                    progress({"event": "category_page", "target": target["id"],
+                              "page": page_number, "url": page_url, "new_articles": added,
+                              "total_articles": len(article_urls)})
+                if len(article_urls) >= url_limit:
+                    break
+                next_url = next((url for url in next_pages if url not in visited_pages), None)
+                if not next_url:
+                    break
+                visited_pages.add(next_url)
+                try:
+                    with heartbeat(progress, f"Fetch category page {page_number + 1}"):
+                        fetched = access.fetch(next_url)
+                    if "text/html" not in fetched["headers"].get("content-type", "").lower():
+                        raise ValueError("Pagination response is not HTML")
+                    page_url = canonical_url(fetched["url"])
+                    if urlsplit(page_url).hostname != host:
+                        raise ValueError("Pagination redirected outside the target host")
+                    body = fetched["body"]
+                except Exception as exc:
+                    if progress:
+                        progress({"event": "pagination_error", "target": target["id"],
+                                  "url": next_url, "error": f"{type(exc).__name__}: {exc}"})
+                    break
+            return article_urls
+
+        entries = []
+        for row in rows:
             endpoint = row["request"]["endpoint"]
             try:
                 endpoint = canonical_url(endpoint)
@@ -150,10 +258,10 @@ def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_
             if not robot.can_fetch(settings["user_agent"], endpoint):
                 continue
             entries.append(row)
+        return select_article_urls(entries, target["url"],
+                                   target["article_pattern"], max_articles or target["max_articles"])
     finally:
         access.close()
-    return select_article_urls(entries, target["url"],
-                               target["article_pattern"], max_articles or target["max_articles"])
 
 
 def objective_reached(counts: dict, objectives: dict) -> bool:
@@ -161,7 +269,8 @@ def objective_reached(counts: dict, objectives: dict) -> bool:
     return bool(requested) and all(counts.get(key, 0) >= value for key, value in requested.items())
 
 
-def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None, target_ids=None) -> dict:
+def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None, target_ids=None,
+                   progress=None) -> dict:
     from . import pipeline
 
     settings = load_collection(config_path)
@@ -175,9 +284,8 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
     processor = process_fn or pipeline.process
     if settings["ner_backend"] == "models":
         import importlib.util
-        if (importlib.util.find_spec("spacy") is None or importlib.util.find_spec("underthesea") is None
-                or importlib.util.find_spec(settings["english_model"]) is None):
-            raise RuntimeError("NLP model dependencies are missing; install the project's nlp extra and spaCy model")
+        if importlib.util.find_spec("gliner") is None:
+            raise RuntimeError("GLiNER is missing; install the project's nlp extra")
     targets = settings["targets"]
     if target_ids:
         unknown = set(target_ids) - {target["id"] for target in targets}
@@ -210,18 +318,26 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
     finally:
         access.close()
     configured_total = min(cap, sum(target["max_articles"] for target in targets))
-    for target in targets:
+    for target_index, target in enumerate(targets, 1):
         remaining = min(cap - len(attempted_urls), target["max_articles"])
         if remaining <= 0 or objective_reached(counts, settings["objectives"]):
             break
         source = source_rows.get(target["source"])
         if source is None or source.get("allowed") is not True:
             raise PermissionError(f"Source disabled: {target['source']}")
-        target_urls = crawl_target(target, settings, runner=runner, max_articles=crawl_settings["max_pages_per_target"])
+        if progress:
+            progress({"event": "target_start", "index": target_index, "total": len(targets),
+                      "target": target["id"], "url": target["url"]})
+        target_urls = crawl_target(target, settings, runner=runner, max_articles=crawl_settings["max_pages_per_target"],
+                                   progress=progress)
         target_urls = [url for url in target_urls if url not in attempted_urls]
         target_report = {"id": target["id"], "discovered": len(target_urls), "processed": 0,
                          "run_ids": [], "errors": []}
         discovered_urls.update(target_urls)
+        if progress:
+            progress({"event": "target_discovered", "target": target["id"],
+                      "count": len(target_urls)})
+        batch_index = 0
         while len(attempted_urls.intersection(target_urls)) < len(target_urls):
             if len(attempted_urls) >= cap or objective_reached(counts, settings["objectives"]):
                 break
@@ -234,6 +350,7 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
                     break
             if not batch:
                 continue
+            batch_index += 1
             attempted_urls.update(batch)
             config = {key: value for key, value in settings.items()
                       if key not in {"targets", "batch_size", "crawl", "objectives", "max_articles"}}
@@ -247,9 +364,16 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
             config["request_timeout"] = settings["request_timeout"]
             config["max_response_bytes"] = settings["max_response_bytes"]
             config["delay_seconds"] = max(source.get("min_interval_seconds", 0), settings["crawl"]["delay_seconds"])
-            run, report = processor(config, urls=batch,
-                                    source_overrides={target["source"]: {"body_xpath": target["body_xpath"],
-                                                                          "language": target["language"]}})
+            if progress:
+                progress({"event": "batch_start", "target": target["id"], "index": batch_index,
+                          "size": len(batch), "attempted": len(attempted_urls), "cap": cap})
+            options = {"source_overrides": {target["source"]: {"body_xpath": target["body_xpath"],
+                                                                 "language": target["language"]}}}
+            if process_fn is None:
+                options["progress"] = (lambda event: progress({**event, "stage": "crawl",
+                                                               "target": target["id"]})) if progress else None
+            with heartbeat(progress, f"Đang xử lý batch {batch_index} của {target['id']}"):
+                run, report = processor(config, urls=batch, **options)
             target_report["run_ids"].append(str(run))
             target_report["processed"] += len(batch)
             target_report["attempted"] = target_report.get("attempted", 0) + len(batch)
@@ -275,6 +399,9 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
             counts["nodes"] = len(graph_nodes)
             counts["relations"] = len(graph_edges)
             counts["relation_types"] = len(relation_types)
+            if progress:
+                progress({"event": "batch_done", "target": target["id"], "index": batch_index,
+                          "processed": len(batch), "counts": dict(counts)})
         target_report["errors"] = [error for error in failures if error.get("url") in target_urls]
         target_reports.append(target_report)
     if (not failures and any(value is not None for value in settings["objectives"].values())

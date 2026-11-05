@@ -1,10 +1,9 @@
 """Recall regressions from saved corpus review and explicit relation patterns."""
 from pathlib import Path
 
-import pyarrow.parquet as pq
 import pytest
 
-from weconomy.nlp import NLP, align_token, extract_relations, sentences
+from weconomy.nlp import NLP, extract_relations
 from weconomy.pipeline import load_config
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,27 +16,6 @@ def nlp():
 
 def claims(nlp, text, language):
     return extract_relations(text, nlp.mentions(text, language), language)
-
-
-def test_underthesea_qui_quy_alignment_preserves_original_surface():
-    source = "Theo qui định của công ty."
-    start, end = align_token(source, "quy định", source.index("qui"))
-    assert source[start:end] == "qui định"
-    assert align_token("Qui định mới", "Quy định", 0) == (0, 8)
-
-
-def test_saved_vnexpress_article_qui_quy_alignment_regression():
-    path = ROOT / "data/datasets/international-business/batches/60eca5d8ca9542bfa85e894ef1c493fe/20261103T155012-dfd09b1f/silver/articles.parquet"
-    if not path.exists():
-        pytest.skip("saved corpus batch is available only in the data workspace")
-    article = next((row["text"] for row in pq.read_table(path, columns=["document_id", "text"]).to_pylist()
-                    if row["document_id"] == "6978465b25096f9a1fa048ed"), None)
-    if article is None:
-        pytest.skip("the saved regression article is not in this workspace")
-    sentence = next(row["text"] for row in sentences(article) if "qui định" in row["text"].casefold())
-    cursor = sentence.casefold().index("qui định")
-    start, end = align_token(sentence, "quy định", cursor)
-    assert sentence[start:end].casefold() == "qui định"
 
 
 @pytest.mark.parametrize("text,predicate,person,org", [

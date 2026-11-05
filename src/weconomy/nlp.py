@@ -1,4 +1,4 @@
-﻿"""Deterministic baseline plus optional Vietnamese/English statistical NER."""
+"""Deterministic baseline plus optional bilingual GLiNER extraction."""
 import re
 import unicodedata
 from pathlib import Path
@@ -11,23 +11,6 @@ from rapidfuzz import fuzz
 from .schema import RELATION_TYPES, stable_id
 
 DetectorFactory.seed = 0
-
-# Underthesea relocates Vietnamese tone marks in these equivalent spellings (Tuỳ -> Tùy).
-# Every replacement is two code points, so source offsets and original surfaces remain unchanged.
-VI_TONE_VARIANTS = dict(zip(
-    ["oà", "oá", "oả", "oã", "oạ", "oè", "oé", "oẻ", "oẽ", "oẹ", "uỳ", "uý", "uỷ", "uỹ", "uỵ"],
-    ["òa", "óa", "ỏa", "õa", "ọa", "òe", "óe", "ỏe", "õe", "ọe", "ùy", "úy", "ủy", "ũy", "ụy"],
-))
-VI_TONE_PATTERN = re.compile("|".join(VI_TONE_VARIANTS), re.I)
-
-
-def tone_view(text):
-    text = re.sub(r"(?<!\w)qui(?!\w)",
-                  lambda m: m.group()[:-1] + ("Y" if m.group()[-1].isupper() else "y"),
-                  text, flags=re.I)
-    return VI_TONE_PATTERN.sub(lambda m: "".join(
-        new.upper() if old.isupper() else new
-        for old, new in zip(m.group(), VI_TONE_VARIANTS[m.group().lower()])), text)
 
 
 def normalize(text):
@@ -65,26 +48,15 @@ def sentences(text):
         start = match.end()
 
 
-def align_token(text, token, cursor):
-    """Consume in order; allow spacing and equivalent Vietnamese tone placement, keeping source offsets."""
-    while cursor < len(text) and text[cursor].isspace():
-        cursor += 1
-    for surface in (token, token.replace("_", " ")):
-        letters = [re.escape(char) for char in tone_view(unicodedata.normalize("NFC", surface))
-                   if not char.isspace()]
-        if not letters:
-            continue
-        matched = re.compile(r"\s*".join(letters)).match(tone_view(text), cursor)
-        if matched:
-            return matched.span()
-    raise ValueError(f"underthesea token offsets cannot be aligned at character {cursor}")
-
-
 class NLP:
     def __init__(self, config):
         self.backend = config["ner_backend"]
         if self.backend not in {"gazetteer", "models"}:
             raise ValueError("ner_backend must be gazetteer or models")
+        self.model_ids = {
+            "en": config.get("english_model", "knowledgator/gliner-relex-base-v1.0"),
+            "vi": config.get("vietnamese_model", "belumind/barb-2-ie-vi"),
+        }
         seeds = yaml.safe_load(Path(config["aliases"]).read_text(encoding="utf-8"))
         self.aliases = {}
         for row in seeds:
@@ -98,14 +70,8 @@ class NLP:
             r"(?<!\w)(?:" + "|".join(re.escape(x) for x in sorted(self.aliases, key=len, reverse=True))
             + r")(?!\w)", re.IGNORECASE
         )
-        self.en = None
-        self._en_doc = None
-        self._vi_parser = None
-        if self.backend == "models":
-            import spacy
-            import underthesea
-            self.vi_ner = underthesea.ner
-            self.en = spacy.load(config["english_model"])
+        self.models = {"en": None, "vi": None}
+        self._prediction = None
 
     def resolve(self, surface, entity_type):
         key = normalize(surface).casefold()
@@ -124,26 +90,13 @@ class NLP:
             return []
         spans = [(m.start(), m.end(), "", "gazetteer") for m in self.alias_pattern.finditer(text)]
         if self.backend == "models":
-            if language == "en":
-                mapping = {"PERSON": "PERSON", "ORG": "ORG", "GPE": "PLACE", "LOC": "PLACE"}
-                self._en_doc = self.en(text)
-                spans += [(e.start_char, e.end_char, mapping[e.label_], "spacy")
-                          for e in self._en_doc.ents if e.label_ in mapping]
-            else:
-                # Reconstruct offsets against the original sentence, never the tokenizer's joined text.
-                cursor, active = 0, None
-                for token, _, _, tag in self.vi_ner(text):
-                    start, end = align_token(text, token, cursor)
-                    cursor = end
-                    kind = {"PER": "PERSON", "ORG": "ORG", "LOC": "PLACE"}.get(tag[2:])
-                    if tag.startswith("I-") and active and active[2] == kind:
-                        active[1] = end
-                    else:
-                        if active:
-                            spans.append((*active, "underthesea"))
-                        active = [start, end, kind] if kind else None
-                if active:
-                    spans.append((*active, "underthesea"))
+            entities, relations = self._infer(text, language)
+            self._prediction = (text, language, entities, relations)
+            for row in entities:
+                start, end = row["start"], row["end"]
+                kind = self._entity_type(row["label"], language)
+                if kind and 0 <= start < end <= len(text) and text[start:end] == row["text"]:
+                    spans.append((start, end, kind, "gliner"))
         # Keep longest span at each overlap; seeds win equal spans.
         chosen = []
         for start, end, kind, method in sorted(
@@ -160,21 +113,55 @@ class NLP:
 
     def relations(self, text, mentions, language):
         result = extract_relations(text, mentions, language)
-        if self.backend == "models" and language == "en" and relation_sentence(text, language):
-            doc = self._en_doc if self._en_doc is not None and self._en_doc.text == text else self.en(text)
-            result += dependency_relations(doc, mentions, open_labels=True)
-        if self.backend == "models" and language == "vi" and relation_sentence(text, language):
-            if self._vi_parser is None:
-                import stanza
-                self._vi_parser = stanza.Pipeline(
-                    "vi", processors="tokenize,pos,lemma,depparse", use_gpu=False,
-                    verbose=False, download_method=None,
-                )
-            result += dependency_relations_vi(self._vi_parser(text), mentions)
+        if self.backend == "models" and language in self.models and relation_sentence(text, language):
+            if not self._prediction or self._prediction[:2] != (text, language):
+                entities, relations = self._infer(text, language)
+            else:
+                _, _, entities, relations = self._prediction
+            by_span = {(m["start"], m["end"]): m for m in mentions}
+            for row in relations:
+                predicate = self._predicate(row["relation"], language)
+                head, tail = row["head"], row["tail"]
+                subject, object_ = by_span.get((head["start"], head["end"])), by_span.get(
+                    (tail["start"], tail["end"]))
+                if not predicate or not subject or not object_:
+                    continue
+                if subject["entity"]["entity_id"] == object_["entity"]["entity_id"]:
+                    continue
+                constraints = RELATION_TYPES.get(predicate)
+                if constraints and (subject["entity"]["entity_type"] not in constraints[0]
+                                    or object_["entity"]["entity_type"] not in constraints[1]):
+                    continue
+                left_end = min(head["end"], tail["end"])
+                right_start = max(head["start"], tail["start"])
+                trigger = text[left_end:right_start].strip() or row["relation"]
+                result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
+                               "object_id": object_["entity"]["entity_id"], "trigger": trigger,
+                               "rule_id": f"gliner-{language}-relex-v1", "assertion_status": "reported"})
         unique = {}
         for claim in result:
             unique.setdefault((claim["subject_id"], claim["predicate"], claim["object_id"]), claim)
         return list(unique.values())
+
+    def _infer(self, text, language):
+        if self.models[language] is None:
+            from gliner import GLiNER
+            self.models[language] = GLiNER.from_pretrained(self.model_ids[language])
+        entities, relations = self.models[language].inference(
+            texts=[text], labels=ENTITY_LABELS[language], relations=list(RELATION_LABELS[language]),
+            threshold=0.5 if language == "vi" else 0.4,
+            relation_threshold=0.6 if language == "vi" else 0.7,
+            return_relations=True, flat_ner=False,
+        )
+        return entities[0], relations[0]
+
+    @staticmethod
+    def _entity_type(label, language):
+        return ENTITY_TYPES[language].get(normalize(label).casefold())
+
+    @staticmethod
+    def _predicate(label, language):
+        return RELATION_LABELS[language].get(normalize(label).casefold())
 
 
 
@@ -199,12 +186,15 @@ RULES = {
         "INVESTED_IN": r"(?:đã )?đầu tư vào",
         "MERGED_WITH": r"(?:đã )?sáp nhập với",
         "SUED": r"(?:đã )?kiện",
-        "PARTNERED_WITH": r"(?:đã )?hợp tác với",
+        "PARTNERED_WITH": r"(?:đã )?(?:ký kết )?(?:thỏa thuận )?hợp tác với",
         "SUPPLIES_TO": r"cung cấp (?:linh kiện |chip )?cho",
         "CEO_OF": r"là (?:CEO|tổng giám đốc|giám đốc điều hành) của",
         "FOUNDED": r"(?:đã )?(?:đồng )?thành lập",
         "SUBSIDIARY_OF": r"là công ty con của",
         "REGULATES": r"quản lý hoạt động của",
+        "HONORS": r"(?:đã )?vinh danh",
+        "LAUNCHES": r"(?:đã )?ra mắt",
+        "APPOINTS": r"(?:đã )?bổ nhiệm",
     },
 }
 NEGATIVE = re.compile(
@@ -224,6 +214,7 @@ REVERSE_RULES = {
         "ACQUIRED": r"(?:đã )?được mua lại bởi",
         "SUED": r"(?:đã )?bị kiện bởi",
         "FOUNDED": r"(?:đã )?được (?:đồng )?thành lập bởi",
+        "HONORS": r"(?:đã )?được vinh danh bởi",
     },
 }
 
@@ -299,9 +290,9 @@ def extract_relations(text, mentions, language):
             if not re.fullmatch(pattern, gap, flags=re.I):
                 continue
             subject, object_ = (right, left) if reverse else (left, right)
-            subjects, objects = RELATION_TYPES[predicate]
-            if (subject["entity"]["entity_type"] not in subjects
-                    or object_["entity"]["entity_type"] not in objects
+            constraints = RELATION_TYPES.get(predicate)
+            if (constraints and (subject["entity"]["entity_type"] not in constraints[0]
+                    or object_["entity"]["entity_type"] not in constraints[1])
                     or (role_rule and predicate == "FOUNDED"
                         and subject["entity"]["entity_type"] != "PERSON")):
                 continue
@@ -314,117 +305,29 @@ def extract_relations(text, mentions, language):
     return result
 
 
-def open_relation_label(trigger: str) -> str:
-    words = re.findall(r"[\w]+", trigger.casefold())
-    return "_".join(words).upper()
-
-
-def open_relations(text, mentions, language):
-    return []
-
-
-VI_PREDICATES = {
-    "đầu tư": "INVESTED_IN", "sáp nhập": "MERGED_WITH", "hợp tác": "PARTNERED_WITH",
-    "kiện": "SUED", "thành lập": "FOUNDED", "cung cấp": "SUPPLIES_TO",
-    "cấp phép": "LICENSE_TO", "đề nghị": "REQUESTS", "giục": "URGES",
-    "giải phóng": "RELEASES", "điều tiết": "MANAGES",
+ENTITY_LABELS = {
+    "en": {"person": "A person", "organization": "A company or organization",
+           "place": "A geographic place"},
+    "vi": ["người", "tổ chức", "địa điểm"],
 }
-VI_MODAL = re.compile(r"\b(?:sẽ|có thể|có khả năng|dự kiến|định|muốn|sắp)\b", re.I)
-
-
-def dependency_relations_vi(doc, mentions):
-    """Extract mapped Vietnamese predicates from explicit dependency arguments."""
-    text = doc.text
-    if not relation_sentence(text, "vi") or VI_MODAL.search(text):
-        return []
-
-    result = []
-    object_deps = {"obj", "iobj", "obl", "obl:with", "obl:iobj", "obl:to", "obl:from"}
-    np_modifiers = {"nmod", "appos", "flat", "flat:name", "compound", "amod", "det",
-                    "nummod", "nmod:poss", "name"}
-
-    for sentence in doc.sentences:
-        children = {}
-        for word in sentence.words:
-            children.setdefault(word.head, []).append(word)
-
-        def mentions_for_argument(head):
-            stack, found = [head], {}
-            while stack:
-                word = stack.pop()
-                for mention in mentions:
-                    if mention["start"] < word.end_char and mention["end"] > word.start_char:
-                        found[mention["entity"]["entity_id"]] = mention
-                stack.extend(child for child in children.get(word.id, [])
-                             if child.deprel in np_modifiers or child.deprel.startswith(("compound:", "nmod:")))
-            return list(found.values())
-
-        for verb in sentence.words:
-            lemma = (verb.lemma or verb.text).casefold()
-            predicate_words = [verb]
-            predicate = VI_PREDICATES.get(lemma)
-            if lemma == "mua" and any((child.lemma or child.text).casefold() == "lại"
-                                      for child in children.get(verb.id, [])):
-                predicate, predicate_words = "ACQUIRED", [verb, *[
-                    child for child in children[verb.id] if (child.lemma or child.text).casefold() == "lại"]]
-            elif lemma == "cung":
-                complement = next((child for child in children.get(verb.id, [])
-                                   if child.deprel == "xcomp" and (child.lemma or child.text).casefold() == "cấp"), None)
-                if complement:
-                    predicate, predicate_words = "SUPPLIES_TO", [verb, complement]
-            elif lemma == "điều":
-                complement = next((child for child in children.get(verb.id, [])
-                                   if child.deprel == "xcomp" and (child.lemma or child.text).casefold() == "tiết"), None)
-                if complement:
-                    predicate, predicate_words = "MANAGES", [verb, complement]
-            if not predicate:
-                continue
-
-            passive = [child for child in children.get(verb.id, [])
-                       if child.deprel in {"nsubj:pass", "nsubjpass"}]
-            if passive:
-                subject_nodes = [child for child in children.get(verb.id, [])
-                                 if child.deprel == "obl:agent"]
-                object_nodes = passive
-            else:
-                subject_nodes = [child for child in children.get(verb.id, []) if child.deprel == "nsubj"]
-                object_nodes = []
-                for predicate_word in predicate_words:
-                    for child in children.get(predicate_word.id, []):
-                        if child.deprel in object_deps:
-                            object_nodes.append(child)
-                        elif child.deprel == "compound:dir":
-                            object_nodes.extend(grandchild for grandchild in children.get(child.id, [])
-                                                if grandchild.deprel in object_deps)
-
-            if predicate in {"REQUESTS", "URGES"}:
-                object_nodes += [child for node in object_nodes for child in children.get(node.id, [])
-                                 if child.deprel == "conj"]
-            subjects = {m["entity"]["entity_id"]: m for node in subject_nodes
-                        for m in mentions_for_argument(node)}
-            objects = {m["entity"]["entity_id"]: m for node in object_nodes
-                       for m in mentions_for_argument(node)}
-            if predicate in {"REQUESTS", "URGES"} and len(subjects) > 1:
-                institutional = {key: m for key, m in subjects.items()
-                                 if m["entity"]["entity_type"] in {"GOV", "ORG"}}
-                if institutional:
-                    subjects = institutional
-            if len(subjects) != 1 or not objects or (len(objects) > 1 and predicate not in {"REQUESTS", "URGES"}):
-                continue
-            subject = next(iter(subjects.values()))
-            constraints = RELATION_TYPES.get(predicate)
-            for object_ in objects.values():
-                if subject["entity"]["entity_id"] == object_["entity"]["entity_id"]:
-                    continue
-                if constraints and (subject["entity"]["entity_type"] not in constraints[0]
-                                    or object_["entity"]["entity_type"] not in constraints[1]):
-                    continue
-                result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
-                               "object_id": object_["entity"]["entity_id"],
-                               "trigger": text[min(w.start_char for w in predicate_words):
-                                               max(w.end_char for w in predicate_words)],
-                               "rule_id": f"vi-{predicate}-dependency-v1", "assertion_status": "reported"})
-    return result
+ENTITY_TYPES = {
+    "en": {"person": "PERSON", "organization": "ORG", "place": "PLACE"},
+    "vi": {"người": "PERSON", "tổ chức": "ORG", "địa điểm": "PLACE"},
+}
+RELATION_LABELS = {
+    "en": {
+        "acquired": "ACQUIRED", "agreed to acquire": "AGREED_TO_ACQUIRE", "invested in": "INVESTED_IN",
+        "merged with": "MERGED_WITH", "sued": "SUED", "partnered with": "PARTNERED_WITH",
+        "supplies to": "SUPPLIES_TO", "is ceo of": "CEO_OF", "founded": "FOUNDED",
+        "is subsidiary of": "SUBSIDIARY_OF", "regulates": "REGULATES",
+    },
+    "vi": {
+        "mua lại": "ACQUIRED", "đạt thỏa thuận mua lại": "AGREED_TO_ACQUIRE", "đầu tư vào": "INVESTED_IN",
+        "sáp nhập với": "MERGED_WITH", "kiện": "SUED", "hợp tác với": "PARTNERED_WITH",
+        "cung cấp cho": "SUPPLIES_TO", "là tổng giám đốc của": "CEO_OF", "thành lập": "FOUNDED",
+        "là công ty con của": "SUBSIDIARY_OF", "quản lý hoạt động của": "REGULATES",
+    },
+}
 
 
 _FUNDING_RAISE = re.compile(r"\b(?:raised|secured|closed)\b", re.I)
@@ -491,93 +394,4 @@ def funding_round_relations(text, mentions):
             result.append({"subject_id": key, "predicate": "INVESTED_IN",
                            "object_id": receiver["entity"]["entity_id"], "trigger": trigger.group(),
                            "rule_id": "en-INVESTED_IN-funding-round-v1", "assertion_status": "reported"})
-    return result
-
-
-def dependency_relations(doc, mentions, *, open_labels=False):
-    """English explicit verb arguments only; never infer endpoints from pronouns or co-occurrence."""
-    verbs = {"acquire": ("ACQUIRED", None), "buy": ("ACQUIRED", None),
-             "purchase": ("ACQUIRED", None), "sue": ("SUED", None), "found": ("FOUNDED", None),
-             "invest": ("INVESTED_IN", "in"), "partner": ("PARTNERED_WITH", "with"),
-             "merge": ("MERGED_WITH", "with"), "license": ("LICENSES", "to"),
-             "supply": ("SUPPLIES_TO", "to"), "provide": ("PROVIDES_TO", "to"),
-             "sell": ("SELLS_TO", None),
-             "finance": ("FINANCES", None), "fund": ("FUNDS", None),
-             "hire": ("HIRES", None), "appoint": ("APPOINTS", None),
-             "regulate": ("REGULATES", None), "sanction": ("SANCTIONS", None),
-             "export": ("EXPORTS_TO", "to"), "import": ("IMPORTS_FROM", "from"),
-             "owe": ("OWES", None), "own": ("OWNS", None),
-             "control": ("CONTROLS", None)}
-
-    def endpoint(token):
-        found = [m for m in mentions if m["start"] <= token.idx and token.idx + len(token.text) <= m["end"]]
-        return found[0] if len(found) == 1 else None
-
-    result = []
-    for verb in doc:
-        if verb.pos_ != "VERB":
-            continue
-        relation = verbs.get(verb.lemma_)
-        if relation is not None and relation[1] is not None:
-            prep_child = next((child for child in verb.children
-                               if child.dep_ == "prep" and child.lower_ == relation[1]), None)
-            if prep_child is None:
-                relation = (open_relation_label(f"{verb.lemma_} {relation[1]}"), relation[1]) if open_labels else None
-            elif any(child.dep_ == "dobj" for child in verb.children) and open_labels:
-                relation = (open_relation_label(f"{verb.lemma_} {relation[1]}"), relation[1])
-        if relation is None and open_labels and any(child.dep_ == "dobj" for child in verb.children):
-            prep = next((child.lower_ for child in verb.children
-                         if child.dep_ == "prep" and list(child.children)), None)
-            label = open_relation_label(f"{verb.lemma_} {prep}") if prep else open_relation_label(verb.lemma_)
-            relation = (label, prep)
-        if relation is None:
-            continue
-        children = list(verb.children)
-        if open_labels and verb.lemma_ in {"be", "say", "announce", "report", "tell", "claim", "think",
-                                           "imagine", "expect", "plan", "intend", "hope"}:
-            continue
-        if any(child.tag_ == "MD" or child.lemma_ in {"plan", "intend", "hope", "expect", "propose"}
-               for child in children) or verb.lemma_ in {"plan", "intend", "hope", "expect", "propose"}:
-            continue
-        attributed = (verb.dep_ == "ccomp" and verb.head.dep_ == "ROOT"
-                      and verb.head.lemma_ in {"say", "announce", "confirm", "report", "reveal"})
-        scope = children + list(verb.head.children) if attributed else children
-        if verb.head.tag_ == "MD" or verb.head.lemma_ in {"plan", "intend", "hope", "expect", "propose", "imagine"}:
-            continue
-        # Accept explicit assertions under affirmative reporting verbs, never plans or unresolved pronouns.
-        if ((open_labels and verb.dep_ in {"xcomp", "relcl", "advcl", "conj"})
-                or (not open_labels and verb.dep_ in {"xcomp", "relcl", "advcl", "conj"})
-                or (verb.dep_ == "ccomp" and not attributed)
-                or any(c.dep_ == "neg" or c.tag_ == "MD" for c in scope)
-                or any(c.tag_ == "MD" or c.lemma_ in {"plan", "intend", "hope", "expect", "propose"}
-                       for c in [verb, *children, verb.head])):
-            continue
-        predicate, prep = relation
-        verb_subjects = [child for child in children if child.dep_ in {"nsubj", "nsubjpass"}]
-        if open_labels and (len(verb_subjects) != 1 or endpoint(verb_subjects[0]) is None):
-            continue
-        subjects = [c for c in children if c.dep_ == "nsubj"]
-        objects = [c for c in children if c.dep_ == "dobj"] if prep is None else [
-            obj for c in children if c.dep_ == "prep" and c.lower_ == prep
-            for obj in c.children if obj.dep_ == "pobj"]
-        passive = [c for c in children if c.dep_ == "nsubjpass"]
-        if passive and prep is None:
-            subjects = [obj for c in children if c.dep_ == "agent" and c.lower_ == "by"
-                        for obj in c.children if obj.dep_ == "pobj"]
-            objects = passive
-        if len(subjects) != 1 or len(objects) != 1:
-            continue
-        if any(list(token.conjuncts) for token in [subjects[0], objects[0]]):
-            continue
-        subject, object_ = endpoint(subjects[0]), endpoint(objects[0])
-        if not subject or not object_ or subject["entity"]["entity_id"] == object_["entity"]["entity_id"]:
-            continue
-        constraints = RELATION_TYPES.get(predicate)
-        if constraints and (subject["entity"]["entity_type"] not in constraints[0]
-                            or object_["entity"]["entity_type"] not in constraints[1]):
-            continue
-        result.append({"subject_id": subject["entity"]["entity_id"], "predicate": predicate,
-                       "object_id": object_["entity"]["entity_id"], "trigger": verb.text,
-                       "rule_id": f"en-{predicate}-dependency{'-attributed' if attributed else ''}-v1",
-                       "assertion_status": "reported"})
     return result

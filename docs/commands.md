@@ -88,7 +88,7 @@ Cạnh trong Neo4j biểu diễn ứng viên máy; `reported` không có nghĩa 
 
 ## Docker offline
 
-Image core chứa backend gazetteer, không bao gồm spaCy/underthesea. Ví dụ chạy fixture offline, mount thư mục `data/` để giữ run trên host:
+Image core chứa backend gazetteer, không bao gồm GLiNER/model weights. Ví dụ chạy fixture offline, mount thư mục `data/` để giữ run trên host:
 
 ```powershell
 docker build -t weconomy:corpus-v3 .

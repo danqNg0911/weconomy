@@ -1,9 +1,19 @@
 import json
+from io import StringIO
 from pathlib import Path
 
 import pytest
 
 from weconomy import cli
+
+
+def test_console_progress_shows_fulltext_counts(capsys):
+    cli._console_progress({"event": "article_done", "stage": "crawl", "index": 1,
+                           "total": 1, "status": "body_checked", "title": "Bài test",
+                           "word_count": 1200, "body_paragraphs": 18, "nlp_sentences": 44,
+                           "entities": 5, "relations": 2})
+    output = capsys.readouterr().err
+    assert "1200 từ, 18 đoạn, 44 câu NLP" in output
 
 
 def test_collect_dataset_passes_all_options_and_default_config(monkeypatch, tmp_path, capsys):
@@ -19,6 +29,8 @@ def test_collect_dataset_passes_all_options_and_default_config(monkeypatch, tmp_
 
     monkeypatch.setattr(cli, "load_config", load_config)
     monkeypatch.setattr(cli, "collect_dataset", collect)
+    monkeypatch.setattr(cli, "validate_dataset_resume", lambda config, dataset: None)
+    (tmp_path / "dataset").mkdir()
     urls = tmp_path / "urls.txt"
     urls.write_text("\ufeffhttps://example.com/a\n\n https://example.com/b \n", encoding="utf-8")
 
@@ -40,6 +52,75 @@ def test_collect_dataset_passes_all_options_and_default_config(monkeypatch, tmp_
     assert captured["resume"] is True
     assert captured["config"]["ner_backend"] == "gazetteer"
     assert json.loads(capsys.readouterr().out)["targets_met"] is True
+
+
+def test_force_uses_new_dataset_path_and_preserves_existing(monkeypatch, tmp_path, capsys):
+    existing = tmp_path / "dataset"
+    existing.mkdir()
+    urls = tmp_path / "urls.txt"
+    urls.write_text("https://example.com/a\n", encoding="utf-8")
+    captured = {}
+    monkeypatch.setattr(cli, "load_config", lambda path: {})
+    monkeypatch.setattr(cli, "collect_dataset", lambda config, dataset, **kwargs: (
+        captured.update(dataset=dataset, **kwargs) or {"targets_met": True, "counts": {"articles": 1}}))
+
+    assert cli.main(["collect-dataset", "--dataset", str(existing), "--force", "--urls", str(urls)]) == 0
+    assert captured["dataset"] != existing
+    assert captured["dataset"].parent == existing.parent
+    assert existing.is_dir()
+    assert not captured["dataset"].exists()
+    capsys.readouterr()
+
+
+def test_existing_dataset_fails_before_collect_crawls(monkeypatch, tmp_path, capsys):
+    existing = tmp_path / "dataset"
+    existing.mkdir()
+    monkeypatch.setattr(cli, "run_collection", lambda *a, **k: pytest.fail("crawl must not start"))
+
+    assert cli.main(["collect", "--dataset", str(existing)]) == 1
+    error = capsys.readouterr().err
+    assert "Dataset đã tồn tại" in error
+    assert "--resume hoặc --force" in error
+
+
+def test_incompatible_resume_fails_before_collect_crawls(monkeypatch, tmp_path, capsys):
+    existing = tmp_path / "dataset"
+    existing.mkdir()
+    monkeypatch.setattr(cli, "load_config", lambda path: {})
+    monkeypatch.setattr(cli, "validate_dataset_resume",
+                        lambda config, dataset: (_ for _ in ()).throw(ValueError("fingerprint mismatch")))
+    monkeypatch.setattr(cli, "run_collection", lambda *a, **k: pytest.fail("crawl must not start"))
+
+    assert cli.main(["collect", "--dataset", str(existing), "--resume"]) == 1
+    assert "fingerprint mismatch" in capsys.readouterr().err
+
+
+def test_progress_messages_use_stderr(capsys):
+    cli._console_progress({"event": "article_start", "index": 1, "total": 1,
+                           "url": "https://example.com/article"})
+
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "https://example.com/article" in output.err
+
+
+def test_terminal_progress_stays_at_bottom_and_highlights_errors(monkeypatch):
+    class Terminal(StringIO):
+        def isatty(self):
+            return True
+
+    terminal = Terminal()
+    monkeypatch.setattr(cli.sys, "stderr", terminal)
+    monkeypatch.setattr(cli, "_STATUS_LINE", "")
+    cli._console_progress({"event": "article_start", "index": 1, "total": 10,
+                           "url": "https://example.com/article"})
+    cli._console_progress({"event": "error", "stage": "dataset", "error_type": "RuntimeError",
+                           "error": "TEST_ONLY failure"})
+    cli._console_progress({"event": "finished", "status": "partial"})
+    output = terminal.getvalue()
+    assert "[ 0%]" in output
+    assert "\x1b[1;31m" in output and "TEST_ONLY failure" in output
+    assert "[100%]" in output
 
 
 def test_collect_dataset_url_input_and_unmet_target_exit_2(monkeypatch, capsys, tmp_path):
@@ -93,6 +174,20 @@ def test_dataset_commands_and_sources_forward_arguments(monkeypatch, capsys, tmp
     assert json.loads(capsys.readouterr().out)["checked"] is True
 
 
+def test_export_dataset_uses_new_path_if_previous_export_exists(monkeypatch, capsys, tmp_path):
+    existing = tmp_path / "export"
+    existing.mkdir()
+    captured = {}
+    monkeypatch.setattr(cli, "export_dataset", lambda dataset, output: (
+        captured.update(output=output) or {"output": str(output)}))
+
+    assert cli.main(["export-dataset", "dataset", "--output", str(existing)]) == 0
+    assert captured["output"] != existing
+    assert captured["output"].parent == existing.parent
+    assert existing.is_dir()
+    assert json.loads(capsys.readouterr().out)["output"] == str(captured["output"])
+
+
 def test_dataset_status_and_export_use_repo_defaults(monkeypatch, capsys):
     captured = {}
     monkeypatch.setattr(cli, "dataset_status", lambda dataset: captured.update(status=dataset) or {})
@@ -119,7 +214,7 @@ def test_dataset_api_errors_exit_1(monkeypatch, capsys, tmp_path):
     urls = tmp_path / "urls.txt"
     urls.write_text("https://example.test/a\n", encoding="utf-8")
     assert cli.main(["collect-dataset", "--urls", str(urls)]) == 1
-    assert json.loads(capsys.readouterr().err)["error"] == "FileNotFoundError: dataset missing"
+    assert json.loads(capsys.readouterr().err.splitlines()[-1])["error"] == "FileNotFoundError: dataset missing"
 
 
 def test_no_target_collection_with_candidate_errors_exits_1(monkeypatch, capsys, tmp_path):
@@ -153,7 +248,7 @@ def test_collect_dataset_uses_repo_default_when_path_is_omitted(monkeypatch, tmp
 def test_collect_crawls_then_replays_runs_into_default_dataset(monkeypatch, capsys):
     captured = {}
     runs = ["data/runs/run-a", "data/runs/run-b"]
-    monkeypatch.setattr(cli, "run_collection", lambda config, target_ids=None: {
+    monkeypatch.setattr(cli, "run_collection", lambda config, target_ids=None, progress=None: {
         "status": "partial", "targets": [{"run_ids": runs}], "errors": [],
     })
     monkeypatch.setattr(cli, "load_config", lambda path: {"loaded_from": str(path)})
@@ -167,9 +262,9 @@ def test_collect_crawls_then_replays_runs_into_default_dataset(monkeypatch, caps
     result = json.loads(capsys.readouterr().out)
     assert captured["from_runs"] == [Path(run) for run in runs]
     assert captured["dataset"] == cli._DEFAULT_DATASET
-    assert captured["nodes"] == 1000
+    assert captured["nodes"] == 2000
     assert captured["relations"] == 5000
-    assert captured["relation_types"] == 10
+    assert captured["relation_types"] == 11
     assert result["status"] == "partial"
 
 

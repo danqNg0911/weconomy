@@ -1,7 +1,8 @@
 version: sprint1-corpus-v3
 output: data/runs
 ner_backend: gazetteer
-english_model: en_core_web_sm
+english_model: knowledgator/gliner-relex-base-v1.0
+vietnamese_model: belumind/barb-2-ie-vi
 aliases: config/entities.yaml
 sources: config/sources.yaml
 max_documents: 100

@@ -50,8 +50,6 @@ Từ thư mục gốc dự án:
 
 ```powershell
 uv sync --locked --extra dev --extra nlp --extra hub
-# uv sync có thể xóa model spaCy cài riêng: cài lại model sau bước sync.
-uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 uv run --no-sync hf auth login
 ```
 

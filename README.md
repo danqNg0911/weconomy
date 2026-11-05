@@ -2,7 +2,7 @@
 
 Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri thức ứng viên** từ tin kinh doanh tiếng Việt và tiếng Anh về tập đoàn đa quốc gia, tỷ phú và quỹ đầu tư quốc tế. Phạm vi đề tài kết nối lãnh đạo công nghệ/tài chính, startup, quỹ đầu tư mạo hiểm và chính phủ qua đầu tư, M&A, kiện chống độc quyền, hợp tác hoặc đứt gãy chuỗi cung ứng. Mỗi quan hệ giữ dấu vết về câu, bài và nguồn để người nghiên cứu kiểm tra.
 
-**Cập nhật 05/11/2026:** discovery hiện dùng Katana; đường RSS, `feedparser` và pilot `news_collector` đã được gỡ. Lệnh `collect` tự crawl và nạp vào catalog mặc định; `collect-dataset` vẫn nhận URL/run rõ ràng. Bộ kiểm tra hiện có **236 test pass** và Ruff qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Các kết quả này chưa phải phép đo precision độc lập.
+**Cập nhật 05/11/2026:** discovery hiện dùng Katana; đường RSS, `feedparser` và pilot `news_collector` đã được gỡ. NLP `--ner models` dùng GLiNER-Relex chung interface với checkpoint EN/VI riêng. Lệnh `collect` tự crawl và nạp vào catalog mặc định; `collect-dataset` vẫn nhận URL/run rõ ràng. Bộ kiểm tra hiện có **224 test pass** và Ruff qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Các kết quả này chưa phải phép đo precision độc lập.
 
 | Chỉ số | Mục tiêu | Đã ghi nhận ở v4 |
 |---|---:|---:|
@@ -14,7 +14,7 @@ Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri th
 
 Mục tiêu số lượng graph **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
 
-Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Crawl config hiện đặt objectives theo graph (1.000 node, 5.000 cạnh, 10 loại); safety cap 100 bài vẫn giới hạn lượt mặc định. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
+Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Crawl config hiện đặt objectives theo graph (2.000 node, 5.000 cạnh và 11 loại quan hệ (>10)); safety cap hiện tại là 500 URL. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
 
 ![Ví dụ các cạnh ứng viên trong export v4 thực tế](docs/assets/relation-candidates.png)
 
@@ -30,13 +30,11 @@ Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 1
 
 ## Cài đặt trên Windows
 
-Cần Python 3.11–3.13, `uv` và kết nối mạng cho lần cài đầu. Bộ NLP dùng spaCy tiếng Anh, underthesea cho NER tiếng Việt và Stanza cho dependency parsing tiếng Việt. Lần đầu dùng `--ner models` cần cài model spaCy và tải model Stanza một lần. Sau đó dùng `--no-sync` để `uv` không gỡ model spaCy cài riêng.
+Cần Python 3.11–3.13, `uv` và kết nối mạng lần đầu cài package/tải model. Backend `--ner models` dùng GLiNER-Relex chung API: `knowledgator/gliner-relex-base-v1.0` cho tiếng Anh và `barb-2-ie-vi` cho tiếng Việt. Model được tải tự động vào Hugging Face cache khi chạy lần đầu; tổng weights cần vài GB. Quan hệ business tiếng Việt được gọi bằng nhãn zero-shot tùy biến; benchmark 62,14 F1 trên model card Barb dùng nhãn khác nên không đại diện cho chất lượng cấu hình này. Backend `gazetteer` không tải model.
 
 ```powershell
 cd D:\Project\weconomy
 uv sync --locked --extra nlp --extra dev
-uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
-uv run python -c "import stanza; stanza.download('vi', processors='tokenize,pos,depparse')"
 uv run --no-sync weconomy sources
 ```
 
@@ -44,14 +42,14 @@ Lệnh `sources` liệt kê nguồn theo policy hiện tại. `sources --check` 
 
 ## Crawl danh mục bằng Katana
 
-Tool crawl mới đọc danh mục từ `config/collection.yaml`, gọi Katana qua Docker CLI, chỉ theo URL cùng host/path danh mục, rồi kiểm tra robots và lọc URL bài theo regex trước khi chuyển cho pipeline hiện có. Trên Windows cần Docker Desktop đang chạy; image Katana phải tải được. Dùng:
+Tool crawl mới đọc danh mục từ `config/collection.yaml`, dùng Katana qua Docker để tìm endpoint, rồi chỉ giữ URL bài được liên kết bên trong card bài của đúng target. Link menu và link tới danh mục khác bị loại trước khi tải bài; host, robots.txt và regex URL vẫn được kiểm tra. Collector nhận diện trang sau từ dấu hiệu trong DOM như `rel`, nhãn, class hoặc `alt` (“next”, “trang sau”), không dựa vào cấu trúc URL phân trang riêng từng báo. Nó theo trang tuần tự đến `crawl.max_pages_per_target`; log hiển thị số bài mới và tổng bài theo từng trang. Nội dung bài được trích theo selector riêng từng nguồn. Trên Windows cần Docker Desktop đang chạy và image Katana tải được. Dùng:
 
 ```powershell
 uv run --no-sync weconomy crawl --config config/collection.yaml
 uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
 ```
 
-Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objective và các safety cap như `max_articles`, `max_documents`, page cap và timebox. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
+Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objective và các safety cap như `max_articles`, `max_documents`, page cap và timebox. URL trang sau phải cùng host, được kiểm tra qua policy/robots và chống lặp. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
 
 ## Thu thập dataset có thể tiếp tục
 
@@ -61,13 +59,15 @@ Lệnh thường dùng là `collect`: nó chạy Katana, lấy run vừa tạo v
 uv run --no-sync weconomy collect
 ```
 
-Mục tiêu mặc định là 1.000 node, 5.000 cạnh và 10 loại. Safety cap crawl hiện là 100 URL nên lệnh có thể dừng khi mục tiêu chưa đạt. Tiếp tục cùng catalog bằng `--resume`:
+Trong lúc chạy, terminal ghim tiến độ hiện tại ở dòng cuối, hiển thị URL/giai đoạn, phần trăm batch và heartbeat mỗi 10 giây ở bước lâu. Lỗi được tô đỏ và ghi nguyên nhân; log đi ra `stderr`, JSON tổng kết vẫn ở `stdout`.
 
-Nếu dataset đã tồn tại, tiếp tục với cùng đường dẫn và thêm `--resume`:
+Mục tiêu mặc định là 2.000 node, 5.000 cạnh và 11 loại quan hệ (>10). Safety cap crawl hiện là 500 URL; mỗi target tối đa 100 bài và 100 trang danh mục. Mục tiêu vẫn có thể chưa đạt nếu danh mục không cung cấp đủ bài hoặc extractor không tìm được quan hệ. Tiếp tục cùng catalog bằng `--resume`:
 
 ```powershell
 uv run --no-sync weconomy collect --resume
 ```
+
+Khi dataset đã tồn tại, `--resume` tiếp tục catalog đó và kiểm tra fingerprint trước khi crawl. `--force` tạo một catalog mới với hậu tố thời gian/ID duy nhất bên cạnh đường dẫn đã chọn; nó không xóa hay ghi đè dataset cũ. Nếu một batch gặp lỗi, collector ghi lỗi, tiếp tục batch khác và đưa URL lỗi vào hàng đợi khi chạy lại với `--resume`.
 
 Xem trạng thái và xuất các bảng đã commit thành JSONL:
 
@@ -76,7 +76,7 @@ uv run --no-sync weconomy dataset-status
 uv run --no-sync weconomy export-dataset
 ```
 
-Export gồm `articles.jsonl`, `entities.jsonl`, `relations.jsonl`, `claims.jsonl` và manifest. CLI từ chối ghi đè export đã tồn tại; chọn thư mục đầu ra mới nếu cần xuất lại. Mã thoát `0` nghĩa là hoàn tất hoặc đã đạt mọi ngưỡng được yêu cầu; `2` nghĩa là kết thúc lượt nhưng ngưỡng chưa đạt; `1` báo lỗi. Đọc `counts`, `remaining`, `errors` và `targets_met` trước khi sử dụng kết quả.
+Export gồm `articles.jsonl`, `entities.jsonl`, `relations.jsonl`, `claims.jsonl` và manifest. Nếu thư mục export đã tồn tại, CLI tạo thư mục tên duy nhất và giữ bản cũ. Mã thoát `0` nghĩa là hoàn tất hoặc đã đạt mọi ngưỡng được yêu cầu; `2` nghĩa là kết thúc lượt nhưng ngưỡng chưa đạt; `1` báo lỗi. Đọc `counts`, `remaining`, `errors` và `targets_met` trước khi sử dụng kết quả.
 
 `dataset-status` và `export-dataset` cũng mặc định dùng catalog nói trên. Export mặc định ở `data/exports/international-business-katana`; dùng `--output PATH` nếu muốn lưu nơi khác hoặc tạo export mới.
 

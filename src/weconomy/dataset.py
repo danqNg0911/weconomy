@@ -23,6 +23,7 @@ import yaml
 
 from . import access, domain, extraction, nlp, pipeline, schema
 from .access import Access, canonical_url
+from .progress import heartbeat
 from .quality import validate
 
 _TABLES = ("articles", "bronze", "sentences", "mentions", "entities", "relations", "events")
@@ -57,16 +58,10 @@ def _processing_fingerprint(config):
     aliases = _file_hash(config.get("aliases", ""))
     packages = {}
     if config.get("ner_backend") == "models":
-        for package in ("spacy", "underthesea"):
-            try:
-                packages[package] = importlib.metadata.version(package)
-            except importlib.metadata.PackageNotFoundError as exc:
-                raise ValueError(f"Configured NLP backend requires package: {package}") from exc
-        model = config.get("english_model", "en_core_web_sm")
         try:
-            packages[str(model)] = importlib.metadata.version(str(model).replace("_", "-"))
+            packages["gliner"] = importlib.metadata.version("gliner")
         except importlib.metadata.PackageNotFoundError as exc:
-            raise ValueError(f"Configured NLP model package is unavailable: {model}") from exc
+            raise ValueError("Configured NLP backend requires package: gliner") from exc
     backend = {"nlp": getattr(nlp, "__version__", "configured"),
                "schema": schema.SCHEMA_VERSION,
                "extractor": getattr(pipeline, "EXTRACTOR_VERSION", "unknown"),
@@ -78,6 +73,18 @@ def _processing_fingerprint(config):
             raise ValueError(f"Required extraction package is unavailable: {package}") from exc
     return _hash(_json({"settings": settings, "aliases": aliases, "backend": backend,
                         "domain": domain.DOMAIN_VERSION, "code": _code_hash()}).encode())
+
+
+def validate_dataset_resume(config, dataset):
+    """Fail before crawling when a requested catalog cannot be resumed safely."""
+    db = Path(dataset) / _DB
+    if not db.is_file():
+        raise FileNotFoundError(db)
+    with closing(sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
+        row = conn.execute("SELECT value FROM meta WHERE key='processing_fingerprint'").fetchone()
+    previous = json.loads(row[0]) if row else None
+    if previous and previous != _processing_fingerprint(config):
+        raise ValueError("Dataset processing fingerprint is incompatible")
 
 
 def _connect(dataset):
@@ -562,6 +569,7 @@ def _status(conn):
             "attempts_allocated": _meta(conn, "attempts_allocated", 0),
             "candidate_counts": _meta(conn, "candidate_counts", {}),
             "errors": _meta(conn, "errors", []),
+            "error_history": _meta(conn, "error_history", []),
             "reason": reason, "targets_met": targets_met, "targets": targets,
             "remaining": ({k: max(0, v - counts.get(k, 0)) if v is not None else None
                            for k, v in targets.items()} if targets is not None else None),
@@ -586,7 +594,7 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                     nodes: int | None = None, relations: int | None = None,
                     relation_types: int | None = None, max_candidates: int = 1000,
                     batch_size: int = 20, resume: bool = False,
-                    from_runs: list[Path] | None = None) -> dict:
+                    from_runs: list[Path] | None = None, progress=None) -> dict:
     """Collect explicitly supplied URLs or saved runs into a resumable dataset."""
     dataset = Path(dataset).resolve()
     targets = {"articles": articles, "nodes": nodes, "relations": relations,
@@ -639,8 +647,23 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                              (batch_id,))
             conn.commit()
             _recover(conn, dataset)
+            if resume:
+                retry_rows = conn.execute("SELECT url,batch_id FROM queue WHERE status='error'").fetchall()
+                if retry_rows:
+                    retry_urls = {row["url"] for row in retry_rows}
+                    retry_batches = {row["batch_id"] for row in retry_rows if row["batch_id"]}
+                    errors = _meta(conn, "errors", [])
+                    resolved = [e for e in errors if e.get("url") in retry_urls
+                                or e.get("batch") in retry_batches]
+                    _set_meta(conn, "error_history", [*_meta(conn, "error_history", []), *resolved])
+                    _set_meta(conn, "errors", [e for e in errors if e not in resolved])
+                    conn.execute("UPDATE queue SET status='queued',batch_id=NULL,error=NULL WHERE status='error'")
+                    conn.commit()
             # Load models before allocation and reuse them across the invocation.
-            nlp_engine = nlp.NLP(config)
+            if progress:
+                progress({"event": "models_loading"})
+            with heartbeat(progress, "Đang khởi tạo mô hình NLP"):
+                nlp_engine = nlp.NLP(config)
             invocation = {"urls": urls,
                           "from_runs": [str(Path(p).resolve()) for p in from_runs] if from_runs else None}
             _set_meta(conn, "last_invocation", invocation)
@@ -721,10 +744,18 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                 if not rows:
                     _set_meta(conn, "reason", "inputs_exhausted")
                     break
-                batch_id = uuid4().hex
-                batch_root = dataset / "batches" / batch_id
-                batch_root.mkdir(parents=True, exist_ok=False)
+                while True:
+                    batch_id = uuid4().hex
+                    batch_root = dataset / "batches" / batch_id
+                    try:
+                        batch_root.mkdir(parents=True, exist_ok=False)
+                        break
+                    except FileExistsError:
+                        continue
                 chosen = [row["url"] for row in rows]
+                if progress:
+                    progress({"event": "dataset_batch_start", "size": len(chosen),
+                              "allocated": allocated, "budget": budget})
                 with conn:
                     conn.execute("INSERT INTO batches VALUES(?,?,?,?,?,?)",
                                  (batch_id, str(batch_root), _json(chosen), "pending", None, time.time()))
@@ -743,10 +774,15 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                                 raise ValueError(f"Missing immutable replay input for {url}")
                             replay_rows.append({**dict(item), "metadata": json.loads(item["metadata"])})
                         staged_run, replay_provenance = _stage_replay_batch(batch_root, replay_rows)
-                        run, manifest = pipeline.process(batch_config, from_run=staged_run,
-                                                         nlp_engine=nlp_engine)
+                        process_progress = (lambda event: progress({**event, "stage": "dataset"})) if progress else None
+                        with heartbeat(progress, f"Đang chạy NLP cho batch dataset, {len(chosen)} bài"):
+                            run, manifest = pipeline.process(batch_config, from_run=staged_run,
+                                                             nlp_engine=nlp_engine, progress=process_progress)
                     else:
-                        run, manifest = pipeline.process(batch_config, urls=chosen, nlp_engine=nlp_engine)
+                        process_progress = (lambda event: progress({**event, "stage": "dataset"})) if progress else None
+                        with heartbeat(progress, f"Đang tải và chạy NLP cho batch dataset, {len(chosen)} bài"):
+                            run, manifest = pipeline.process(batch_config, urls=chosen, nlp_engine=nlp_engine,
+                                                             progress=process_progress)
                     if not isinstance(manifest, dict):
                         manifest = {}
                     if manifest.get("status") not in {"completed", "partial"}:
@@ -764,19 +800,25 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                                           for e in manifest["errors"])
                         _set_meta(conn, "errors", errors)
                     counts = _snapshot(conn)
+                    if progress:
+                        progress({"event": "dataset_batch_done", "size": len(chosen), "counts": counts})
                     if _targets_met(counts, targets):
                         _set_meta(conn, "reason", "targets_met")
                         conn.commit()
                         break
                 except Exception as exc:
-                    errors.append({"batch": batch_id, "error": str(exc)})
+                    error = {"batch": batch_id, "urls": chosen,
+                             "error_type": type(exc).__name__, "error": str(exc)}
+                    errors.append(error)
                     with conn:
-                        conn.execute("UPDATE queue SET status='error',error=? WHERE batch_id=?",
-                                     (str(exc), batch_id))
+                        conn.executemany("UPDATE queue SET status='error',error=?,batch_id=? WHERE url=?",
+                                         [(str(exc), batch_id, url) for url in chosen])
                         conn.execute("UPDATE batches SET status='failed' WHERE batch_id=?", (batch_id,))
                         _set_meta(conn, "errors", errors)
                         _set_meta(conn, "reason", "error")
-                    raise
+                    if progress:
+                        progress({"event": "error", "stage": "dataset", **error})
+                    continue
             else:
                 _set_meta(conn, "reason", "budget_exhausted")
             counts = _snapshot(conn)

@@ -12,8 +12,9 @@ def test_configured_targets_use_live_allowed_sources():
     root = Path(__file__).resolve().parents[1]
     collection = yaml.safe_load((root / "config/collection.yaml").read_text(encoding="utf-8"))
     sources = yaml.safe_load((root / "config/sources.yaml").read_text(encoding="utf-8"))["sources"]
-    assert len(collection["targets"]) == 6
+    assert len(collection["targets"]) == 7
     assert all(sources[target["source"]]["allowed"] for target in collection["targets"])
+    assert all(target.get("article_link_xpath") for target in collection["targets"])
     assert {"techcrunch_venture", "techcrunch_startups"} <= {target["id"] for target in collection["targets"]}
     samples = {
         "vnexpress_world_business": "/story-123.html",
@@ -21,6 +22,7 @@ def test_configured_targets_use_live_allowed_sources():
         "techcrunch_venture": "/2026/11/01/company-deal/",
         "techcrunch_startups": "/2026/11/01/startup-funding/",
         "vneconomy_world_business": "/story.htm",
+        "vneconomy_business_network": "/story.htm",
         "24h_world_economy": "/story-c1106a123456.html",
     }
     assert all(re.search(target["article_pattern"], samples[target["id"]])
@@ -75,6 +77,91 @@ def test_parse_katana_jsonl_rejects_invalid_line():
         crawler.parse_katana_output('{"not_request": {}}')
 
 
+def test_target_article_links_excludes_navigation_and_sibling_categories():
+    target = {"url": "https://vneconomy.vn/nhip-cau-doanh-nghiep.htm",
+              "article_pattern": r"\.htm$",
+              "article_link_xpath": "//main[contains(concat(' ', normalize-space(@class), ' '), "
+                                   "' news-category-spotlight__content ')]//article//a[@href]/@href"}
+    body = ("<header><a href='/dia-oc.htm'>Địa ốc</a></header>"
+            "<main class='news-category-spotlight__content'><article>"
+            "<a href='/doanh-nghiep/story.htm'>Bài trong danh mục</a>"
+            "</article></main>")
+    rows = [{"request": {"endpoint": target["url"]}, "response": {"body": body}},
+            {"request": {"endpoint": "https://vneconomy.vn/dia-oc.htm"}},
+            {"request": {"endpoint": "https://vneconomy.vn/doanh-nghiep/story.htm"}}]
+    assert crawler._target_article_links(rows, target) == {
+        "https://vneconomy.vn/doanh-nghiep/story.htm"}
+
+
+def test_crawl_target_follows_configured_category_pages_without_repeating_urls():
+    class Robot:
+        default_entry = []
+        def can_fetch(self, agent, url):
+            return True
+    class FakeAccess:
+        sources = {"fixture": {"allowed": True, "hosts": ["example.test"], "min_interval_seconds": 0}}
+        def __init__(self, settings):
+            self.robot = Robot()
+            self.fetched = []
+        def policy(self, url):
+            return "fixture", self.sources["fixture"]
+        def robot_policy(self, origin, interval):
+            return self.robot
+        def fetch(self, url):
+            self.fetched.append(url)
+            return {"url": url, "headers": {"content-type": "text/html"},
+                    "body": pages[url].encode()}
+        def close(self):
+            pass
+
+    root = "https://example.test/category"
+    page2 = "https://example.test/category/page/2/"
+    page3 = "https://example.test/category/page/3/"
+    pages = {
+        root: '<article><a href="/story-1.html">1</a></article><div class="pagination">'
+              '<a href="/category/page/2/">Next</a></div>',
+        page2: '<article><a href="/story-2.html">2</a></article><div class="pagination">'
+               '<a href="/category/page/3/">Next</a></div>',
+        page3: '<article><a href="/story-3.html">3</a></article><div class="pagination">'
+               '<a href="/category/page/2/">Previous</a></div>',
+    }
+    target = {"id": "fixture", "url": root, "source": "fixture", "article_link_xpath": "//a/@href",
+              "article_pattern": r"/story-\d+\.html$", "max_articles": 10}
+    settings = {"user_agent": "test/1", "crawl": {"image": "katana", "depth": 1,
+                "delay_seconds": 1, "max_pages_per_target": 10, "crawl_duration": "1s",
+                "timeout_seconds": 1, "max_response_bytes": 4096}}
+    output = json.dumps({"request": {"endpoint": root}, "response": {"body": pages[root]}})
+    access = None
+    def access_factory(config):
+        nonlocal access
+        access = FakeAccess(config)
+        return access
+
+    urls = crawler.crawl_target(target, settings, runner=lambda *a, **k:
+        type("Result", (), {"stdout": output})(), access_factory=access_factory)
+
+    assert urls == [f"https://example.test/story-{number}.html" for number in range(1, 4)]
+    assert access.fetched == [page2, page3]
+
+
+def test_pagination_discovery_uses_dom_labels_without_url_patterns():
+    target = {"article_link_xpath": "//article//a[@href]/@href", "article_pattern": r"/story\.htm$"}
+    body = ("<p><a href='/next-story.htm'>Next article</a></p>"
+            "<div class='pagination'><a href='?page=1'><img alt='Previous'></a>"
+            "<a href='?page=3'><img alt='Next'></a></div>")
+    links, next_pages = crawler._category_page_links(
+        body, "https://vneconomy.vn/nhip-cau-doanh-nghiep.htm?page=2", target)
+    assert links == []
+    assert next_pages == ["https://vneconomy.vn/nhip-cau-doanh-nghiep.htm?page=3"]
+
+
+def test_katana_display_out_of_scope_flag_is_opt_in():
+    args = crawler.katana_command("https://example.test/category", 10, 1,
+                                  display_out_of_scope=True)
+    assert "-do" in args
+    assert "-do" not in crawler.katana_command("https://example.test/category", 10, 1)
+
+
 def test_run_collection_counts_toward_node_goal_and_never_exceeds_attempt_cap(tmp_path, monkeypatch):
     config_path = tmp_path / "collection.yaml"
     source_path = tmp_path / "sources.yaml"
@@ -88,7 +175,8 @@ def test_run_collection_counts_toward_node_goal_and_never_exceeds_attempt_cap(tm
         "max_articles": 5, "min_text_chars": 1, "min_article_words": 1, "allow_excerpts": False,
         "near_duplicate_threshold": 0.9, "request_timeout": 5, "max_response_bytes": 10000,
         "user_agent": "test", "targets": [{"id": "test", "url": "https://example.test/cat",
-        "source": "fixture", "article_pattern": r"/story-\d+\.html$", "body_xpath": "//article",
+        "source": "fixture", "article_link_xpath": "//a/@href",
+        "article_pattern": r"/story-\d+\.html$", "body_xpath": "//article",
         "language": "en", "max_articles": 5}], "batch_size": 2,
         "crawl": {"image": "projectdiscovery/katana:latest", "depth": 1, "delay_seconds": 1,
                   "max_pages_per_target": 20, "crawl_duration": "30s", "timeout_seconds": 2, "max_response_bytes": 4096,

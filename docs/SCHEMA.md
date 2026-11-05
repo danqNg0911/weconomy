@@ -19,7 +19,7 @@ và toàn bộ thực thể. Số cạnh phải phân biệt claims, events và 
 
 ## Loại thực thể
 
-`PERSON`, `ORG`, `PLACE`, `GOV`. spaCy/underthesea chuyển nhãn địa danh về PLACE;
+`PERSON`, `ORG`, `PLACE`, `GOV`. GLiNER chuyển nhãn người/tổ chức/địa điểm sang ba loại tương ứng;
 GOV cần alias hoặc classifier được duyệt, không tự đổi mọi ORG có chữ ministry thành GOV.
 Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nhu cầu truy vấn rõ ràng.
 

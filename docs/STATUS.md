@@ -6,9 +6,9 @@ chưa commit/push. Người clone repository chưa chắc có cùng phiên bản
 
 ## Nên dùng tool vào việc gì lúc này?
 
-Lượt ngày 05/11 thêm Stanza dependency parsing cho tiếng Việt và cập nhật discovery sang Katana-only. Lệnh `collect` tự crawl rồi nạp các run vừa tạo vào dataset; hard safety cap hiện vẫn là 100 bài. Pilot `news_collector` không còn trong repo. Phát lại 275 câu đã lưu từ crawl thử cho kết quả 2 cạnh REQUESTS; đây là smoke evaluation, chưa đo precision/recall độc lập. Lượt 04/11 bên dưới giữ nguyên như mốc lịch sử.
+Backend `--ner models` hiện dùng GLiNER-Relex với checkpoint riêng cho EN (`knowledgator/gliner-relex-base-v1.0`) và VI (`barb-2-ie-vi`); một lượt model trả cả entity lẫn relation, còn rule hiện hữu làm fallback. Các parser spaCy/Underthesea/Stanza đã được gỡ khỏi luồng này. Nhãn nghiệp vụ truyền vào Barb là nhãn zero-shot tùy biến, không khớp tập relation trong benchmark 62,14 F1 của model card; chất lượng trên tin kinh doanh chưa đo. Người dùng đã dọn `data/`, nên chưa chạy lại đánh giá corpus; các con số phía dưới là mốc lịch sử.
 
-Kiểm tra corpus thật: dataset v4 `data/datasets/international-business-v4-20261104` phát lại 393 body, nhận 229 bài, có 31 node có cạnh / 16 cạnh phân biệt / 17 claims / 2 loại quan hệ và không có lỗi xử lý. Lượt chạy đã kết thúc vì hết candidate; chưa đạt 2.000 / 5.000 / 10. So với bản cũ, một bài lỗi NER được khôi phục; ba claims người sáng lập sai bị loại, hai claims CEO có bằng chứng được khôi phục. Số liệu 31/10 ở các mục dưới là lịch sử của run khác.
+Kiểm tra corpus thật: dataset v4 `data/datasets/international-business-v4-20261104` phát lại 393 body, nhận 229 bài, có 31 node có cạnh / 16 cạnh phân biệt / 17 claims / 2 loại quan hệ và không có lỗi xử lý. Lượt chạy đã kết thúc vì hết candidate; chưa đạt 2.000 / 5.000 / 11 (>10). So với bản cũ, một bài lỗi NER được khôi phục; ba claims người sáng lập sai bị loại, hai claims CEO có bằng chứng được khôi phục. Số liệu 31/10 ở các mục dưới là lịch sử của run khác.
 
 Giới hạn đã quan sát: trong corpus này, một số tên tổ chức/nhân vật Việt bị mô hình gán `PLACE` hoặc thiếu span, nên rule có thể bỏ sót quan hệ. Corpus được nhận cũng không có câu gọi vốn thỏa điều kiện của mẫu vòng vốn mới. Các kiểm thử xác nhận logic và lưu trữ, không thay thế bộ nhãn để đo precision/recall.
 
@@ -31,12 +31,12 @@ kiểm tra policy/robots ở host gốc, không tải hoặc probe bài báo.
 | Adapter và toàn văn | Trafilatura đối chiếu DOM theo nguồn; lưu bytes gốc và SHA256 | `body_checked` chỉ xác minh thân bài có trong HTML được trả về; chưa lấy nội dung ẩn sau JavaScript, phân trang hoặc paywall |
 | Cách ly dữ liệu | `partial/restricted/unknown` không vào NLP mặc định | Có HTML hoặc có text chưa đủ để được coi là bài toàn văn |
 | Tiền xử lý/routing | Unicode, khoảng trắng, câu/offset; định tuyến Việt/Anh | Chia câu vẫn có quy tắc và giới hạn với viết tắt; chưa hỗ trợ ngôn ngữ khác |
-| NER | Gazetteer; spaCy tiếng Anh và underthesea tiếng Việt đã chạy | Có thể bỏ sót/sai kiểu thực thể; chưa có điểm chất lượng độc lập |
+| NLP models | GLiNER-Relex cho EN và barb-2-ie-vi cho VI; chưa đo trên corpus tin kinh doanh | Relation labels VI tùy biến khác tập nhãn benchmark của model; chất lượng cần đo |
 | Entity resolution | Alias có kiểm soát và tên chính xác theo kiểu; fuzzy chỉ gợi ý | Chưa entity linking rộng, phân giải đồng danh hoặc coreference |
-| RE theo câu | Mẫu Việt/Anh; dependency RE tiếng Anh và Stanza tiếng Việt cho predicate đã ánh xạ; lọc phủ định/tình thái | Độ bao phủ tiếng Việt còn hạn chế; kết quả chưa được đánh giá trên nhãn độc lập |
+| RE theo câu | GLiNER-Relex cho EN/VI, cộng rule chính xác làm fallback; evidence gắn với câu nguồn | Cần đánh giá precision/recall trên corpus và nhãn độc lập; model score chưa lưu trong schema |
 | Provenance | Claim → câu/bài/URL; evidence, offset, trigger, rule ID; snapshot config/policy | `reported` là khẳng định theo nguồn, không phải đã fact-check |
 | Xử lý immutable run | `run --from-run`, `merge-runs`; replay hoặc gộp các run đã có | Không thực hiện discovery; dùng `crawl` để khám phá URL và `collect-dataset` để ingest/replay vào catalog |
-| Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, status và JSONL export | Chỉ nhận URL/run tường minh, không tự discover; budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
+| Dataset chủ đề tăng dần | CLI `collect-dataset`, catalog SQLite, batch Parquet bất biến, `--resume`, `--force`, status và JSONL export; lỗi batch không chặn batch sau và URL lỗi được retry khi resume | Chỉ nhận URL/run tường minh, không tự discover; budget là số URL thử; domain heuristic chưa được đo precision; JSONL/catalog không phải input Parquet cho Neo4j/HF. Xem [collection.md](collection.md) |
 | Event dedup | Bảo thủ trong tài liệu khi chưa có ngày sự kiện | Chưa xác định sự kiện xuyên bài theo ngày/giao dịch; chưa chứng nhận số sự kiện thực duy nhất |
 | Nhãn và metrics | Sinh task câu đầy đủ; evaluate NER/RE P/R/F1 và Wilson interval | Chưa có nhãn độc lập hoàn chỉnh; không có precision 90% đã kiểm chứng |
 | Neo4j | Import/reimport thật, đối chiếu count theo run, MERGE idempotent | Chưa có workflow duyệt accept/reject và lịch sử duyệt; không tự xóa revision cũ |
@@ -44,7 +44,7 @@ kiểm tra policy/robots ở host gốc, không tải hoặc probe bài báo.
 | Small-world | Có lệnh sigma và điều kiện từ chối khi graph không phù hợp | Corpus hiện quá nhỏ/thưa ở phần có cạnh; chưa có kết luận small-world |
 | GDS | Có query template | Chưa cài/bật và nghiệm thu so sánh với NetworkX |
 | Katana | Crawl danh mục bounded, sau đó URL bài qua cổng policy của Python | Cần Docker; discovery chỉ theo target đã cấu hình và bị giới hạn bởi page/time caps |
-| Docker | Build và chạy offline đã qua; 80 văn bản trùng Windows | Image core chỉ có gazetteer, không có spaCy/underthesea; không coi kết quả NLP hai môi trường là tương đương |
+| Docker | Build và chạy offline đã qua; 80 văn bản trùng Windows | Image core chỉ có gazetteer, không có GLiNER/model weights |
 | Hugging Face | Có `hf-push/hf-pull`, private-only upload, snapshot/checksum và commit pin; kiểm thử local + Hub giả lập | Chưa nghiệm thu tài khoản/repo thật; chưa đồng bộ tự động. Xem [HUGGINGFACE.md](HUGGINGFACE.md) |
 
 ## Số liệu đã xác minh
@@ -91,9 +91,8 @@ model đã cài, `.env`, volume Neo4j hay môi trường `.venv`. Không tự c�
 
 ## Người mới bắt đầu như thế nào?
 
-1. Đọc [README](../README.md) để cài Python/uv, dependencies, model spaCy và model Stanza tiếng Việt.
-   Muốn dùng `--ner models`, cài extras `nlp`; sau khi cài model riêng, dùng `uv run --no-sync`
-   để uv không xóa model ngoài lock. Không dùng hoặc ghi đè `.env` của người khác.
+1. Đọc [README](../README.md) để cài Python/uv và extras. Muốn dùng `--ner models`, lần chạy đầu tải
+   checkpoint từ Hugging Face vào cache. Không dùng hoặc ghi đè `.env` của người khác.
 2. Chạy mẫu offline `samples/excerpts/manifest.json` với `--allow-excerpts` như README.
    Mẫu này là trích đoạn có ghi công, không dùng để chứng minh đã thu thập toàn văn.
 3. Kiểm tra [policy nguồn](../config/sources.yaml) và [crawl config](../config/collection.yaml).
@@ -127,7 +126,7 @@ có thể vượt ngân sách. Xem lại config/phạm vi trước khi gom, khô
 
 - [ ] Corpus đại diện đủ doanh nghiệp, tỷ phú/startup/quỹ/chính phủ và đủ hai ngôn ngữ.
 - [ ] Kết nối và nghiệm thu upload/download thật với private dataset repo của nhóm trên Hugging Face.
-- [ ] 2.000 thực thể, 5.000 sự kiện quan hệ đã kiểm định, 10 loại quan hệ quan sát thực.
+- [ ] 2.000 thực thể, 5.000 sự kiện quan hệ đã kiểm định, 11 (>10) loại quan hệ quan sát thực.
 - [ ] Bộ nhãn độc lập, split theo bài/sự kiện/thời gian; đo NER, RE và entity resolution.
 - [ ] Xác minh precision ≥90% cùng recall/F1, per-type/per-language và khoảng tin cậy.
 - [ ] Cải thiện độ bao phủ RE và NER trên tên doanh nghiệp mới; kiểm định mô hình thay thế.
@@ -138,8 +137,8 @@ có thể vượt ngân sách. Xem lại config/phạm vi trước khi gom, khô
 - [ ] Khả năng vận hành dài hạn/hiệu năng ở quy mô mục tiêu; chưa benchmark để gọi production-ready.
 - [ ] Báo cáo nộp và phân công nhóm: đang tạm hoãn theo yêu cầu người dùng.
 
-GLiNER2 đã được thử riêng trên 44 câu tiếng Anh, có dự đoán quan hệ sai rõ ràng; chưa tích hợp vào
-pipeline chính và không dùng số dự đoán thử nghiệm để cộng vào graph. Chưa có API trả phí bắt buộc.
+GLiNER2 từng được thử riêng trên 44 câu tiếng Anh và có dự đoán quan hệ sai; checkpoint GLiNER-Relex mới
+thay nhánh parser trong backend models nhưng chưa có A/B test nhãn độc lập. Chưa có API trả phí bắt buộc.
 Reuters/Bloomberg vẫn tắt chờ quyền truy cập phù hợp. Nguồn mở Wikipedia/Wikinews từng gặp 403;
 không coi registry nguồn là bằng chứng đã tải được toàn văn từ nguồn đó.
 

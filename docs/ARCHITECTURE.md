@@ -28,11 +28,11 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 
 | Quyết định | Lý do | Giới hạn cần theo dõi |
 |---|---|---|
-| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | Model spaCy và Stanza tiếng Việt tải riêng sau `uv sync`; chạy lệnh ứng dụng với `--no-sync` để giữ model spaCy ngoài lock |
+| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | GLiNER weights tải lần đầu vào Hugging Face cache; cần mạng và vài GB dung lượng |
 | Katana khám phá danh mục | Dùng target URL, giới hạn scope/page/time và policy hiện tại | Phụ thuộc cấu trúc trang danh mục và các cap hữu hạn |
 | Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/body selector riêng | Chưa thử parser toàn trang từng báo thương mại |
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
-| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng spaCy/Underthesea cho NER và dependency parser tiếng Anh/Việt | Parser Việt là Stanza, khởi tạo lazy; cần tải model Việt riêng; từ điển predicate còn hẹp |
+| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng GLiNER-Relex với model ID riêng theo ngôn ngữ, một lượt lấy entities và relations | Nhãn business tiếng Việt truyền cho Barb là zero-shot; chưa đo trên tin kinh doanh |
 | Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
 | 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
@@ -61,7 +61,7 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 1. Thu thập đủ quyền từ nguồn thật, đo extraction theo nguồn/ngôn ngữ; giữ metadata xuất bản và snapshot.
 2. Thêm tập nhãn theo article/event/time split; bổ sung alias đã duyệt, định danh ngoài (Wikidata/LEI)
    khi có bằng chứng đồng nhất. Chỉ fuzzy/embedding không đủ kết luận cùng thực thể.
-3. Backend models dùng dependency RE tiếng Anh và Stanza tiếng Việt cho một nhóm predicate đã ánh xạ.
+3. Backend models dùng GLiNER-Relex chung adapter và rule determinist làm fallback.
    Kiểm định cả hai trên nhãn độc lập. Tách reported/planned/
    denied/rumoured, vai trò chủ thể/đối tượng, thời gian quan hệ và attribution. Không nâng số cạnh bằng co-occurrence.
 4. Khi batch tăng, thay pairwise shingles hiện O(n²) bằng MinHash/LSH; index xuyên run, partition Parquet

@@ -181,7 +181,10 @@ def test_resume_requires_existing_catalog_and_compatible_config(tmp_path, monkey
     with pytest.raises((FileNotFoundError, ValueError)):
         dataset.collect_dataset(config, "missing", resume=True)
     dataset.collect_dataset(config, "existing", urls=config["test_urls"])
+    dataset.validate_dataset_resume(config, "existing")
     changed = dict(config, min_article_words=101)
+    with pytest.raises(ValueError, match="fingerprint"):
+        dataset.validate_dataset_resume(changed, "existing")
     with pytest.raises(ValueError):
         dataset.collect_dataset(changed, "existing", urls=config["test_urls"], resume=True)
 
@@ -216,6 +219,34 @@ def test_interrupted_commit_recovers_pending_run_without_reprocessing(tmp_path, 
     dataset.collect_dataset(config, "recover", urls=config["test_urls"], batch_size=1, resume=True)
     assert calls == [url]
     assert dataset.dataset_status("recover")["counts"]["articles"] == 1
+
+
+def test_batch_error_does_not_stop_later_batches_and_resume_retries_failed_urls(tmp_path, monkeypatch):
+    urls = ["https://example.org/first", "https://example.org/second"]
+    config, calls = _setup(tmp_path, monkeypatch, {
+        urls[0]: _story(prefix="firstword"), urls[1]: _story(prefix="secondword")})
+    process = pipeline.process
+    failed = set()
+
+    def fail_first_once(*args, **kwargs):
+        batch_urls = kwargs.get("urls") or []
+        if batch_urls and batch_urls[0] == urls[0] and urls[0] not in failed:
+            failed.add(urls[0])
+            raise RuntimeError("TEST_ONLY transient failure")
+        return process(*args, **kwargs)
+
+    monkeypatch.setattr(pipeline, "process", fail_first_once)
+    status = dataset.collect_dataset(config, "retry", urls=urls, batch_size=1, max_candidates=2)
+    assert calls == [urls[1]]
+    assert status["counts"]["articles"] == 1
+    assert status["errors"][0]["error_type"] == "RuntimeError"
+
+    status = dataset.collect_dataset(config, "retry", urls=urls, batch_size=1,
+                                     max_candidates=3, resume=True)
+    assert calls == [urls[1], urls[0]]
+    assert status["counts"]["articles"] == 2
+    assert status["errors"] == []
+    assert len(status["error_history"]) == 1
 
 
 def test_snapshot_counts_only_connected_allowed_typed_nodes(tmp_path):

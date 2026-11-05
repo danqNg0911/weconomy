@@ -2,6 +2,7 @@ sources:
   vnexpress:
     hosts: [vnexpress.net]
     language: vi
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
     kind: news
     allowed: true
     attribution: VnExpress
@@ -28,6 +29,7 @@ sources:
   techcrunch:
     hosts: [techcrunch.com]
     language: en
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     kind: news
     allowed: true
     attribution: TechCrunch
@@ -42,6 +44,7 @@ sources:
   vneconomy:
     hosts: [vneconomy.vn, en.vneconomy.vn]
     language: vi
+    body_xpath: "//*[@id='article-editor']"
     kind: news
     allowed: true
     attribution: Vietnam Economic Times
@@ -56,6 +59,7 @@ sources:
   thanhnien:
     hosts: [thanhnien.vn]
     language: vi
+    body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
     kind: news
     allowed: true
     attribution: Thanh Nien
@@ -63,6 +67,7 @@ sources:
   24h:
     hosts: [24h.com.vn, www.24h.com.vn]
     language: vi
+    body_xpath: "//*[@id='article_body']"
     kind: news
     allowed: true
     attribution: 24h

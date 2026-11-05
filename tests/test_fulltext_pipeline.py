@@ -1,6 +1,8 @@
 """Synthetic HTTP tests; fixtures are excluded from the real article corpus."""
 import json
+from datetime import datetime as RealDateTime
 from pathlib import Path
+from uuid import UUID
 
 import httpx
 import pyarrow as pa
@@ -8,6 +10,7 @@ import pyarrow.parquet as pq
 import pytest
 import yaml
 
+from weconomy import pipeline
 from weconomy.access import Access
 from weconomy.pipeline import load_config, process, read_table
 from weconomy.quality import validate
@@ -26,6 +29,27 @@ def test_excerpts_are_quarantined_by_default_and_raw_files_preserved(tmp_path):
     assert report["counts"]["entities"] == 0
     assert len(list((run / "bronze/html").glob("*.html"))) == 4
     assert validate(run)["valid"]
+
+
+def test_run_folder_collision_allocates_another_unique_id(tmp_path, monkeypatch):
+    class FixedDateTime(RealDateTime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 1, 2, tzinfo=tz)
+
+    config = load_config(ROOT / "config/pipeline.yaml")
+    output = tmp_path / "runs"
+    output.mkdir()
+    config["output"] = str(output)
+    monkeypatch.setattr(pipeline, "datetime", FixedDateTime)
+    ids = iter([UUID("deadbeef000000000000000000000000"), UUID("cafebabe000000000000000000000000")])
+    monkeypatch.setattr(pipeline, "uuid4", lambda: next(ids))
+    (output / "20260102T000000-deadbeef").mkdir()
+
+    run, _ = process(config, manifest=ROOT / "samples/excerpts/manifest.json")
+
+    assert run.name == "20260102T000000-cafebabe"
+    assert (output / "20260102T000000-deadbeef").is_dir()
 
 
 def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
@@ -61,7 +85,15 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
 
     monkeypatch.setattr("weconomy.pipeline.Access", make_access)
     monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
-    run, report = process(config, urls=["https://example.org/full", "https://example.org/preview"])
+    progress = []
+    run, report = process(config, urls=["https://example.org/full", "https://example.org/preview"],
+                          progress=progress.append)
+    assert [event["event"] for event in progress].count("article_start") == 2
+    assert [event.get("status") for event in progress if event["event"] == "article_done"] == [
+        "body_checked", "partial"]
+    full_progress = next(event for event in progress if event.get("status") == "body_checked")
+    assert full_progress["word_count"] > 100 and full_progress["body_paragraphs"] >= 2
+    assert full_progress["nlp_sentences"] >= 2
     assert report["content_statuses"] == {"body_checked": 1, "partial": 1}
     assert report["counts"]["bronze"] == 2 and report["counts"]["relations"] == 1
     assert report["nlp_documents"] == 1 and report["quarantined_documents"] == 1

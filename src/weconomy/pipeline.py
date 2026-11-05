@@ -61,7 +61,7 @@ def fulltext_snapshots(runs):
 
 
 def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
-            nlp_engine=None, source_overrides=None):
+            nlp_engine=None, source_overrides=None, progress=None):
     if sum(value is not None for value in (manifest, urls, from_run, from_runs)) != 1:
         raise ValueError("Provide exactly one input: manifest, URLs, from_run or from_runs")
     if urls is not None and not urls:
@@ -92,9 +92,15 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                 access.close()
                 raise ValueError(f"Unknown source for article extraction: {source_id}")
             access.sources[source_id].update(override)
-    run = Path(config["output"]) / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
+    output = Path(config["output"])
     try:
-        run.mkdir(parents=True, exist_ok=False)
+        while True:
+            run = output / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
+            try:
+                run.mkdir(parents=True, exist_ok=False)
+                break
+            except FileExistsError:
+                continue
     except OSError:
         access.close()
         raise
@@ -103,11 +109,19 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
     entities, events, claim_ids = {}, {}, set()
     requested_urls = {}
     try:
-        for item in items:
+        for index, item in enumerate(items, 1):
             article = None
+            current_url = item.get("url", "")
+            title, entity_count, relation_count = "", 0, 0
+            if progress:
+                progress({"event": "article_start", "index": index, "total": len(items),
+                          "url": current_url})
             try:
                 url = canonical_url(item["url"])
                 if url in seen_urls:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_url"})
                     continue
                 seen_urls.add(url)
                 if from_run is not None or from_runs is not None:
@@ -149,6 +163,9 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                 doc_id = stable_id(url, raw_hash)
                 requested_urls.setdefault(doc_id, []).append(canonical_url(item["url"]))
                 if doc_id in seen_documents:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_document"})
                     continue
                 seen_documents.add(doc_id)
                 raw_html = raw.decode("utf-8", errors="replace")
@@ -194,7 +211,13 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                     "authors": json.dumps(extracted["authors"], ensure_ascii=False),
                     "quality_flags": json.dumps(extracted["quality_flags"], ensure_ascii=False)}
                 tables["articles"].append(article)
+                title = article["title"]
                 if duplicate or not article["nlp_eligible"]:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_content" if duplicate else article["content_status"],
+                                  "title": title, "word_count": article["word_count"],
+                                  "body_paragraphs": article["body_paragraphs"], "nlp_sentences": 0})
                     continue
                 doc_sentences, doc_mentions, doc_relations = [], [], []
                 doc_entities, doc_events = {}, {}
@@ -234,6 +257,14 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                 entities.update(doc_entities)
                 events.update(doc_events)
                 seen_text.append((doc_id, language, digest, sig))
+                entity_count, relation_count = len(doc_entities), len(doc_relations)
+                if progress:
+                    progress({"event": "article_done", "index": index, "total": len(items),
+                              "url": url, "status": article["content_status"], "title": title,
+                              "word_count": article["word_count"],
+                              "body_paragraphs": article["body_paragraphs"],
+                              "nlp_sentences": len(doc_sentences),
+                              "entities": entity_count, "relations": relation_count})
             except Exception as exc:
                 # Retain per-document failures and continue; CLI returns nonzero if any failed.
                 if article is not None:
@@ -241,6 +272,10 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                     flags = json.loads(article["quality_flags"])
                     article["quality_flags"] = json.dumps([*flags, "nlp_processing_failed"])
                 errors.append({"url": item.get("url"), "error": f"{type(exc).__name__}: {exc}"})
+                if progress:
+                    progress({"event": "article_done", "index": index, "total": len(items),
+                              "url": current_url, "status": "error", "error_type": type(exc).__name__,
+                              "error": str(exc)})
     finally:
         access.close()
     tables["entities"] = list(entities.values())
@@ -270,8 +305,7 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
               "status": ("partial" if errors or quarantined
                          else "completed" if tables["articles"] else "no_new_documents")}
     if config["ner_backend"] == "models":
-        for package in ("spacy", "underthesea", config["english_model"]):
-            report["packages"][package] = importlib.metadata.version(package)
+        report["packages"]["gliner"] = importlib.metadata.version("gliner")
     (run / "config.yaml").write_text(yaml.safe_dump(config, allow_unicode=True), encoding="utf-8")
     # Preserve the exact alias/source policy alongside each immutable run.
     for key in ("aliases", "sources"):
