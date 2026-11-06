@@ -32,9 +32,25 @@ def nlp():
     ("Bill Gates is the CEO of Microsoft.", "en", "CEO_OF"),
     ("Bill Gates founded Microsoft.", "en", "FOUNDED"),
     ("GitHub is a subsidiary of Microsoft.", "en", "SUBSIDIARY_OF"),
+    ("Microsoft owns a stake in GitHub.", "en", "OWNS_STAKE_IN"),
+    ("Bill Gates is a board member of Microsoft.", "en", "BOARD_MEMBER_OF"),
+    ("Microsoft signed a contract with GitHub.", "en", "CONTRACTED_WITH"),
+    ("Microsoft awarded a contract to GitHub.", "en", "AWARDED_CONTRACT_TO"),
+    ("United States filed an antitrust action against Microsoft.", "en", "ANTITRUST_ACTION_AGAINST"),
+    ("United States sanctioned Microsoft.", "en", "SANCTIONED"),
+    ("Microsoft disrupted the supply to GitHub.", "en", "DISRUPTED_SUPPLY_TO"),
+    ("Microsoft spun off from GitHub.", "en", "SPUN_OFF_FROM"),
     ("Microsoft đã mua lại GitHub.", "vi", "ACQUIRED"),
     ("Microsoft đã đầu tư vào GitHub.", "vi", "INVESTED_IN"),
     ("Bill Gates thành lập Microsoft.", "vi", "FOUNDED"),
+    ("Microsoft nắm giữ cổ phần tại GitHub.", "vi", "OWNS_STAKE_IN"),
+    ("Bill Gates là thành viên hội đồng quản trị của Microsoft.", "vi", "BOARD_MEMBER_OF"),
+    ("Microsoft ký hợp đồng với GitHub.", "vi", "CONTRACTED_WITH"),
+    ("Microsoft trao hợp đồng cho GitHub.", "vi", "AWARDED_CONTRACT_TO"),
+    ("United States khởi kiện chống độc quyền nhằm vào Microsoft.", "vi", "ANTITRUST_ACTION_AGAINST"),
+    ("United States áp đặt trừng phạt đối với Microsoft.", "vi", "SANCTIONED"),
+    ("Microsoft làm gián đoạn nguồn cung cho GitHub.", "vi", "DISRUPTED_SUPPLY_TO"),
+    ("Microsoft tách ra khỏi GitHub.", "vi", "SPUN_OFF_FROM"),
 ])
 def test_direct_rules(nlp, text, lang, predicate):
     found = extract_relations(text, nlp.mentions(text, lang), lang)
@@ -43,15 +59,15 @@ def test_direct_rules(nlp, text, lang, predicate):
     assert found[0]["subject_id"] != found[0]["object_id"]
 
 
-@pytest.mark.parametrize("text,predicate", [
-    ("Microsoft k\u00fd k\u1ebft h\u1ee3p t\u00e1c v\u1edbi Vingroup.", "PARTNERED_WITH"),
-    ("Microsoft \u0111\u01b0\u1ee3c vinh danh b\u1edfi Vingroup.", "HONORS"),
-    ("Vingroup \u0111\u00e3 ra m\u1eaft Microsoft.", "LAUNCHES"),
-])
-def test_vietnamese_business_relations_from_new_verb_phrases(nlp, text, predicate):
+def test_vietnamese_partnered_with_rule(nlp):
+    text = "Microsoft k\u00fd k\u1ebft h\u1ee3p t\u00e1c v\u1edbi Vingroup."
     found = extract_relations(text, nlp.mentions(text, "vi"), "vi")
-    assert len(found) == 1
-    assert found[0]["predicate"] == predicate
+    assert len(found) == 1 and found[0]["predicate"] == "PARTNERED_WITH"
+
+
+def test_antitrust_rule_rejects_non_government_subject(nlp):
+    text = "Microsoft filed an antitrust action against GitHub."
+    assert not extract_relations(text, nlp.mentions(text, "en"), "en")
 
 
 def test_vietnamese_nhien_lieu_does_not_trigger_uncertainty_filter(nlp):

@@ -212,6 +212,14 @@ RULES = {
         "FOUNDED": r"(?:co-)?founded",
         "SUBSIDIARY_OF": r"(?:is|was) a subsidiary of",
         "REGULATES": r"(?:regulates|regulated)",
+        "OWNS_STAKE_IN": r"(?:owns|holds)(?: a)?(?: minority| majority)?(?: equity)? stake in|holds shares in",
+        "BOARD_MEMBER_OF": r"(?:is|was)(?: a)? board member of|serves on the board of",
+        "CONTRACTED_WITH": r"(?:signed|entered into) a contract with",
+        "AWARDED_CONTRACT_TO": r"awarded (?:a )?(?:contract|deal) to",
+        "ANTITRUST_ACTION_AGAINST": r"(?:filed|brought) (?:an? )?antitrust (?:action|case|proceedings) against",
+        "SANCTIONED": r"(?:imposed sanctions on|sanctioned)",
+        "DISRUPTED_SUPPLY_TO": r"(?:disrupted|halted) (?:the )?supply to",
+        "SPUN_OFF_FROM": r"spun off from",
     },
     "vi": {
         "ACQUIRED": r"(?:đã )?(?:mua lại|thâu tóm)",
@@ -225,9 +233,14 @@ RULES = {
         "FOUNDED": r"(?:đã )?(?:đồng )?thành lập",
         "SUBSIDIARY_OF": r"là công ty con của",
         "REGULATES": r"quản lý hoạt động của",
-        "HONORS": r"(?:đã )?vinh danh",
-        "LAUNCHES": r"(?:đã )?ra mắt",
-        "APPOINTS": r"(?:đã )?bổ nhiệm",
+        "OWNS_STAKE_IN": r"(?:sở hữu|nắm giữ)(?: một phần)? (?:cổ phần|cổ phiếu) tại",
+        "BOARD_MEMBER_OF": r"(?:là )?thành viên (?:hội đồng quản trị|HĐQT) của",
+        "CONTRACTED_WITH": r"(?:đã )?(?:ký|kí) hợp đồng với",
+        "AWARDED_CONTRACT_TO": r"(?:đã )?(?:trao|giao) hợp đồng cho",
+        "ANTITRUST_ACTION_AGAINST": r"(?:đã )?(?:khởi kiện|đệ đơn kiện) chống độc quyền (?:đối với|nhằm vào)",
+        "SANCTIONED": r"(?:đã )?(?:áp đặt lệnh trừng phạt|áp đặt trừng phạt) (?:lên|đối với)",
+        "DISRUPTED_SUPPLY_TO": r"(?:đã )?(?:làm gián đoạn|làm đình trệ) nguồn cung (?:cho|tới|đến)",
+        "SPUN_OFF_FROM": r"(?:đã )?(?:tách ra|tách mình) khỏi",
     },
 }
 NEGATIVE = re.compile(
@@ -247,7 +260,6 @@ REVERSE_RULES = {
         "ACQUIRED": r"(?:đã )?được mua lại bởi",
         "SUED": r"(?:đã )?bị kiện bởi",
         "FOUNDED": r"(?:đã )?được (?:đồng )?thành lập bởi",
-        "HONORS": r"(?:đã )?được vinh danh bởi",
     },
 }
 
@@ -298,8 +310,7 @@ def relation_sentence(text, language, *, allow_quotes=False):
 
 
 def extract_relations(text, mentions, language):
-    if (not relation_sentence(text, language, allow_quotes=True)
-            or re.search(r"\b(?:stake in|shares in|assets)\b", text, re.I)):
+    if not relation_sentence(text, language, allow_quotes=True):
         return []
     strict = relation_sentence(text, language)
     result = []
@@ -318,8 +329,6 @@ def extract_relations(text, mentions, language):
         if outside_quotes(text, left["start"], right["end"]):
             rules += [(*rule, True) for rule in ROLE_RULES[language]]
         for predicate, pattern, reverse, role_rule in rules:
-            if re.search(r"\b(?:stake in|shares in|assets)\b", text, re.I):
-                continue
             if not re.fullmatch(pattern, gap, flags=re.I):
                 continue
             subject, object_ = (right, left) if reverse else (left, right)
@@ -353,12 +362,23 @@ RELATION_LABELS = {
         "merged with": "MERGED_WITH", "sued": "SUED", "partnered with": "PARTNERED_WITH",
         "supplies to": "SUPPLIES_TO", "is ceo of": "CEO_OF", "founded": "FOUNDED",
         "is subsidiary of": "SUBSIDIARY_OF", "regulates": "REGULATES",
+        "owns a stake in": "OWNS_STAKE_IN", "holds shares in": "OWNS_STAKE_IN",
+        "board member of": "BOARD_MEMBER_OF", "serves on the board of": "BOARD_MEMBER_OF",
+        "signed a contract with": "CONTRACTED_WITH", "awarded a contract to": "AWARDED_CONTRACT_TO",
+        "antitrust action against": "ANTITRUST_ACTION_AGAINST", "sanctioned": "SANCTIONED",
+        "disrupted supply to": "DISRUPTED_SUPPLY_TO", "spun off from": "SPUN_OFF_FROM",
     },
     "vi": {
         "mua lại": "ACQUIRED", "đạt thỏa thuận mua lại": "AGREED_TO_ACQUIRE", "đầu tư vào": "INVESTED_IN",
         "sáp nhập với": "MERGED_WITH", "kiện": "SUED", "hợp tác với": "PARTNERED_WITH",
         "cung cấp cho": "SUPPLIES_TO", "là tổng giám đốc của": "CEO_OF", "thành lập": "FOUNDED",
         "là công ty con của": "SUBSIDIARY_OF", "quản lý hoạt động của": "REGULATES",
+        "nắm giữ cổ phần tại": "OWNS_STAKE_IN", "sở hữu cổ phần tại": "OWNS_STAKE_IN",
+        "thành viên hội đồng quản trị của": "BOARD_MEMBER_OF", "thành viên hđqt của": "BOARD_MEMBER_OF",
+        "ký hợp đồng với": "CONTRACTED_WITH", "trao hợp đồng cho": "AWARDED_CONTRACT_TO",
+        "khởi kiện chống độc quyền nhằm vào": "ANTITRUST_ACTION_AGAINST",
+        "áp đặt trừng phạt đối với": "SANCTIONED", "làm gián đoạn nguồn cung cho": "DISRUPTED_SUPPLY_TO",
+        "tách ra khỏi": "SPUN_OFF_FROM",
     },
 }
 

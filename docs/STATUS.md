@@ -68,7 +68,7 @@ Run tham chiếu: `20261031T101555-c6e4bee3`, backend `models`, extractor `body-
 | Precision / Recall / F1 độc lập | Chưa đo; `null` |
 
 Không cộng số liệu của các lần replay. Không coi 1.199 ứng viên, bao gồm địa danh, là 1.199 doanh nghiệp
-hoặc thực thể đã duyệt. Có 11 predicate trong schema nhưng mới quan sát 4 loại trong run này.
+hoặc thực thể đã duyệt. Schema hiện có 19 predicate; run lịch sử trên vẫn chỉ quan sát 4 loại.
 Corpus gồm cả 2 bài VnExpress năm 2021; không phải toàn bộ là tin mới trong hai tuần.
 
 Ở đợt thử nguồn trước khi gom, 18 trang bị cách ly vì chưa xác minh được selector thân bài;

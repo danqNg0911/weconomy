@@ -33,7 +33,7 @@ Neo4j chỉ có node Entity và cạnh quan hệ trực tiếp giữa các entit
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
 | Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng GLiNER-Relex với model ID riêng theo ngôn ngữ, một lượt lấy entities và relations | Nhãn business tiếng Việt truyền cho Barb là zero-shot; chưa đo trên tin kinh doanh |
 | Alias xác định, fuzzy chỉ đề xuất; surname PERSON được resolve theo anchor duy nhất trong cùng bài | Gộp các cách gọi như “Elon Musk”/“ông Musk” mà không gộp họ chung xuyên bài | Nếu bài nhắc nhiều người cùng họ, hệ thống giữ riêng mention dạng họ |
-| 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
+| 19 predicate với type constraints | Bao phủ đầu tư, sở hữu, vai trò lãnh đạo, hợp đồng, M&A, chống độc quyền và chuỗi cung ứng; tách acquisition agreement khỏi completed acquisition | Rule là mẫu tường minh, chưa đo precision/recall trên nhãn thật; số predicate định nghĩa khác số loại quan sát |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
 | Event identity bảo thủ | Tránh gộp những vòng đầu tư khác nhau | Chưa dedup sự kiện xuyên bài/run khi không có ngày sự kiện |
 | Neo4j Community | Lưu entity và cạnh quan hệ để truy vấn/visualize local | Raw và toàn văn nằm ở Hugging Face; truy vết từ cạnh qua document IDs |

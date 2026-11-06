@@ -38,9 +38,18 @@ Quỹ và tập đoàn vẫn là ORG trong schema gốc. `filter-domain` tạo e
 | FOUNDED | PERSON/ORG → ORG | Người/tổ chức sáng lập → tổ chức được sáng lập |
 | SUBSIDIARY_OF | ORG → ORG | Công ty con → công ty mẹ |
 | REGULATES | GOV → ORG | Cơ quan quản lý → tổ chức chịu quản lý |
+| OWNS_STAKE_IN | PERSON/ORG → ORG | Cá nhân/tổ chức nắm cổ phần tại tổ chức; không suy ra từ việc mua tài sản |
+| BOARD_MEMBER_OF | PERSON → ORG | Thành viên hội đồng quản trị → tổ chức |
+| CONTRACTED_WITH | ORG → ORG | Hai tổ chức ký hợp đồng; chỉ lấy khi câu nêu rõ hành động ký |
+| AWARDED_CONTRACT_TO | GOV/ORG → ORG | Bên trao/giao hợp đồng → bên nhận |
+| ANTITRUST_ACTION_AGAINST | GOV → ORG | Cơ quan khởi kiện/điều tra chống độc quyền → tổ chức bị nhắm tới |
+| SANCTIONED | GOV → ORG/PERSON | Chính phủ áp đặt trừng phạt → tổ chức/cá nhân |
+| DISRUPTED_SUPPLY_TO | GOV/ORG → ORG | Tác nhân làm gián đoạn nguồn cung → tổ chức chịu ảnh hưởng |
+| SPUN_OFF_FROM | ORG → ORG | Công ty tách ra → công ty mẹ/đơn vị gốc |
 
-Patterns tiếng Anh/Việt đều có trong code. REGULATES cần GOV seed thực, bộ mẫu hiện chưa có GOV.
-Từ 31/10 có 11 predicate định nghĩa; AGREED_TO_ACQUIRE giữ riêng trạng thái thỏa thuận. Không nâng
+Có 19 predicate trong schema; các predicate quan hệ mới có rule song ngữ và nhãn model tương ứng.
+Các rule mới chỉ khớp một số cách diễn đạt tường minh. REGULATES và quan hệ cần GOV vẫn phụ thuộc GOV seed/model.
+AGREED_TO_ACQUIRE giữ riêng trạng thái thỏa thuận. Không nâng
 thỏa thuận/dự định thành ACQUIRED đã hoàn tất để tăng số cạnh.
 Số loại **định nghĩa** không được báo thành số loại **quan sát**.
 `assertion_status=reported` nghĩa là câu trình bày khẳng định theo nguồn, không có nghĩa đã fact-check.

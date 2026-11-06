@@ -42,7 +42,7 @@ SCHEMAS = {
     )]),
 }
 
-# Optional compatibility hints for known predicates; open relation labels are supported.
+# Optional endpoint-type constraints for domain relation predicates; other labels remain supported.
 RELATION_TYPES = {
     "ACQUIRED": (["ORG"], ["ORG"]),
     "AGREED_TO_ACQUIRE": (["ORG"], ["ORG"]),
@@ -55,4 +55,12 @@ RELATION_TYPES = {
     "FOUNDED": (["PERSON", "ORG"], ["ORG"]),
     "SUBSIDIARY_OF": (["ORG"], ["ORG"]),
     "REGULATES": (["GOV"], ["ORG"]),
+    "OWNS_STAKE_IN": (["PERSON", "ORG"], ["ORG"]),
+    "BOARD_MEMBER_OF": (["PERSON"], ["ORG"]),
+    "CONTRACTED_WITH": (["ORG"], ["ORG"]),
+    "AWARDED_CONTRACT_TO": (["GOV", "ORG"], ["ORG"]),
+    "ANTITRUST_ACTION_AGAINST": (["GOV"], ["ORG"]),
+    "SANCTIONED": (["GOV"], ["ORG", "PERSON"]),
+    "DISRUPTED_SUPPLY_TO": (["GOV", "ORG"], ["ORG"]),
+    "SPUN_OFF_FROM": (["ORG"], ["ORG"]),
 }
