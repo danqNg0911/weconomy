@@ -10,12 +10,14 @@ from .access import katana_urls
 from .analytics import analyze
 from .crawler import run_collection
 from .dataset import collect_dataset, dataset_status, export_dataset, validate_dataset_resume
+from .domain_filter import filter_domain_export
 from .graph import import_graph
 from .hub import pull_run, push_run
 from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
 from .sources import source_status
+from .workflow import graph_cycle
 
 _DEFAULT_DATASET = Path("data/datasets/international-business-katana")
 _DEFAULT_EXPORT = Path("data/exports/international-business-katana")
@@ -163,6 +165,15 @@ def main(argv=None):
     collect_mode.add_argument("--resume", action="store_true")
     collect_mode.add_argument("--force", action="store_true",
                               help="Create a new uniquely named dataset beside an existing one")
+    cycle = sub.add_parser("graph-cycle", help="Collect, normalize, check targets, and publish a domain graph")
+    cycle.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-gliner-coref-v2"))
+    cycle.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    cycle.add_argument("--nodes", type=int, default=2000)
+    cycle.add_argument("--relations", type=int, default=5000)
+    cycle.add_argument("--relation-types", type=int, default=11)
+    cycle.add_argument("--max-candidates", type=int, default=10000)
+    cycle.add_argument("--batch-size", type=int, default=20)
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
@@ -190,6 +201,9 @@ def main(argv=None):
     dataset_export = sub.add_parser("export-dataset", help="Export committed dataset tables as JSONL")
     dataset_export.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
     dataset_export.add_argument("--output", type=Path, default=_DEFAULT_EXPORT)
+    domain_export = sub.add_parser("filter-domain", help="Create an evidence-filtered domain graph export")
+    domain_export.add_argument("source", type=Path, help="Existing export-dataset directory")
+    domain_export.add_argument("--output", type=Path, required=True)
     sources = sub.add_parser("sources", help="Show configured sources or probe one page per source")
     sources.add_argument("--check", action="store_true")
     sources.add_argument("--source", action="append", dest="source_ids")
@@ -203,7 +217,8 @@ def main(argv=None):
                         required=True)
     export.add_argument("--output", type=Path, required=True)
     for name in ("validate", "analytics", "import-neo4j", "label-tasks", "evaluate"):
-        p = sub.add_parser(name)
+        p = sub.add_parser(name, help="Import a validated run or dataset JSONL export into Neo4j"
+                           if name == "import-neo4j" else None)
         p.add_argument("run", type=Path)
         if name == "analytics":
             p.add_argument("--small-world", action="store_true")
@@ -270,6 +285,15 @@ def main(argv=None):
                         2 if not dataset["targets_met"] or crawl["status"] != "completed" else 0)
                 result = {"status": "completed" if code == 0 else "partial",
                           "crawl": crawl, "dataset": dataset}
+        elif args.command == "graph-cycle":
+            result = graph_cycle(
+                args.dataset, config_path=args.config, target_ids=args.targets,
+                nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                max_candidates=args.max_candidates, batch_size=args.batch_size,
+                progress=_console_progress,
+            )
+            if not result["targets_met"]:
+                code = 2
         elif args.command == "hf-push":
             result = push_run(args.run, args.repo, dry_run=args.dry_run)
         elif args.command == "hf-pull":
@@ -315,6 +339,8 @@ def main(argv=None):
                 _console_progress({"event": "info", "message":
                                    f"Giữ bản export cũ; ghi bản mới tại {output}"})
             result = export_dataset(args.dataset, output)
+        elif args.command == "filter-domain":
+            result = filter_domain_export(args.source, args.output)
         elif args.command == "validate":
             result = validate(args.run)
             code = int(not result["valid"])

@@ -134,20 +134,19 @@ Tài liệu SDK: [upload](https://huggingface.co/docs/huggingface_hub/guides/upl
 CLI chạy riêng, không thay đổi dependencies của pipeline.
 
 ```powershell
-cd F:\Project\ptmxh
-powershell -ExecutionPolicy ByPass -c "irm https://hf.co/cli/install.ps1 | iex"
-# Mở terminal mới sau khi cài để nhận PATH.
-hf auth login
-hf auth whoami
-hf sync ./data hf://buckets/weconomy235/weconomy --dry-run
-hf sync ./data hf://buckets/weconomy235/weconomy
+# Chạy ở thư mục gốc repo. Chỉ cần cài hub extra một lần nếu `uv run hf` chưa có.
+uv sync --locked --extra hub
+uv run --no-sync hf auth login
+uv run --no-sync hf auth whoami
+uv run --no-sync hf sync ./data hf://buckets/weconomy235/weconomy --exclude '*.writer.lock' --dry-run
+uv run --no-sync hf sync ./data hf://buckets/weconomy235/weconomy --exclude '*.writer.lock'
 ```
 
-Chỉ đồng bộ thư mục `data`, gồm HTML, Parquet và manifests của các run.
+Chỉ đồng bộ thư mục `data`, gồm HTML, Parquet, catalog, export JSONL và manifests; cấu trúc `datasets/<dataset-id>`, `exports/<dataset-id>` và `runs/<run-id>` được giữ trên bucket. File khóa tạm `.writer.lock` bị loại trừ.
 File `.env` của dự án và Docker volume Neo4j không nằm trong thư mục này.
 Việc sync không tự thu thập thêm bài, chạy NLP hay import Neo4j.
 
-Sau mỗi lần thu thập/replay, chạy lại `hf sync` để cập nhật bucket.
+Sau mỗi lần thu thập/replay/export, chạy lại lệnh `hf sync` để thêm/cập nhật file trên cùng bucket. Mặc định không xóa file từ xa.
 Đăng nhập trên máy bằng CLI; không đưa token vào source code hoặc gửi token qua chat.
 
 Tài liệu CLI: https://huggingface.co/docs/huggingface_hub/guides/cli

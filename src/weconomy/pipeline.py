@@ -14,7 +14,7 @@ import yaml
 
 from .access import Access, canonical_url
 from .extraction import EXTRACTOR_VERSION, extract_article, utc_date
-from .nlp import NLP, normalize, route, sentences
+from .nlp import NLP, document_person_aliases, normalize, route, sentences
 from .schema import SCHEMA_VERSION, SCHEMAS, stable_id
 
 
@@ -234,23 +234,35 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                             "entity_type": entity["entity_type"], "surface": mention["surface"],
                             "method": mention["method"], "start": start, "end": end})
                     for relation in nlp.relations(sentence["text"], mentions, language):
-                        # shortcut: unknown event dates deduplicate within document only. Never merge repeated
-                        # investments/acquisitions across articles solely by the actor pair or publication date.
-                        event_date = ""
-                        eid = stable_id(relation["subject_id"], relation["predicate"], relation["object_id"],
-                                        relation["assertion_status"], doc_id)
-                        doc_events[eid] = {"event_id": eid, "subject_id": relation["subject_id"],
-                            "predicate": relation["predicate"], "object_id": relation["object_id"],
-                            "assertion_status": relation["assertion_status"], "event_date": event_date,
-                            "dedup_scope": "within_document_unknown_date"}
-                        claim_id = stable_id(eid, sid)
-                        if claim_id in claim_ids:
-                            continue
-                        claim_ids.add(claim_id)
-                        doc_relations.append(dict(relation, claim_id=claim_id, event_id=eid,
-                            document_id=doc_id, sentence_id=sid, evidence=sentence["text"],
-                            evidence_start=sentence["start"], evidence_end=sentence["end"],
-                            review_status="unreviewed", event_date=event_date))
+                        doc_relations.append(dict(relation, document_id=doc_id, sentence_id=sid,
+                            evidence=sentence["text"], evidence_start=sentence["start"],
+                            evidence_end=sentence["end"], review_status="unreviewed", event_date=""))
+                alias_map = document_person_aliases(doc_entities, doc_mentions)
+                for mention in doc_mentions:
+                    mention["entity_id"] = alias_map.get(mention["entity_id"], mention["entity_id"])
+                    mention["entity_type"] = doc_entities[mention["entity_id"]]["entity_type"]
+                doc_entities = {entity_id: entity for entity_id, entity in doc_entities.items()
+                                if entity_id not in alias_map}
+                resolved_relations = []
+                for relation in doc_relations:
+                    relation["subject_id"] = alias_map.get(relation["subject_id"], relation["subject_id"])
+                    relation["object_id"] = alias_map.get(relation["object_id"], relation["object_id"])
+                    if relation["subject_id"] == relation["object_id"]:
+                        continue
+                    # shortcut: unknown event dates deduplicate within document only.
+                    eid = stable_id(relation["subject_id"], relation["predicate"], relation["object_id"],
+                                    relation["assertion_status"], doc_id)
+                    claim_id = stable_id(eid, relation["sentence_id"])
+                    if claim_id in claim_ids:
+                        continue
+                    claim_ids.add(claim_id)
+                    relation.update(event_id=eid, claim_id=claim_id)
+                    resolved_relations.append(relation)
+                    doc_events[eid] = {"event_id": eid, "subject_id": relation["subject_id"],
+                        "predicate": relation["predicate"], "object_id": relation["object_id"],
+                        "assertion_status": relation["assertion_status"], "event_date": relation["event_date"],
+                        "dedup_scope": "within_document_unknown_date"}
+                doc_relations = resolved_relations
                 tables["sentences"].extend(doc_sentences)
                 tables["mentions"].extend(doc_mentions)
                 tables["relations"].extend(doc_relations)

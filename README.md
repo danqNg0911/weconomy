@@ -100,7 +100,20 @@ Có thể đổi đường dẫn bằng `DATASET=...` và `OUTPUT=...`. Xem [to�
 | Gold | Entity, claim, event và relation kèm predicate, evidence và provenance | Đầu ra trích xuất tự động; quan hệ vẫn cần người rà soát |
 | Catalog | SQLite theo dõi queue, quyết định nhận và các batch Parquet bất biến | Cho phép tiếp tục bằng `--resume`, xem status và export JSONL |
 
-Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy trình thân bài trong [FULLTEXT.md](docs/FULLTEXT.md), và kiến trúc trong [ARCHITECTURE.md](docs/ARCHITECTURE.md). Catalog/JSONL export không phải immutable run Parquet; các lệnh `import-neo4j` và `hf-push` nhận run Parquet hợp lệ, không nhận thư mục catalog hay export.
+Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy trình thân bài trong [FULLTEXT.md](docs/FULLTEXT.md), và kiến trúc trong [ARCHITECTURE.md](docs/ARCHITECTURE.md). `import-neo4j` nhận immutable run Parquet hoặc thư mục export JSONL của dataset; `hf-push` chỉ nhận immutable run Parquet. Hugging Face Bucket có thể đồng bộ thư mục `data` theo hướng dẫn tại [HUGGINGFACE.md](docs/HUGGINGFACE.md).
+
+Để tạo bản graph chỉ gồm entity đã được gán subtype theo `initial.md`, dùng `weconomy filter-domain`; lệnh chi tiết và cách đọc bằng chứng nằm trong [docs/commands.md](docs/commands.md). Bản export gốc không bị thay đổi.
+
+Để chạy tiếp collection → lọc domain → kiểm tra chỉ tiêu → import Neo4j/AuraDB trong một lệnh, khởi tạo dataset trước bằng replay run như mô tả ở [các lệnh](docs/commands.md), rồi chạy:
+
+```powershell
+uv run --no-sync weconomy graph-cycle `
+  --dataset data/datasets/international-business-gliner-coref-v2 `
+  --nodes 2000 --relations 5000 --relation-types 11 `
+  --max-candidates 10000 --batch-size 20
+```
+
+Mỗi lần gọi là một lượt có giới hạn và có thể chạy lại cùng lệnh để tiếp tục. Graph chỉ được import khi export domain đạt đủ ngưỡng; nếu chưa đạt, export vẫn được giữ để xem và lệnh trả mã `2`. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
 
 ## Xử lý lại HTML đã lưu
 

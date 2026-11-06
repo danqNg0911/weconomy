@@ -1,4 +1,4 @@
-.PHONY: install test lint schema collect dataset-status export-dataset
+.PHONY: install test lint schema collect graph-cycle dataset-status export-dataset
 
 # Optional convenience targets; direct `uv` commands work on Windows without make.
 install:
@@ -14,6 +14,7 @@ schema:
 	uv run --no-sync weconomy schema
 
 DATASET ?= data/datasets/international-business-katana
+GRAPH_DATASET ?= data/datasets/international-business-gliner-coref-v2
 OUTPUT ?= data/exports/international-business-katana
 CONFIG ?= config/collection.yaml
 TARGETS ?=
@@ -34,6 +35,9 @@ COLLECT_ARGS = $(foreach target,$(TARGETS),--target $(target)) \
 
 collect:
 	uv run --no-sync weconomy collect --config "$(CONFIG)" --dataset "$(DATASET)" --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE) $(COLLECT_ARGS) $(if $(filter-out 0,$(RESUME)),--resume) $(if $(filter-out 0,$(FORCE)),--force)
+
+graph-cycle:
+	uv run --no-sync weconomy graph-cycle --config "$(CONFIG)" --dataset "$(GRAPH_DATASET)" --nodes $(NODES) --relations $(RELATIONS) --relation-types $(RELATION_TYPES) --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE)
 
 dataset-status:
 	uv run --no-sync weconomy dataset-status "$(DATASET)"

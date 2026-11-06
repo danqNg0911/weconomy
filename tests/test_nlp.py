@@ -5,6 +5,7 @@ import pytest
 
 from weconomy.nlp import (
     NLP,
+    document_person_aliases,
     extract_relations,
     normalize,
     route,
@@ -89,6 +90,33 @@ def test_alias_and_span_boundaries(nlp):
     assert len(mentions) == 2
     assert nlp.resolve("Microsof", "ORG")["entity_id"] != nlp.resolve("Microsoft", "ORG")["entity_id"]
     assert nlp.suggestions("Microsof")
+
+
+def test_document_person_aliases_use_unique_full_name_anchor():
+    entities = {
+        "elon": {"name": "Elon Musk", "entity_type": "PERSON"},
+        "musk-person": {"name": "Musk", "entity_type": "PERSON"},
+        "musk-org": {"name": "Musk", "entity_type": "ORG"},
+    }
+    mentions = [
+        {"entity_id": "elon", "surface": "Elon Musk"},
+        {"entity_id": "musk-person", "surface": "Ông Musk"},
+        {"entity_id": "musk-org", "surface": "Musk"},
+    ]
+    assert document_person_aliases(entities, mentions) == {
+        "musk-person": "elon", "musk-org": "elon",
+    }
+
+
+def test_document_person_aliases_abstain_when_surname_is_ambiguous():
+    entities = {
+        "elon": {"name": "Elon Musk", "entity_type": "PERSON"},
+        "kimbal": {"name": "Kimbal Musk", "entity_type": "PERSON"},
+        "musk": {"name": "Musk", "entity_type": "PERSON"},
+    }
+    mentions = [{"entity_id": key, "surface": entity["name"]}
+                for key, entity in entities.items()]
+    assert document_person_aliases(entities, mentions) == {}
 
 
 def test_offsets_unicode_and_language(nlp):

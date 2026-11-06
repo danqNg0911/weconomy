@@ -11,6 +11,37 @@ from rapidfuzz import fuzz
 from .schema import RELATION_TYPES, stable_id
 
 DetectorFactory.seed = 0
+_PERSON_TITLES = {"ông", "bà", "anh", "chị", "cô", "bác", "ngài", "mr", "mrs", "ms", "dr", "sir", "prof"}
+
+
+def document_person_aliases(entities, mentions):
+    """Resolve short person references only when one full-name anchor exists in the same document."""
+    full_names, surnames = {}, {}
+    for entity_id, entity in entities.items():
+        if entity.get("entity_type") != "PERSON":
+            continue
+        tokens = re.findall(r"[^\W_]+", normalize(entity["name"]).casefold())
+        while tokens and tokens[0] in _PERSON_TITLES:
+            tokens.pop(0)
+        if len(tokens) < 2:
+            continue
+        full_names.setdefault(" ".join(tokens), set()).add(entity_id)
+        surnames.setdefault(tokens[-1], set()).add(entity_id)
+
+    aliases = {}
+    for mention in mentions:
+        entity_id = mention["entity_id"]
+        entity = entities.get(entity_id, {})
+        tokens = re.findall(r"[^\W_]+", normalize(mention["surface"]).casefold())
+        while tokens and tokens[0] in _PERSON_TITLES:
+            tokens.pop(0)
+        candidates = (full_names.get(" ".join(tokens), set()) if len(tokens) > 1
+                      else surnames.get(tokens[0], set()) if tokens else set())
+        if len(candidates) == 1:
+            canonical_id = next(iter(candidates))
+            if entity_id != canonical_id:
+                aliases[entity_id] = canonical_id
+    return aliases
 
 
 def normalize(text):

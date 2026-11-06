@@ -21,7 +21,7 @@ và toàn bộ thực thể. Số cạnh phải phân biệt claims, events và 
 
 `PERSON`, `ORG`, `PLACE`, `GOV`. GLiNER chuyển nhãn người/tổ chức/địa điểm sang ba loại tương ứng;
 GOV cần alias hoặc classifier được duyệt, không tự đổi mọi ORG có chữ ministry thành GOV.
-Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nhu cầu truy vấn rõ ràng.
+Quỹ và tập đoàn vẫn là ORG trong schema gốc. `filter-domain` tạo export riêng, gán subtype từ cue gần entity trong cùng câu theo đề tài ở `initial.md` (startup, VC/quỹ đầu tư, tập đoàn đa quốc gia, công ty công nghệ/tài chính, tỷ phú, CEO công nghệ/tài chính, chính phủ). Mọi node đã gán subtype được giữ kể cả node isolate; claim chỉ được giữ khi cả hai đầu mút đều có subtype domain. Entity chưa phân loại vẫn nằm trong export gốc. Đây là heuristic cần rà soát, chưa phải nhãn chuẩn hay phép đo precision.
 
 ## Quan hệ có hướng
 
@@ -51,7 +51,7 @@ Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô t
 
 - `document_id = hash(canonical URL, raw SHA256)`; loại tracking, giữ query có nghĩa như oldid.
 - `sentence_id = hash(document_id, start, text)`; `mention_id = hash(sentence_id, start, end)`.
-- `entity_id = hash(entity_type, casefold(canonical name))`; alias khác type/đồng danh cần xử lý thủ công.
+- `entity_id = hash(entity_type, casefold(canonical name))`; alias khác type/đồng danh cần xử lý thủ công. Trong cùng một bài, surname/tước xưng được gộp vào PERSON tên đầy đủ chỉ khi có đúng một anchor khớp; nhiều người cùng họ thì giữ riêng.
 - Text hash và Jaccard 5-word-shingle loại bài giống trong cùng run; vẫn giữ snapshot bronze/silver.
   `merge-runs` chọn một capture toàn văn/NLP thành công mỗi URL theo thứ tự input (cuối thắng),
   rồi chạy lại cùng phép dedup trên toàn bộ corpus đã chọn. Không cộng số liệu của các run nguồn.
@@ -64,13 +64,10 @@ Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô t
 ## Neo4j và phép chiếu
 
 ```text
-(Entity)-[:ACQUIRED|... {event_id, review_status, assertion_status}]->(Entity)
-(Claim)-[:ABOUT_EVENT]->(Event)-[:SUBJECT|OBJECT]->(Entity)
-(Claim)-[:EVIDENCED_BY]->(Sentence)-[:IN_DOCUMENT]->(Document)
+(Entity)-[:ACQUIRED|... {event_id, review_status, assertion_status, triggers,
+                          rule_ids, document_ids, collection_ids}]->(Entity)
 ```
 
-Constraint unique trên các ID node. Edge nghiệp vụ MERGE theo event_id.
-Full raw HTML không đưa vào Neo4j; truy vết qua document_id đến Parquet.
-Đếm node provenance vào quy mô thực thể hoặc đếm hai lần cạnh reciprocal là sai.
+Neo4j chỉ lưu node `Entity` và cạnh quan hệ trực tiếp. Mỗi event ID là một cạnh; các claim cùng event được gom thành metadata như `claim_count`, trigger và rule trích xuất. Cạnh giữ `document_ids` để tra tài liệu trong kho Hugging Face và `collection_ids` để lọc từng lần nhập. Không tạo node `Document`, `Sentence`, `Event`, `Claim` hay `Collection`; không lưu câu evidence, raw HTML hay toàn văn trong graph.
 Analytics mặc định giữ isolate, loại cạnh lặp/hướng/trọng số bằng undirected simple projection;
 đường đi toàn cặp chỉ báo trên LCC, cùng số cặp reachable và tỷ lệ bao phủ.

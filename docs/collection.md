@@ -71,6 +71,6 @@ Quan hệ là ứng viên tự động, cần đọc evidence và rà soát th�
 
 Lượt kiểm tra Katana ngày 05/11/2026 đã lấy 100 URL, xử lý 10 bài trong safety cap và dừng khi đạt 100 entity rows (thực tế 219); kết quả có 0 relation. Đây là bằng chứng đường crawl/body hoạt động, đồng thời cho thấy mục tiêu graph hiện chưa đạt. Dataset replay ngày 04/11 ghi nhận 229 bài, 31 node có cạnh, 16 cạnh phân biệt, 2 loại quan hệ; đây là snapshot lịch sử. Không cộng các số liệu giữa các run/replay.
 
-Catalog SQLite theo dõi queue và các batch Parquet bất biến. URL được canonicalize và chống lặp trong catalog; bản sao nội dung được phát hiện khi ingest. Catalog/JSONL export không phải immutable run Parquet; `import-neo4j` và `hf-push` nhận run Parquet hợp lệ.
+Catalog SQLite theo dõi queue và các batch Parquet bất biến. URL được canonicalize và chống lặp trong catalog; bản sao nội dung được phát hiện khi ingest. `import-neo4j` nhận immutable run Parquet hoặc thư mục JSONL do `export-dataset` tạo; `hf-push` chỉ nhận immutable run Parquet. Hugging Face Bucket đồng bộ file theo hướng dẫn ở [HUGGINGFACE.md](HUGGINGFACE.md).
 
 Collector tuân thủ allowlist, robots, giới hạn tốc độ/kích thước và redirect; không vượt paywall hay cơ chế chống bot. Quyền truy cập trang không đồng nghĩa quyền tái phân phối toàn văn. Xem [schema](SCHEMA.md), [toàn văn](FULLTEXT.md) và [trạng thái triển khai](STATUS.md).

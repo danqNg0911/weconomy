@@ -1,32 +1,19 @@
 """Parameterized, transactional, idempotent Neo4j import. No deletes."""
+import json
 import os
+from pathlib import Path
 
 from neo4j import GraphDatabase
 
 from .pipeline import read_table
 
-CONSTRAINTS = [f"CREATE CONSTRAINT {label.lower()}_id IF NOT EXISTS FOR (n:{label}) REQUIRE n.{key} IS UNIQUE"
-               for label, key in [("Entity", "entity_id"), ("Document", "document_id"),
-                                   ("Sentence", "sentence_id"), ("Claim", "claim_id"), ("Event", "event_id")]]
+CONSTRAINTS = ["CREATE CONSTRAINT entity_id IF NOT EXISTS FOR (n:Entity) REQUIRE n.entity_id IS UNIQUE"]
+ENTITY_PROPERTIES = ("entity_id", "name", "entity_type", "resolution_method", "domain_types")
 
 QUERIES = {
-    "entities": "UNWIND $rows AS r MERGE (e:Entity {entity_id:r.entity_id}) SET e += r",
-    "bronze": """UNWIND $rows AS r MERGE (d:Document {document_id:r.document_id})
-        SET d.url=r.url, d.source_id=r.source_id, d.attribution=r.attribution,
-            d.published_at=r.published_at, d.retrieved_at=r.retrieved_at, d.kind=r.kind, d.raw_sha256=r.raw_sha256,
-            d.content_status=r.content_status, d.nlp_eligible=r.nlp_eligible""",
-    "sentences": """UNWIND $rows AS r MATCH (d:Document {document_id:r.document_id})
-        MERGE (s:Sentence {sentence_id:r.sentence_id}) SET s += r MERGE (s)-[:IN_DOCUMENT]->(d)""",
-    "events": """UNWIND $rows AS r
-        MATCH (a:Entity {entity_id:r.subject_id}), (b:Entity {entity_id:r.object_id})
-        MERGE (e:Event {event_id:r.event_id}) SET e += r
-        MERGE (e)-[:SUBJECT]->(a) MERGE (e)-[:OBJECT]->(b)""",
-    "relations": """UNWIND $rows AS r MATCH (e:Event {event_id:r.event_id}),
-        (s:Sentence {sentence_id:r.sentence_id})
-        MERGE (c:Claim {claim_id:r.claim_id})
-        WITH c, r, e, s, c.review_status AS previous_status
-        SET c += r SET c.review_status=coalesce(previous_status, r.review_status)
-        MERGE (c)-[:ABOUT_EVENT]->(e) MERGE (c)-[:EVIDENCED_BY]->(s)""",
+    "entities": """UNWIND $rows AS r MERGE (e:Entity {entity_id:r.entity_id}) SET e += r
+        SET e.collection_ids = CASE WHEN $collection_id IN coalesce(e.collection_ids, [])
+            THEN coalesce(e.collection_ids, []) ELSE coalesce(e.collection_ids, []) + [$collection_id] END""",
 }
 
 
@@ -36,41 +23,96 @@ def event_edge_query(predicate):
     return f"""UNWIND $rows AS r MATCH (a:Entity {{entity_id:r.subject_id}}),
         (b:Entity {{entity_id:r.object_id}})
         MERGE (a)-[edge:{predicate} {{event_id:r.event_id}}]->(b)
-        SET edge.assertion_status=r.assertion_status, edge.review_status=coalesce(edge.review_status,'unreviewed'),
-            edge.event_date=r.event_date"""
+        SET edge.assertion_status=r.assertion_status,
+            edge.review_status=coalesce(edge.review_status, r.review_status, 'unreviewed'),
+            edge.event_date=r.event_date, edge.document_ids=coalesce(r.document_ids, []),
+            edge.source_ids=coalesce(r.source_ids, []), edge.claim_count=coalesce(r.claim_count, 0)
+        SET edge.triggers=coalesce(r.triggers, []), edge.rule_ids=coalesce(r.rule_ids, [])
+        SET edge.collection_ids = CASE WHEN $collection_id IN coalesce(edge.collection_ids, [])
+            THEN coalesce(edge.collection_ids, []) ELSE coalesce(edge.collection_ids, []) + [$collection_id] END"""
+
+
+def _aggregate_relations(claims, events=()):
+    grouped = {row["event_id"]: {**row, "document_ids": [], "source_ids": [],
+                                  "triggers": [], "rule_ids": [], "claim_count": 0}
+               for row in events}
+    for claim in claims:
+        event = grouped.setdefault(claim["event_id"], {
+            "event_id": claim["event_id"], "subject_id": claim["subject_id"],
+            "predicate": claim["predicate"], "object_id": claim["object_id"],
+            "assertion_status": claim["assertion_status"], "event_date": claim.get("event_date", ""),
+            "dedup_scope": "within_document_unknown_date", "document_ids": [], "source_ids": [],
+            "triggers": [], "rule_ids": [], "claim_count": 0,
+        })
+        event["document_ids"].append(claim.get("document_id", ""))
+        event["source_ids"].append(claim.get("source_id", ""))
+        event["triggers"].append(claim.get("trigger", ""))
+        event["rule_ids"].append(claim.get("rule_id", ""))
+        event["claim_count"] += 1
+    for event in grouped.values():
+        for key in ("document_ids", "source_ids", "triggers", "rule_ids"):
+            event[key] = sorted({value for value in event[key] if value})
+    return list(grouped.values())
+
+
+def _read_export(folder):
+    manifest = json.loads((folder / "manifest.json").read_text("utf-8"))
+    files = {name: folder / f"{name}.jsonl" for name in ("articles", "entities", "relations", "claims")}
+    if any(not path.is_file() for path in files.values()):
+        raise ValueError("Dataset export requires articles, entities, relations, claims and manifest files")
+    rows = {name: [json.loads(line) for line in path.read_text("utf-8").splitlines() if line]
+            for name, path in files.items()}
+    counts = manifest.get("counts", {})
+    if (len(rows["articles"]) != counts.get("articles")
+            or len(rows["entities"]) != counts.get("nodes")
+            or len(rows["relations"]) != counts.get("relations")
+            or len(rows["claims"]) != counts.get("claims")):
+        raise ValueError("Dataset export counts do not match manifest")
+
+    article_ids = {row["document_id"] for row in rows["articles"]}
+    events = []
+    for claim in rows["claims"]:
+        if claim["document_id"] not in article_ids:
+            raise ValueError(f"Claim references an unexported document: {claim['document_id']}")
+    events = _aggregate_relations(rows["claims"])
+    entities = [{key: entity[key] for key in ENTITY_PROPERTIES if key in entity}
+                for entity in rows["entities"]]
+    return {"entities": entities, "events": events}
 
 
 def import_graph(run, batch_size=500):
-    from .quality import validate
-    validation = validate(run)
-    if not validation["valid"]:
-        raise ValueError(f"Invalid graph dataset: {validation['failures']}")
+    run = Path(run)
+    if (run / "articles.jsonl").is_file():
+        tables = _read_export(run)
+    else:
+        from .quality import validate
+        validation = validate(run)
+        if not validation["valid"]:
+            raise ValueError(f"Invalid graph dataset: {validation['failures']}")
+        tables = {"entities": [{key: entity[key] for key in ENTITY_PROPERTIES if key in entity}
+                                for entity in read_table(run, "entities")],
+                  "events": _aggregate_relations(read_table(run, "relations"), read_table(run, "events"))}
+    collection_id = run.name
     password = os.environ.get("NEO4J_PASSWORD")
     if not password:
         raise ValueError("Set NEO4J_PASSWORD in your environment before importing")
-    tables = {name: read_table(run, name) for name in QUERIES}
-    article_quality = {a["document_id"]: a for a in read_table(run, "articles")}
-    for document in tables["bronze"]:
-        document.pop("raw_bytes", None)
-        document.pop("raw_html", None)
-        article = article_quality.get(document["document_id"], {})
-        document.update({"content_status": article.get("content_status", "legacy_unverified"),
-                         "nlp_eligible": article.get("nlp_eligible", False)})
     with GraphDatabase.driver(os.getenv("NEO4J_URI", "bolt://localhost:7687"),
-                              auth=(os.getenv("NEO4J_USER", "neo4j"), password)) as driver:
+                              auth=(os.getenv("NEO4J_USERNAME", os.getenv("NEO4J_USER", "neo4j")), password)) as driver:
         driver.verify_connectivity()
-        with driver.session(database="neo4j") as session:
+        with driver.session(database=os.getenv("NEO4J_DATABASE", "neo4j")) as session:
             for query in CONSTRAINTS:
                 session.run(query).consume()
-
             def write(tx):
                 for name, query in QUERIES.items():
                     rows = tables[name]
                     for offset in range(0, len(rows), batch_size):
-                        tx.run(query, rows=rows[offset:offset+batch_size]).consume()
+                        tx.run(query, rows=rows[offset:offset+batch_size], collection_id=collection_id).consume()
                 for predicate in sorted({r["predicate"] for r in tables["events"]}):
                     rows = [r for r in tables["events"] if r["predicate"] == predicate]
                     for offset in range(0, len(rows), batch_size):
-                        tx.run(event_edge_query(predicate), rows=rows[offset:offset+batch_size]).consume()
+                        tx.run(event_edge_query(predicate), rows=rows[offset:offset+batch_size],
+                               collection_id=collection_id).consume()
             session.execute_write(write)
-    return {"imported": {key: len(value) for key, value in tables.items()}, "run": str(run)}
+    return {"collection_id": collection_id,
+            "imported": {"entities": len(tables["entities"]), "relations": len(tables["events"])},
+            "source": str(run)}

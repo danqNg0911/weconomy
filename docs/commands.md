@@ -48,6 +48,19 @@ uv run --no-sync weconomy collect-dataset `
 
 `collect-dataset` nhận run được lưu bằng `--from-run` để replay offline vào catalog; nó không còn lệnh discover/fetch riêng. `merge-runs` vẫn dùng để gộp các immutable runs đã có, không thực hiện discovery.
 
+## Chạy một chu trình graph
+
+Sau khi dataset đã được khởi tạo/replay, một lệnh chạy tiếp collection trên nguồn đã cấu hình, replay các run đã lưu, export đầy đủ, lọc domain, so chỉ tiêu trên export đã lọc và chỉ import AuraDB khi đủ chỉ tiêu:
+
+```powershell
+uv run --no-sync weconomy graph-cycle `
+  --dataset data/datasets/international-business-gliner-coref-v2 `
+  --nodes 2000 --relations 5000 --relation-types 11 `
+  --max-candidates 10000 --batch-size 20
+```
+
+Mỗi lần chạy tạo export có tên riêng. Nếu bản domain chưa đạt chỉ tiêu, lệnh vẫn giữ export để rà soát, trả mã thoát `2` và không import vào Neo4j. Nó tự khám phá URL trong target đang cấu hình nhưng không tự thêm nguồn mới hay vượt giới hạn crawl. Chạy lại cùng lệnh sau khi bổ sung target/tăng giới hạn; catalog sẽ chống URL và nội dung trùng. Importer không xóa entity/cạnh đã có trong AuraDB.
+
 ## Gán nhãn và đánh giá
 
 Sinh task câu đầy đủ để người gán nhãn hoàn thành trước khi đánh giá. Không đánh dấu complete nếu chưa rà soát câu và quan hệ.
@@ -60,31 +73,65 @@ uv run --no-sync weconomy evaluate $run --labels reports/labels-to-review.json -
 
 Đánh giá yêu cầu nhãn hoàn chỉnh. Precision/recall/F1 chỉ có ý nghĩa khi tập nhãn độc lập và cách chia dữ liệu phù hợp; số câu đã gán nhãn chưa phải bằng chứng đạt ngưỡng precision.
 
+## Tạo export chỉ gồm node thuộc domain
+
+`filter-domain` đọc export JSONL đầy đủ, gán subtype khi cue đứng gần tên entity trong cùng câu, giữ mọi node đã gán subtype kể cả node chưa có cạnh, và chỉ giữ claim có cả hai đầu mút thuộc domain. Lệnh ghi thư mục mới, không sửa export nguồn. Kiểm tra `domain_types` và `domain_evidence` trong `entities.jsonl` trước khi import graph.
+
+```powershell
+$source = 'data/exports/international-business-gliner-v1'
+$domain = 'data/exports/international-business-gliner-domain-v9'
+uv run --no-sync weconomy filter-domain $source --output $domain
+```
+
 ## Neo4j local
 
-Cần Docker. Nếu chưa có `.env`, sao chép `.env.example` thành `.env`, thay password local và giữ tệp này ngoài Git. Khởi động Neo4j, nạp password vào process hiện tại mà không in ra, rồi import một immutable run đã validate:
+Cần Docker. Nếu chưa có `.env`, sao chép `.env.example` thành `.env`, đặt password và giữ tệp này ngoài Git. Khởi động Neo4j local, ép URI/database về local (vì `.env` có thể đang trỏ Aura), rồi nhập export:
 
 ```powershell
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
-# Mở .env và thay giá trị NEO4J_PASSWORD trước khi khởi động dịch vụ.
+$dataset = 'data/datasets/international-business-gliner-v1'
+$export = "data/exports/international-business-gliner-$(Get-Date -Format yyyyMMdd-HHmmss)"
+uv run --no-sync weconomy export-dataset $dataset --output $export
 docker compose up -d
-$env:NEO4J_PASSWORD = ((Get-Content .env | Where-Object { $_ -like 'NEO4J_PASSWORD=*' }) -split '=', 2)[1]
-uv run --no-sync weconomy validate $run
-uv run --no-sync weconomy import-neo4j $run
+$env:NEO4J_PASSWORD = ((Get-Content .env | Where-Object { $_ -like 'NEO4J_PASSWORD=*' }) -split '=', 2)[1].Trim().Trim('"').Trim("'")
+$env:NEO4J_URI = 'bolt://localhost:7687'
+$env:NEO4J_USERNAME = 'neo4j'
+$env:NEO4J_DATABASE = 'neo4j'
+uv run --no-sync weconomy import-neo4j $export
 ```
 
 Neo4j Browser chỉ bind vào localhost tại `http://localhost:7474`; cổng Bolt là `7687`. Các volume Docker giữ dữ liệu. `docker compose down` dừng dịch vụ; thêm `-v` sẽ xóa cả volume graph.
 
-Truy vấn claim, câu evidence và document nguồn:
+Neo4j chỉ nhận node Entity và cạnh quan hệ. Cạnh giữ type quan hệ, `event_id`, trigger, rule ID, trạng thái và document IDs; document IDs dùng để tra bài ở Hugging Face, còn `collection_ids` phân biệt lần nhập. Không lưu câu evidence hay toàn văn. Import không xóa dữ liệu cũ.
+
+Để nhập cùng export lên AuraDB, nạp cấu hình từ `.env` vào tiến trình PowerShell rồi chạy importer. Đoạn lệnh không in giá trị môi trường:
+
+```powershell
+$neo4jSettings = @{}
+Get-Content .env | ForEach-Object {
+  if ($_ -match '^\s*([^#=]+)=(.*)$') {
+    $neo4jSettings[$Matches[1].Trim()] = $Matches[2].Trim().Trim('"').Trim("'")
+  }
+}
+$env:NEO4J_URI = $neo4jSettings['NEO4J_URI']
+$env:NEO4J_USERNAME = $neo4jSettings['NEO4J_USERNAME']
+$env:NEO4J_PASSWORD = $neo4jSettings['NEO4J_PASSWORD']
+$env:NEO4J_DATABASE = $neo4jSettings['NEO4J_DATABASE']
+uv run --no-sync weconomy import-neo4j $export
+Remove-Item Env:NEO4J_URI,Env:NEO4J_USERNAME,Env:NEO4J_PASSWORD,Env:NEO4J_DATABASE
+```
+
+`NEO4J_DATABASE` mặc định là `neo4j`; `NEO4J_USERNAME` chấp nhận bí danh cũ `NEO4J_USER`. Import idempotent theo `entity_id` và `event_id`; `collection_ids` trên entity/cạnh ghi nhận các export đã nhập. Importer không xóa graph cũ.
+
+Truy vấn cạnh và tìm tài liệu nguồn trong Hugging Face:
 
 ```cypher
-MATCH (c:Claim)-[:ABOUT_EVENT]->(e:Event),
-      (c)-[:EVIDENCED_BY]->(s:Sentence)-[:IN_DOCUMENT]->(d:Document)
-RETURN c.predicate, c.review_status, e.event_id, s.text, d.url, d.license
+MATCH (a:Entity)-[r]->(b:Entity)
+RETURN a.name, type(r), b.name, r.triggers, r.rule_ids, r.review_status, r.event_id, r.document_ids
 LIMIT 25;
 ```
 
-Cạnh trong Neo4j biểu diễn ứng viên máy; `reported` không có nghĩa đã fact-check. Xem thêm [schema/provenance](SCHEMA.md).
+Cạnh trong Neo4j biểu diễn ứng viên máy; `reported` không có nghĩa đã fact-check. Dùng `r.document_ids` để tìm bản ghi nguồn trong kho Hugging Face. Xem thêm [schema](SCHEMA.md).
 
 ## Docker offline
 

@@ -21,8 +21,7 @@ flowchart LR
 
 Đơn vị dữ liệu trung tâm là **claim có câu bằng chứng**, không phải cặp tên cùng xuất hiện.
 Một sự kiện có thể có nhiều claims từ nhiều câu. Machine candidates chưa đồng nghĩa với sự thật đã duyệt.
-Neo4j có Entity, Event, Claim, Sentence, Document. Phép chiếu analytics chỉ dùng Entity và cạnh nghiệp vụ,
-không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
+Neo4j chỉ có node Entity và cạnh quan hệ trực tiếp giữa các entity. Event ID, trạng thái, trigger, rule ID và document IDs là thuộc tính của cạnh; raw HTML/toàn văn được lưu ở Hugging Face, không đưa vào graph.
 
 ## Những quyết định đã thực thi
 
@@ -33,11 +32,11 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 | Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/body selector riêng | Chưa thử parser toàn trang từng báo thương mại |
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
 | Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng GLiNER-Relex với model ID riêng theo ngôn ngữ, một lượt lấy entities và relations | Nhãn business tiếng Việt truyền cho Barb là zero-shot; chưa đo trên tin kinh doanh |
-| Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
+| Alias xác định, fuzzy chỉ đề xuất; surname PERSON được resolve theo anchor duy nhất trong cùng bài | Gộp các cách gọi như “Elon Musk”/“ông Musk” mà không gộp họ chung xuyên bài | Nếu bài nhắc nhiều người cùng họ, hệ thống giữ riêng mention dạng họ |
 | 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
 | Event identity bảo thủ | Tránh gộp những vòng đầu tư khác nhau | Chưa dedup sự kiện xuyên bài/run khi không có ngày sự kiện |
-| Neo4j Community | Lưu graph có truy vấn provenance, chạy local | Chưa nghiệm thu live khi Engine không hoạt động |
+| Neo4j Community | Lưu entity và cạnh quan hệ để truy vấn/visualize local | Raw và toàn văn nằm ở Hugging Face; truy vết từ cạnh qua document IDs |
 | NetworkX trước GDS | Không phụ thuộc plugin server để phân tích pilot | Thuật toán toàn cặp chưa tối ưu cho graph lớn |
 
 ## Contracts giữa module
