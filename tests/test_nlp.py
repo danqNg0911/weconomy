@@ -104,7 +104,7 @@ def test_document_person_aliases_use_unique_full_name_anchor():
         {"entity_id": "musk-org", "surface": "Musk"},
     ]
     assert document_person_aliases(entities, mentions) == {
-        "musk-person": "elon", "musk-org": "elon",
+        "musk-person": "elon",
     }
 
 

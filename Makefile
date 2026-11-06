@@ -14,7 +14,8 @@ schema:
 	uv run --no-sync weconomy schema
 
 DATASET ?= data/datasets/international-business-katana
-GRAPH_DATASET ?= data/datasets/international-business-gliner-coref-v2
+GRAPH_DATASET ?= data/datasets/international-business-gliner-coref-v3
+GRAPH_SOURCE_DATASET ?= data/datasets/international-business-gliner-v1
 OUTPUT ?= data/exports/international-business-katana
 CONFIG ?= config/collection.yaml
 TARGETS ?=
@@ -37,7 +38,7 @@ collect:
 	uv run --no-sync weconomy collect --config "$(CONFIG)" --dataset "$(DATASET)" --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE) $(COLLECT_ARGS) $(if $(filter-out 0,$(RESUME)),--resume) $(if $(filter-out 0,$(FORCE)),--force)
 
 graph-cycle:
-	uv run --no-sync weconomy graph-cycle --config "$(CONFIG)" --dataset "$(GRAPH_DATASET)" --nodes $(NODES) --relations $(RELATIONS) --relation-types $(RELATION_TYPES) --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE)
+	uv run --no-sync weconomy graph-cycle --config "$(CONFIG)" --dataset "$(GRAPH_DATASET)" --source-dataset "$(GRAPH_SOURCE_DATASET)" --nodes $(NODES) --relations $(RELATIONS) --relation-types $(RELATION_TYPES) --max-candidates $(MAX_CANDIDATES) --batch-size $(BATCH_SIZE)
 
 dataset-status:
 	uv run --no-sync weconomy dataset-status "$(DATASET)"

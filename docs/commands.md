@@ -50,16 +50,16 @@ uv run --no-sync weconomy collect-dataset `
 
 ## Chạy một chu trình graph
 
-Sau khi dataset đã được khởi tạo/replay, một lệnh chạy tiếp collection trên nguồn đã cấu hình, replay các run đã lưu, export đầy đủ, lọc domain, so chỉ tiêu trên export đã lọc và chỉ import AuraDB khi đủ chỉ tiêu:
+Lần đầu, lệnh tự phát lại các run đã commit trong dataset nguồn cũ bằng NLP hiện tại, xuất và lọc domain. Chỉ khi graph đã lọc còn thiếu chỉ tiêu, lệnh mới crawl các target đang cấu hình để thu thập bổ sung. Nếu dataset nguồn mặc định không phù hợp, đổi `--source-dataset`:
 
 ```powershell
 uv run --no-sync weconomy graph-cycle `
-  --dataset data/datasets/international-business-gliner-coref-v2 `
+  --dataset data/datasets/international-business-gliner-coref-v3 `
   --nodes 2000 --relations 5000 --relation-types 11 `
   --max-candidates 10000 --batch-size 20
 ```
 
-Mỗi lần chạy tạo export có tên riêng. Nếu bản domain chưa đạt chỉ tiêu, lệnh vẫn giữ export để rà soát, trả mã thoát `2` và không import vào Neo4j. Nó tự khám phá URL trong target đang cấu hình nhưng không tự thêm nguồn mới hay vượt giới hạn crawl. Chạy lại cùng lệnh sau khi bổ sung target/tăng giới hạn; catalog sẽ chống URL và nội dung trùng. Importer không xóa entity/cạnh đã có trong AuraDB.
+Mặc định nguồn cũ là `data/datasets/international-business-gliner-v1`. Dataset đích chỉ phát lại nguồn này khi được tạo lần đầu; những lần sau tiếp tục catalog đích, không phân tích lại bài đã xử lý. Mỗi lượt tạo export có tên riêng. Nếu bản domain chưa đạt chỉ tiêu, export vẫn được giữ, lệnh trả mã thoát `2`, và không import vào Neo4j. Chạy lại cùng lệnh để tiếp tục; catalog chống URL/nội dung trùng. Importer không xóa entity/cạnh đã có trong AuraDB.
 
 ## Gán nhãn và đánh giá
 

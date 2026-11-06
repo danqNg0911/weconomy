@@ -54,3 +54,34 @@ def test_graph_cycle_rejects_invalid_limits_before_crawling(tmp_path, monkeypatc
 
     with pytest.raises(ValueError, match="must be positive"):
         graph_cycle(dataset, max_candidates=0)
+
+
+def test_graph_cycle_reanalyzes_source_runs_before_crawling(tmp_path, monkeypatch):
+    dataset = tmp_path / "new-dataset"
+    events = []
+    statuses = iter([
+        {"counts": {"articles": 3}, "attempts_allocated": 20},
+        {"counts": {"articles": 4}, "attempts_allocated": 21},
+    ])
+    monkeypatch.setattr("weconomy.workflow.load_config", lambda _: {"max_articles": 50, "aliases": "aliases.yaml"})
+    monkeypatch.setattr("weconomy.workflow._committed_runs", lambda _: [Path("old-run")])
+    monkeypatch.setattr("weconomy.workflow.dataset_status", lambda _: next(statuses))
+    monkeypatch.setattr("weconomy.workflow.collect_dataset",
+                        lambda _config, _dataset, **kwargs: events.append(("replay", kwargs)) or {})
+    monkeypatch.setattr("weconomy.workflow.export_dataset", lambda *_: {"output": "full"})
+    monkeypatch.setattr("weconomy.workflow.filter_domain_export", lambda *_args, **_kwargs: {
+        "output": "normalized", "counts": {"nodes": 10, "relations": 8, "relation_types": 3}})
+
+    def crawl(*_args, **_kwargs):
+        events.append(("crawl", {}))
+        return {"targets": [{"run_ids": ["new-run"]}], "status": "completed"}
+
+    monkeypatch.setattr("weconomy.workflow.run_collection", crawl)
+    monkeypatch.setattr("weconomy.workflow._replay_runs", lambda _: [Path("old-run")])
+
+    graph_cycle(dataset, source_dataset=tmp_path / "source", nodes=100, relations=50,
+                relation_types=5, max_candidates=100)
+
+    assert events[0][0] == "replay"
+    assert events[0][1]["from_runs"] == [Path("old-run")]
+    assert events[1][0] == "crawl"

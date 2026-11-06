@@ -167,7 +167,10 @@ def main(argv=None):
                               help="Create a new uniquely named dataset beside an existing one")
     cycle = sub.add_parser("graph-cycle", help="Collect, normalize, check targets, and publish a domain graph")
     cycle.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
-    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-gliner-coref-v2"))
+    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-gliner-coref-v3"))
+    cycle.add_argument("--source-dataset", type=Path,
+                       default=Path("data/datasets/international-business-gliner-v1"),
+                       help="Existing dataset whose committed runs should be reanalyzed on first run")
     cycle.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
     cycle.add_argument("--nodes", type=int, default=2000)
     cycle.add_argument("--relations", type=int, default=5000)
@@ -288,6 +291,7 @@ def main(argv=None):
         elif args.command == "graph-cycle":
             result = graph_cycle(
                 args.dataset, config_path=args.config, target_ids=args.targets,
+                source_dataset=args.source_dataset,
                 nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
                 max_candidates=args.max_candidates, batch_size=args.batch_size,
                 progress=_console_progress,

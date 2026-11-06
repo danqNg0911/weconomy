@@ -15,7 +15,7 @@ import yaml
 from .access import Access, canonical_url
 from .extraction import EXTRACTOR_VERSION, extract_article, utc_date
 from .nlp import NLP, document_person_aliases, normalize, route, sentences
-from .schema import SCHEMA_VERSION, SCHEMAS, stable_id
+from .schema import RELATION_TYPES, SCHEMA_VERSION, SCHEMAS, stable_id
 
 
 def now():
@@ -248,6 +248,13 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                     relation["subject_id"] = alias_map.get(relation["subject_id"], relation["subject_id"])
                     relation["object_id"] = alias_map.get(relation["object_id"], relation["object_id"])
                     if relation["subject_id"] == relation["object_id"]:
+                        continue
+                    constraints = RELATION_TYPES.get(relation["predicate"])
+                    subject = doc_entities.get(relation["subject_id"])
+                    object_ = doc_entities.get(relation["object_id"])
+                    if (constraints and (not subject or not object_
+                            or subject["entity_type"] not in constraints[0]
+                            or object_["entity_type"] not in constraints[1])):
                         continue
                     # shortcut: unknown event dates deduplicate within document only.
                     eid = stable_id(relation["subject_id"], relation["predicate"], relation["object_id"],

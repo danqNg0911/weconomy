@@ -104,16 +104,16 @@ Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy
 
 Để tạo bản graph chỉ gồm entity đã được gán subtype theo `initial.md`, dùng `weconomy filter-domain`; lệnh chi tiết và cách đọc bằng chứng nằm trong [docs/commands.md](docs/commands.md). Bản export gốc không bị thay đổi.
 
-Để chạy tiếp collection → lọc domain → kiểm tra chỉ tiêu → import Neo4j/AuraDB trong một lệnh, khởi tạo dataset trước bằng replay run như mô tả ở [các lệnh](docs/commands.md), rồi chạy:
+Để phân tích lại các run cũ, crawl bổ sung nếu graph sau lọc domain còn thiếu, rồi import Neo4j/AuraDB khi đạt chỉ tiêu, chạy một lệnh:
 
 ```powershell
 uv run --no-sync weconomy graph-cycle `
-  --dataset data/datasets/international-business-gliner-coref-v2 `
+  --dataset data/datasets/international-business-gliner-coref-v3 `
   --nodes 2000 --relations 5000 --relation-types 11 `
   --max-candidates 10000 --batch-size 20
 ```
 
-Mỗi lần gọi là một lượt có giới hạn và có thể chạy lại cùng lệnh để tiếp tục. Graph chỉ được import khi export domain đạt đủ ngưỡng; nếu chưa đạt, export vẫn được giữ để xem và lệnh trả mã `2`. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
+Lần đầu mặc định phát lại các run đã commit trong `data/datasets/international-business-gliner-v1`; có thể đổi nguồn bằng `--source-dataset`. Các lượt sau tiếp tục dataset đích và chỉ crawl thêm khi graph đã lọc chưa đạt. Nếu thiếu chỉ tiêu, export được giữ lại, lệnh trả mã `2`, và không import graph. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
 
 ## Xử lý lại HTML đã lưu
 

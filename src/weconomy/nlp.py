@@ -32,6 +32,8 @@ def document_person_aliases(entities, mentions):
     for mention in mentions:
         entity_id = mention["entity_id"]
         entity = entities.get(entity_id, {})
+        if entity.get("entity_type") != "PERSON":
+            continue
         tokens = re.findall(r"[^\W_]+", normalize(mention["surface"]).casefold())
         while tokens and tokens[0] in _PERSON_TITLES:
             tokens.pop(0)
