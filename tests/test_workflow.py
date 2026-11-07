@@ -14,6 +14,7 @@ def test_graph_cycle_normalizes_and_skips_publish_when_targets_are_short(tmp_pat
         {"counts": {"articles": 4}, "attempts_allocated": 21},
     ])
     captured = {}
+    monkeypatch.setattr("weconomy.workflow._output_path", lambda _dataset, kind: tmp_path / kind)
     monkeypatch.setattr("weconomy.workflow.load_config", lambda _: {"max_articles": 50, "aliases": "aliases.yaml"})
     monkeypatch.setattr("weconomy.workflow.validate_dataset_resume", lambda *_: None)
     monkeypatch.setattr("weconomy.workflow.dataset_status", lambda _: next(statuses))
@@ -26,7 +27,7 @@ def test_graph_cycle_normalizes_and_skips_publish_when_targets_are_short(tmp_pat
         return {"errors": []}
 
     monkeypatch.setattr("weconomy.workflow.collect_dataset", collect_dataset)
-    monkeypatch.setattr("weconomy.workflow.export_dataset", lambda *_: {"output": "full"})
+    monkeypatch.setattr("weconomy.workflow.export_dataset", lambda *_: {"counts": {}})
     monkeypatch.setattr("weconomy.workflow.filter_domain_export", lambda *_args, **_kwargs: {
         "output": "normalized", "counts": {"nodes": 10, "relations": 8, "relation_types": 3}})
     monkeypatch.setattr("weconomy.workflow.import_graph", lambda *_: (_ for _ in ()).throw(AssertionError()))
@@ -38,6 +39,7 @@ def test_graph_cycle_normalizes_and_skips_publish_when_targets_are_short(tmp_pat
     assert captured["max_candidates"] == 120
     assert captured["from_runs"] == [Path("old-run"), Path("new-run")]
     assert result["normalized_export"] == "normalized"
+    assert result["full_export"] == str(tmp_path / "full")
     assert result["status"] == "normalized_targets_not_met"
     assert result["neo4j"] is None
 
@@ -63,12 +65,13 @@ def test_graph_cycle_reanalyzes_source_runs_before_crawling(tmp_path, monkeypatc
         {"counts": {"articles": 3}, "attempts_allocated": 20},
         {"counts": {"articles": 4}, "attempts_allocated": 21},
     ])
+    monkeypatch.setattr("weconomy.workflow._output_path", lambda _dataset, kind: tmp_path / kind)
     monkeypatch.setattr("weconomy.workflow.load_config", lambda _: {"max_articles": 50, "aliases": "aliases.yaml"})
     monkeypatch.setattr("weconomy.workflow._committed_runs", lambda _: [Path("old-run")])
     monkeypatch.setattr("weconomy.workflow.dataset_status", lambda _: next(statuses))
     monkeypatch.setattr("weconomy.workflow.collect_dataset",
                         lambda _config, _dataset, **kwargs: events.append(("replay", kwargs)) or {})
-    monkeypatch.setattr("weconomy.workflow.export_dataset", lambda *_: {"output": "full"})
+    monkeypatch.setattr("weconomy.workflow.export_dataset", lambda *_: {"counts": {}})
     monkeypatch.setattr("weconomy.workflow.filter_domain_export", lambda *_args, **_kwargs: {
         "output": "normalized", "counts": {"nodes": 10, "relations": 8, "relation_types": 3}})
 

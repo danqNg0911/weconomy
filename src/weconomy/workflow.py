@@ -57,7 +57,7 @@ def _export_domain(dataset, config, *, nodes, relations, relation_types, progres
     full_export = _output_path(dataset, "full")
     if progress:
         progress({"event": "info", "message": f"Exporting full dataset to {full_export}"})
-    export_result = export_dataset(dataset, full_export)
+    export_result = {**export_dataset(dataset, full_export), "output": str(full_export)}
     normalized_export = _output_path(dataset, "domain")
     domain_result = filter_domain_export(full_export, normalized_export, aliases_path=config["aliases"])
     counts = domain_result["counts"]
