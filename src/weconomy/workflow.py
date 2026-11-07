@@ -88,7 +88,6 @@ def graph_cycle(dataset, *, config_path=Path("config/collection.yaml"), target_i
             progress({"event": "info", "message": f"Reanalyzing {len(old_runs)} saved runs from {source_dataset}"})
         collect_result = collect_dataset(
             config, dataset, from_runs=old_runs, articles=int(config["max_articles"]),
-            nodes=nodes, relations=relations, relation_types=relation_types,
             max_candidates=max_candidates, batch_size=batch_size, progress=progress,
         )
 
@@ -108,16 +107,15 @@ def graph_cycle(dataset, *, config_path=Path("config/collection.yaml"), target_i
 
     if progress:
         progress({"event": "info", "message": "Domain targets are short; crawling configured targets for more articles"})
-    crawl = run_collection(config_path, target_ids=target_ids, progress=progress)
-    runs = _replay_runs(dataset)
-    for target in crawl.get("targets", []):
-        runs.extend(Path(run) for run in target.get("run_ids", []))
-    runs = list(dict.fromkeys(runs))
+    crawl = run_collection(config_path, target_ids=target_ids, objectives={},
+                           discover_only=True, progress=progress)
+    urls = list(dict.fromkeys(url for target in crawl.get("targets", [])
+                              for url in target.get("article_urls", [])))
     article_target = current["counts"]["articles"] + int(config["max_articles"])
     candidate_budget = current["attempts_allocated"] + max_candidates
     collect_result = collect_dataset(
-        config, dataset, urls=[] if not runs else None, from_runs=runs or None,
-        articles=article_target, nodes=nodes, relations=relations, relation_types=relation_types,
+        config, dataset, urls=urls,
+        articles=article_target,
         max_candidates=candidate_budget, batch_size=batch_size, resume=True, progress=progress,
     )
     current = dataset_status(dataset)

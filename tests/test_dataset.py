@@ -182,6 +182,9 @@ def test_resume_requires_existing_catalog_and_compatible_config(tmp_path, monkey
         dataset.collect_dataset(config, "missing", resume=True)
     dataset.collect_dataset(config, "existing", urls=config["test_urls"])
     dataset.validate_dataset_resume(config, "existing")
+    collection_changed = dict(config, targets=[{"id": "another-category"}],
+                              crawl={"max_pages_per_target": 2}, batch_size=5, max_articles=10)
+    dataset.validate_dataset_resume(collection_changed, "existing")
     changed = dict(config, min_article_words=101)
     with pytest.raises(ValueError, match="fingerprint"):
         dataset.validate_dataset_resume(changed, "existing")

@@ -123,7 +123,7 @@ def _category_page_links(body: str | bytes, page_url: str, target: dict) -> tupl
         parsed = urlsplit(url)
         if parsed.hostname == host and re.search(target["article_pattern"], parsed.path, re.I) and url not in urls:
             urls.append(url)
-    for anchor in tree.xpath("//a[@href]"):
+    for anchor in tree.xpath("//a[@href] | //*[@data-next-url or @data-url or @data-href or @formaction]"):
         labels = " ".join([anchor.get("rel", ""), anchor.get("aria-label", ""),
                            anchor.get("title", ""), anchor.get("class", ""),
                            anchor.text_content(), " ".join(anchor.xpath(".//@alt | .//@title | .//@aria-label"))])
@@ -132,9 +132,13 @@ def _category_page_links(body: str | bytes, page_url: str, target: dict) -> tupl
         next_label = re.search(r"\bnext\b|\b(?:trang\s*)?(?:sau|tiếp(?:\s+theo)?)\b", labels, re.I)
         next_class = re.search(r"(?:next[-_ ]?(?:page|pagination)|query-pagination-next)",
                                anchor.get("class", ""), re.I)
-        if not next_class and not (next_label and re.search(r"pagination|pager|page-nav", context, re.I)):
+        load_more = re.search(r"\b(?:xem\s+thêm|tải\s+thêm|load\s+more|show\s+more)\b", labels, re.I)
+        if (not next_class and not load_more
+                and not (next_label and re.search(r"pagination|pager|page-nav", context, re.I))):
             continue
-        href = anchor.get("href")
+        href = next((anchor.get(name) for name in
+                     ("data-next-url", "data-url", "data-href", "formaction", "href")
+                     if anchor.get(name)), None)
         try:
             url = canonical_url(urljoin(page_url, href))
         except (TypeError, ValueError):
@@ -143,6 +147,29 @@ def _category_page_links(body: str | bytes, page_url: str, target: dict) -> tupl
         if parsed.hostname == host and url != canonical_url(page_url) and url not in next_pages:
             next_pages.append(url)
     return urls, next_pages
+
+
+def _unresolved_load_more(body: str | bytes, page_url: str) -> list[str]:
+    tree = html.fromstring(body)
+    host = urlsplit(page_url).hostname
+    labels = []
+    for control in tree.xpath("//a | //button | //*[@role='button']"):
+        label = " ".join([control.get("aria-label", ""), control.get("title", ""),
+                          control.text_content(), " ".join(control.xpath(".//@alt | .//@title | .//@aria-label"))])
+        marker = " ".join((label, control.get("class", ""), control.get("id", "")))
+        if not re.search(r"\b(?:xem\s+thêm|tải\s+thêm|load\s+more|show\s+more)\b", marker, re.I):
+            continue
+        href = next((control.get(name) for name in
+                     ("data-next-url", "data-url", "data-href", "formaction", "href")
+                     if control.get(name)), None)
+        try:
+            url = canonical_url(urljoin(page_url, href))
+        except (TypeError, ValueError):
+            labels.append(" ".join(label.split())[:100] or control.get("class", control.tag))
+            continue
+        if urlsplit(url).hostname != host:
+            labels.append(" ".join(label.split())[:100] or control.get("class", control.tag))
+    return list(dict.fromkeys(labels))
 
 
 def _target_article_links(rows: list[dict], target: dict) -> set[str]:
@@ -200,8 +227,15 @@ def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_
             url_limit = min(max_articles or target["max_articles"], target["max_articles"])
             visited_pages = {page_url}
             article_urls = []
+            reported_load_more = set()
             for page_number in range(1, page_limit + 1):
                 page_links, next_pages = _category_page_links(body, page_url, target)
+                if progress:
+                    for label in _unresolved_load_more(body, page_url):
+                        if label not in reported_load_more:
+                            progress({"event": "load_more_skipped", "target": target["id"],
+                                      "url": page_url, "label": label})
+                            reported_load_more.add(label)
                 added = 0
                 for endpoint in page_links:
                     if endpoint in article_urls:
@@ -270,10 +304,12 @@ def objective_reached(counts: dict, objectives: dict) -> bool:
 
 
 def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None, target_ids=None,
-                   progress=None) -> dict:
+                   objectives=None, discover_only=False, progress=None) -> dict:
     from . import pipeline
 
     settings = load_collection(config_path)
+    if objectives is not None:
+        settings["objectives"] = objectives
     settings["sources"] = str((config_path.resolve().parent / "sources.yaml").resolve())
     settings["aliases"] = str((config_path.resolve().parent.parent / settings["aliases"]).resolve())
     settings["output"] = str((config_path.resolve().parent.parent / settings["output"]).resolve())
@@ -282,7 +318,7 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
         raise FileNotFoundError(f"Source registry missing: {source_path}")
     source_rows = yaml.safe_load(source_path.read_text(encoding="utf-8"))["sources"]
     processor = process_fn or pipeline.process
-    if settings["ner_backend"] == "models":
+    if not discover_only and settings["ner_backend"] == "models":
         import importlib.util
         if importlib.util.find_spec("gliner") is None:
             raise RuntimeError("GLiNER is missing; install the project's nlp extra")
@@ -328,7 +364,8 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
         if progress:
             progress({"event": "target_start", "index": target_index, "total": len(targets),
                       "target": target["id"], "url": target["url"]})
-        target_urls = crawl_target(target, settings, runner=runner, max_articles=crawl_settings["max_pages_per_target"],
+        target_urls = crawl_target(target, settings, runner=runner,
+                                   max_articles=crawl_settings["max_pages_per_target"],
                                    progress=progress)
         target_urls = [url for url in target_urls if url not in attempted_urls]
         target_report = {"id": target["id"], "discovered": len(target_urls), "processed": 0,
@@ -337,16 +374,23 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
         if progress:
             progress({"event": "target_discovered", "target": target["id"],
                       "count": len(target_urls)})
+        if discover_only:
+            attempted_urls.update(target_urls)
+            target_report["article_urls"] = target_urls
+            target_report["attempted"] = len(target_urls)
+            target_reports.append(target_report)
+            continue
         batch_index = 0
         while len(attempted_urls.intersection(target_urls)) < len(target_urls):
             if len(attempted_urls) >= cap or objective_reached(counts, settings["objectives"]):
                 break
             batch = []
+            batch_limit = min(batch_size, cap - len(attempted_urls))
             for url in target_urls:
                 if url in attempted_urls:
                     continue
                 batch.append(url)
-                if len(batch) >= min(batch_size, cap - len(attempted_urls)):
+                if len(batch) >= batch_limit:
                     break
             if not batch:
                 continue
@@ -404,7 +448,8 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
                           "processed": len(batch), "counts": dict(counts)})
         target_report["errors"] = [error for error in failures if error.get("url") in target_urls]
         target_reports.append(target_report)
-    if (not failures and any(value is not None for value in settings["objectives"].values())
+    if (not discover_only and not failures
+            and any(value is not None for value in settings["objectives"].values())
             and not objective_reached(counts, settings["objectives"])):
         failures.append({"error": "Configured targets or article safety cap were exhausted before all objectives were met"})
     return {"status": "completed" if not failures else "partial", "counts": counts,

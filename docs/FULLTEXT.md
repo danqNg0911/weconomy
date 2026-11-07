@@ -74,7 +74,7 @@ từ manifest ghi rõ excerpt, chỉ dùng chạy chức năng với --allow-exc
 
 - Kiểm tra body dựa trên HTML/adapter, không render CSS/JavaScript. Visibility từ CSS stylesheet bên ngoài
   chưa xác định được; các trường hợp mơ hồ cần xem snapshot và duyệt.
-- Body có pagination/accordion AJAX chưa tự ghép. Trang bị chặn được ghi lỗi, không bypass.
+- Nút tải thêm chỉ được theo khi HTML cung cấp URL tĩnh cùng host; nút chỉ gọi JavaScript hoặc endpoint bị policy/robots chặn sẽ không được bấm hay bypass.
 - Dedup văn bản vẫn trong run; event identity và entity resolution chưa được chứng nhận trên corpus lớn.
 - `crawl` bị giới hạn bởi article/page/time caps trong config; không tự crawl vô hạn đến khi đủ mục tiêu.
 - Chưa coi tất cả tin kinh doanh là phù hợp đề tài mạng đa quốc gia; cần tập nhãn relevance/phạm vi riêng.

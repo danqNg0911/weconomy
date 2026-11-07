@@ -155,6 +155,31 @@ def test_pagination_discovery_uses_dom_labels_without_url_patterns():
     assert next_pages == ["https://vneconomy.vn/nhip-cau-doanh-nghiep.htm?page=3"]
 
 
+def test_load_more_uses_direct_dom_url_and_reports_javascript_only_control():
+    target = {"article_link_xpath": "//article//a[@href]/@href", "article_pattern": r"/story\.htm$"}
+    body = ("<button data-url='/category?page=2'>Xem thêm</button>"
+            "<a href='javascript:void(0)' onclick='loadMore()'>Load more</a>")
+    links, next_pages = crawler._category_page_links(body, "https://example.test/category", target)
+
+    assert links == []
+    assert next_pages == ["https://example.test/category?page=2"]
+    assert crawler._unresolved_load_more(body, "https://example.test/category") == ["Load more"]
+
+
+def test_24h_target_selector_ignores_cards_outside_category_listing():
+    root = Path(__file__).resolve().parents[1]
+    target = next(t for t in crawler.load_collection(root / "config/collection.yaml")["targets"]
+                  if t["id"] == "24h_world_economy")
+    body = ("<section class='section-tin-noi-bat'><article class='cate-24h-foot-box'>"
+            "<a href='/kinh-doanh/world-c161a1.html'>world</a></article></section>"
+            "<section class='cate-24h-foot-home-latest'><article class='cate-24h-foot-home-latest-list__box'>"
+            "<a href='/thi-truong-tieu-dung/lifestyle-c52a2.html'>other category</a></article></section>")
+
+    links, _ = crawler._category_page_links(body, target["url"], target)
+
+    assert links == ["https://www.24h.com.vn/kinh-doanh/world-c161a1.html"]
+
+
 def test_katana_display_out_of_scope_flag_is_opt_in():
     args = crawler.katana_command("https://example.test/category", 10, 1,
                                   display_out_of_scope=True)

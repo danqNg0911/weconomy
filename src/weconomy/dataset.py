@@ -52,9 +52,12 @@ def _code_hash():
 
 
 def _processing_fingerprint(config):
-    """Hash processing inputs while allowing output paths and sources to vary."""
+    """Hash extraction/NLP inputs while allowing collection settings to vary."""
+    collection_settings = {"output", "sources", "aliases", "version", "targets", "crawl",
+                           "batch_size", "objectives", "max_articles", "max_documents",
+                           "user_agent", "request_timeout", "request_retries", "max_response_bytes"}
     settings = {k: v for k, v in config.items()
-                if k not in {"output", "sources", "aliases"}}
+                if k not in collection_settings}
     aliases = _file_hash(config.get("aliases", ""))
     packages = {}
     if config.get("ner_backend") == "models":

@@ -14,7 +14,7 @@ Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri th
 
 Mục tiêu số lượng graph **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
 
-Lượt test crawl Katana trên trang VnExpress quốc tế (05/11/2026) lấy 100 URL, xử lý 10 bài trong safety cap, và dừng khi đạt 100 entity rows (đếm thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là xác nhận luồng crawl/body extraction, không phải đạt mục tiêu graph hay precision. Crawl config hiện đặt objectives theo graph (2.000 node, 5.000 cạnh và 11 loại quan hệ (>10)); safety cap hiện tại là 500 URL. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
+Lượt thử nghiệm Katana trên trang VnExpress quốc tế (05/11/2026) khi đó lấy 100 URL, xử lý 10 bài trong safety cap và dừng khi đạt 100 entity rows (thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là kết quả lịch sử, không phản ánh giới hạn crawl hiện tại. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
 
 ![Ví dụ các cạnh ứng viên trong export v4 thực tế](docs/assets/relation-candidates.png)
 
@@ -42,14 +42,14 @@ Lệnh `sources` liệt kê nguồn theo policy hiện tại. `sources --check` 
 
 ## Crawl danh mục bằng Katana
 
-Tool crawl mới đọc danh mục từ `config/collection.yaml`, dùng Katana qua Docker để tìm endpoint, rồi chỉ giữ URL bài được liên kết bên trong card bài của đúng target. Link menu và link tới danh mục khác bị loại trước khi tải bài; host, robots.txt và regex URL vẫn được kiểm tra. Collector nhận diện trang sau từ dấu hiệu trong DOM như `rel`, nhãn, class hoặc `alt` (“next”, “trang sau”), không dựa vào cấu trúc URL phân trang riêng từng báo. Nó theo trang tuần tự đến `crawl.max_pages_per_target`; log hiển thị số bài mới và tổng bài theo từng trang. Nội dung bài được trích theo selector riêng từng nguồn. Trên Windows cần Docker Desktop đang chạy và image Katana tải được. Dùng:
+Tool crawl mới đọc danh mục từ `config/collection.yaml`, dùng Katana qua Docker để tìm endpoint, rồi chỉ giữ URL bài được liên kết bên trong card bài của đúng target. Link menu và link tới danh mục khác bị loại trước khi tải bài; host, robots.txt và regex URL vẫn được kiểm tra. Collector nhận diện trang sau từ dấu hiệu trong DOM như `rel`, nhãn, class hoặc `alt` (“next”, “trang sau”), không dựa vào cấu trúc URL phân trang riêng từng báo. Với nút “Xem thêm”/“Load more”, collector chỉ theo URL tĩnh cùng host được công khai trong HTML; nút không có URL cùng host được ghi log và bỏ qua. URL tiếp tục phải qua policy và robots.txt. Nó theo trang tuần tự đến `crawl.max_pages_per_target`; log hiển thị số bài mới và tổng bài theo từng trang. Nội dung bài được trích theo selector riêng từng nguồn. Trên Windows cần Docker Desktop đang chạy và image Katana tải được. Dùng:
 
 ```powershell
 uv run --no-sync weconomy crawl --config config/collection.yaml
 uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
 ```
 
-Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objective và các safety cap như `max_articles`, `max_documents`, page cap và timebox. URL trang sau phải cùng host, được kiểm tra qua policy/robots và chống lặp. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
+Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objectives và giới hạn crawl. Mỗi target hiện được giới hạn 500 URL bài và 500 trang danh mục; tổng lượt tối đa 3.500 URL. URL trang sau phải cùng host, được kiểm tra qua policy/robots và chống lặp. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
 
 ## Thu thập dataset có thể tiếp tục
 
@@ -61,7 +61,7 @@ uv run --no-sync weconomy collect
 
 Trong lúc chạy, terminal ghim tiến độ hiện tại ở dòng cuối, hiển thị URL/giai đoạn, phần trăm batch và heartbeat mỗi 10 giây ở bước lâu. Lỗi được tô đỏ và ghi nguyên nhân; log đi ra `stderr`, JSON tổng kết vẫn ở `stdout`.
 
-Mục tiêu mặc định là 2.000 node, 5.000 cạnh và 11 loại quan hệ (>10). Safety cap crawl hiện là 500 URL; mỗi target tối đa 100 bài và 100 trang danh mục. Mục tiêu vẫn có thể chưa đạt nếu danh mục không cung cấp đủ bài hoặc extractor không tìm được quan hệ. Tiếp tục cùng catalog bằng `--resume`:
+Mục tiêu mặc định là 2.000 node, 5.000 cạnh và 11 loại quan hệ (>10). Crawl hiện giới hạn tổng 3.500 URL; mỗi target tối đa 500 URL bài và 500 trang danh mục. `graph-cycle --max-candidates` vẫn giới hạn số candidate được phân bổ vào catalog cho mỗi lượt chạy. Mục tiêu có thể chưa đạt nếu hết trang được khám phá hoặc extractor không tìm được đủ quan hệ. Tiếp tục cùng catalog bằng `--resume`:
 
 ```powershell
 uv run --no-sync weconomy collect --resume
@@ -113,7 +113,7 @@ uv run --no-sync weconomy graph-cycle `
   --max-candidates 10000 --batch-size 20
 ```
 
-Lần đầu mặc định phát lại các run đã commit trong `data/datasets/international-business-gliner-v1`; có thể đổi nguồn bằng `--source-dataset`. Các lượt sau tiếp tục dataset đích và chỉ crawl thêm khi graph đã lọc chưa đạt. Nếu thiếu chỉ tiêu, export được giữ lại, lệnh trả mã `2`, và không import graph. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
+Lần đầu mặc định phát lại các run đã commit trong `data/datasets/international-business-gliner-v1`; có thể đổi nguồn bằng `--source-dataset`. Các lượt sau tiếp tục dataset đích và chỉ crawl thêm khi graph đã lọc chưa đạt. Workflow chỉ khám phá URL, sau đó catalog tải full body và chạy NLP một lượt; URL đã có bị loại trước NLP. Nó kiểm tra node/cạnh trên export domain, không dừng sớm theo số đếm thô. Nếu thiếu chỉ tiêu, export được giữ lại, lệnh trả mã `2`, và không import graph. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
 
 ## Xử lý lại HTML đã lưu
 

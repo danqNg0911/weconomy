@@ -5,8 +5,8 @@ english_model: knowledgator/gliner-relex-base-v1.0
 vietnamese_model: belumind/barb-2-ie-vi
 aliases: config/entities.yaml
 sources: config/sources.yaml
-max_documents: 500
-max_articles: 500
+max_documents: 6000
+max_articles: 6000
 min_text_chars: 80
 min_article_words: 100
 allow_excerpts: false
@@ -22,7 +22,7 @@ targets:
     article_pattern: '-\d+\.html$'
     body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' fck_detail ')]"
     language: vi
-    max_articles: 100
+    max_articles: 1000
   - id: thanhnien_world_economy
     url: https://thanhnien.vn/the-gioi/kinh-te-the-gioi.htm
     source: thanhnien
@@ -30,7 +30,7 @@ targets:
     article_pattern: '-\d+\.htm$'
     body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' detail-content ')]"
     language: vi
-    max_articles: 100
+    max_articles: 1000
   - id: techcrunch_venture
     url: https://techcrunch.com/category/venture/
     source: techcrunch
@@ -38,7 +38,7 @@ targets:
     article_pattern: '/\d{4}/\d{2}/\d{2}/[^/?#]+/?$'
     body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     language: en
-    max_articles: 100
+    max_articles: 1000
   - id: techcrunch_startups
     url: https://techcrunch.com/category/startups/
     source: techcrunch
@@ -46,7 +46,7 @@ targets:
     article_pattern: '/\d{4}/\d{2}/\d{2}/[^/?#]+/?$'
     body_xpath: "//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]"
     language: en
-    max_articles: 100
+    max_articles: 1000
   - id: vneconomy_world_business
     url: https://vneconomy.vn/kinh-doanh-the-gioi.htm
     source: vneconomy
@@ -54,29 +54,21 @@ targets:
     article_pattern: '\.htm$'
     body_xpath: "//*[@id='article-editor']"
     language: vi
-    max_articles: 100
-  - id: vneconomy_business_network
-    url: https://vneconomy.vn/nhip-cau-doanh-nghiep.htm
-    source: vneconomy
-    article_link_xpath: "//main[contains(concat(' ', normalize-space(@class), ' '), ' news-category-spotlight__content ')]//article//a[@href]/@href"
-    article_pattern: '\.htm$'
-    body_xpath: "//*[@id='article-editor']"
-    language: vi
-    max_articles: 100
+    max_articles: 1000
   - id: 24h_world_economy
     url: https://www.24h.com.vn/kinh-te-the-gioi-c1106.html
     source: 24h
-    article_link_xpath: "//article[contains(concat(' ', normalize-space(@class), ' '), ' cate-24h-foot-box ') or contains(concat(' ', normalize-space(@class), ' '), ' cate-24h-foot-home-latest-list__box ')]//a[@href]/@href"
+    article_link_xpath: "//section[contains(concat(' ', normalize-space(@class), ' '), ' section-tin-noi-bat ')]//article[contains(concat(' ', normalize-space(@class), ' '), ' cate-24h-foot-box ') or contains(concat(' ', normalize-space(@class), ' '), ' cate-24h-foot-home-latest-list__box ')]//a[@href]/@href"
     article_pattern: '/[^/?#]+-c\d+a\d+\.html$'
     body_xpath: "//*[@id='article_body']"
     language: vi
-    max_articles: 100
+    max_articles: 1000
 batch_size: 10
 crawl:
   image: projectdiscovery/katana:latest
   depth: 1
   delay_seconds: 2
-  max_pages_per_target: 100
+  max_pages_per_target: 1000
   crawl_duration: 30s
   timeout_seconds: 15
   max_response_bytes: 4194304
@@ -86,4 +78,4 @@ objectives:
   nodes: 2000
   entities: null
   relations: 5000
-  relation_types: 11
+  relation_types: 19

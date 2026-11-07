@@ -4,7 +4,7 @@
 
 `weconomy crawl` dùng Katana chạy trong Docker để khám phá trang bài từ các danh mục trong `config/collection.yaml`. Mỗi target chỉ nhận URL liên kết trong card bài của trang danh mục đó; menu và link sang danh mục khác bị loại. URL còn được lọc theo host, robots.txt và regex bài. Thân bài dùng selector riêng theo nguồn, sau đó qua pipeline và lưu thành immutable run trong `data/runs/`. Log hiển thị số từ, đoạn và câu NLP theo từng bài. Không có RSS discovery trong đường chạy này.
 
-Collector tự nhận diện liên kết trang kế tiếp từ dấu hiệu trong DOM (`rel`, nhãn, class hoặc `alt` như “next”/“trang sau”), nên không ghim cấu trúc URL phân trang của từng báo vào config. Nó tải tuần tự, lấy bài mới và dừng khi hết liên kết nhận diện được, đạt giới hạn bài target hoặc chạm `crawl.max_pages_per_target`. URL kế tiếp phải cùng host, qua policy và robots; URL đã gặp không tải lại. Nguồn không đánh dấu rõ liên kết trang sau sẽ dừng tại trang hiện tại.
+Collector tự nhận diện liên kết trang kế tiếp từ dấu hiệu trong DOM (`rel`, nhãn, class hoặc `alt` như “next”/“trang sau”), nên không ghim cấu trúc URL phân trang của từng báo vào config. Với nút “Xem thêm”/“Load more”, collector chỉ theo URL tĩnh cùng host được công khai trong HTML; nút không có URL cùng host được ghi log và bỏ qua. URL phải qua policy và robots; URL đã gặp không tải lại. Collector tải tuần tự và dừng khi hết liên kết nhận diện được, đạt giới hạn bài target hoặc chạm `crawl.max_pages_per_target`.
 
 ```powershell
 uv run --no-sync weconomy sources
@@ -39,7 +39,7 @@ uv run --no-sync weconomy collect-dataset `
   --max-candidates 10000 --batch-size 20 --ner models
 ```
 
-Lượt crawl hiện bị giới hạn ở **500 URL** bởi `max_articles` và `max_documents`; mỗi target có tối đa 100 bài và 100 trang danh mục theo `crawl.max_pages_per_target`, cùng các page/time caps của Katana. Mục tiêu có thể chưa đạt; tăng ngân sách không tự tạo thêm bài hoặc quan hệ. Không dùng `--resume` để đổi processing fingerprint.
+Giới hạn hiện đặt trong `config/collection.yaml`: tối đa 500 URL bài cho mỗi target, 500 trang danh mục mỗi target và 3.500 URL cho toàn lượt. Nếu đổi số target, cần cập nhật `max_articles` tổng và `max_documents` cho phù hợp. Crawl còn có thể dừng sớm khi hết trang kế tiếp, đạt mục tiêu hoặc bị policy/robots chặn. `graph-cycle --max-candidates` cũng giới hạn số candidate được phân bổ cho lượt graph-cycle. Không dùng `--resume` để đổi processing fingerprint.
 
 `--max-candidates` là số URL tối đa được phân bổ trong catalog, không phải số bài hợp lệ và không tự tạo candidate. `--relations` đếm cạnh phân biệt `(subject, predicate, object)`; `claims` là số câu/bằng chứng hỗ trợ. `nodes` đếm endpoint có cạnh. Các ngưỡng đầy đủ trong đề bài là 2.000 node, 5.000 cạnh và 11 loại quan hệ (>10); phạm vi quốc tế hẹp hơn cho phép tối thiểu 1.000 node. Không có lệnh nào bảo đảm đạt chỉ tiêu khi nguồn/candidate không đủ hoặc extractor không tìm được cạnh.
 

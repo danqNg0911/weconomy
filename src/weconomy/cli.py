@@ -93,6 +93,9 @@ def _console_progress(event):
                    f"+{event['new_articles']} bài (tổng {event['total_articles']})")
     elif name == "pagination_error":
         message = f"Target {event['target']}: lỗi trang tiếp theo {event['url']}: {event['error']}"
+    elif name == "load_more_skipped":
+        message = (f"Target {event['target']}: bỏ qua nút tải thêm “{event['label']}” — "
+                   "không có URL tĩnh cùng host để theo")
     elif name == "target_discovered":
         message = f"Target {event['target']}: tìm thấy {event['count']} URL bài"
     elif name == "batch_start":

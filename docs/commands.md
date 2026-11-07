@@ -50,7 +50,7 @@ uv run --no-sync weconomy collect-dataset `
 
 ## Chạy một chu trình graph
 
-Lần đầu, lệnh tự phát lại các run đã commit trong dataset nguồn cũ bằng NLP hiện tại, xuất và lọc domain. Chỉ khi graph đã lọc còn thiếu chỉ tiêu, lệnh mới crawl các target đang cấu hình để thu thập bổ sung. Nếu dataset nguồn mặc định không phù hợp, đổi `--source-dataset`:
+Lần đầu, lệnh tự phát lại các run đã commit trong dataset nguồn cũ bằng NLP hiện tại, xuất và lọc domain. Khi cần crawl thêm, lệnh chỉ khám phá URL rồi để catalog tải full body và chạy NLP một lượt; URL có trong catalog bị bỏ trước NLP. Mục tiêu node/cạnh/loại quan hệ chỉ được kiểm tra trên export đã lọc domain, không dừng theo số đếm thô. Dataset đích được resume, run cũ không bị sửa. Nếu dataset nguồn mặc định không phù hợp, đổi `--source-dataset`:
 
 ```powershell
 uv run --no-sync weconomy graph-cycle `
@@ -75,11 +75,11 @@ uv run --no-sync weconomy evaluate $run --labels reports/labels-to-review.json -
 
 ## Tạo export chỉ gồm node thuộc domain
 
-`filter-domain` đọc export JSONL đầy đủ, gán subtype khi cue đứng gần tên entity trong cùng câu, giữ mọi node đã gán subtype kể cả node chưa có cạnh, và chỉ giữ claim có cả hai đầu mút thuộc domain. Lệnh ghi thư mục mới, không sửa export nguồn. Kiểm tra `domain_types` và `domain_evidence` trong `entities.jsonl` trước khi import graph.
+`filter-domain` đọc export JSONL đầy đủ, gán subtype bằng cue tiếng Việt/Anh ở cấu trúc apposition gần tên entity, giữ node đã phân loại kể cả node chưa có cạnh, và chỉ giữ claim có cả hai đầu mút thuộc domain. Bản v8 loại các alias phổ biến chỉ là đại từ/vai trò, năm, từ chung hoặc tên quốc gia bị NER gán nhầm `ORG`; alias GOV được curated vẫn được giữ. Đây vẫn là heuristic và không kiểm định riêng tính đúng của predicate quan hệ. Lệnh tạo thư mục mới, không sửa export nguồn; kiểm tra `domain_types` và `domain_evidence` trước khi nhập graph.
 
 ```powershell
-$source = 'data/exports/international-business-gliner-v1'
-$domain = 'data/exports/international-business-gliner-domain-v9'
+$source = 'data/exports/international-business-gliner-v2-full-20261107T042155-6b3c94'
+$domain = 'data/exports/international-business-gliner-v2-domain-v8-recheck'
 uv run --no-sync weconomy filter-domain $source --output $domain
 ```
 
