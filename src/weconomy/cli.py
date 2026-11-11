@@ -1,24 +1,189 @@
 import argparse
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from threading import Lock
+from uuid import uuid4
 
-from .access import Access, katana_urls
+from .access import katana_urls
 from .analytics import analyze
+from .crawler import run_collection
+from .dataset import collect_dataset, dataset_status, export_dataset, validate_dataset_resume
+from .domain_filter import filter_domain_export
 from .graph import import_graph
 from .hub import pull_run, push_run
 from .pipeline import load_config, process, read_table
 from .quality import annotation_tasks, evaluate, validate, write_new_json
 from .schema import RELATION_TYPES, SCHEMAS
+from .sources import source_status
+from .workflow import graph_cycle
+
+_DEFAULT_DATASET = Path("data/datasets/international-business-katana")
+_DEFAULT_EXPORT = Path("data/exports/international-business-katana")
+_STATUS_LINE = ""
+_STATUS_LOCK = Lock()
 
 
-def main():
+def _unique_output_path(path):
+    path = Path(path)
+    if not path.exists():
+        return path
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
+    while True:
+        candidate = path.with_name(f"{path.name}-{stamp}-{uuid4().hex[:8]}")
+        if not candidate.exists():
+            return candidate
+
+
+def _write_progress(message, event):
+    with _STATUS_LOCK:
+        _write_progress_locked(message, event)
+
+
+def _write_progress_locked(message, event):
+    global _STATUS_LINE
+    stream = sys.stderr
+    name = event.get("event")
+    error = name in {"error", "pagination_error"} or event.get("status") == "error"
+    color = "\x1b[1;31m" if error else ""
+    reset = "\x1b[0m" if color else ""
+    if not stream.isatty():
+        if name != "finished":
+            print(f"[weconomy] {message}", file=stream, flush=True)
+        return
+    if name in {"article_start", "heartbeat", "models_loading", "dataset_batch_start"}:
+        if name == "article_start":
+            total = max(1, event.get("total", 1))
+            percent = min(99, int((event.get("index", 1) - 1) * 100 / total))
+            blocks = percent // 5
+            message = f"[{percent:2}%] [{'█' * blocks}{'░' * (20 - blocks)}] {message}"
+        _STATUS_LINE = f"[weconomy] {message}"
+        stream.write(f"\r\x1b[2K{_STATUS_LINE}")
+        stream.flush()
+        return
+    if name == "finished":
+        stream.write("\r\x1b[2K")
+        stream.write(f"\x1b[1;32m[weconomy] [100%] Hoàn tất: {message}\x1b[0m\n")
+        stream.flush()
+        _STATUS_LINE = ""
+        return
+    stream.write("\r\x1b[2K")
+    stream.write(f"{color}[weconomy] {message}{reset}\n")
+    if name == "article_done" and event.get("total"):
+        total = max(1, event["total"])
+        percent = min(99, int(event.get("index", 1) * 100 / total))
+        blocks = percent // 5
+        _STATUS_LINE = (f"[weconomy] [{percent:2}%] [{'█' * blocks}{'░' * (20 - blocks)}] "
+                        f"{event.get('stage', 'crawl')}: {event.get('index', 0)}/{total}")
+    if _STATUS_LINE:
+        stream.write(_STATUS_LINE)
+    stream.flush()
+
+
+def _console_progress(event):
+    name = event.get("event")
+    stage = event.get("stage", "crawl")
+    if name == "target_start":
+        message = f"[{event['index']}/{event['total']}] Target {event['target']}: khám phá {event['url']}"
+    elif name == "katana_start":
+        message = f"Katana bắt đầu crawl: {event['url']}"
+    elif name == "category_page":
+        message = (f"Target {event['target']}: trang danh mục {event['page']} — "
+                   f"+{event['new_articles']} bài (tổng {event['total_articles']})")
+    elif name == "pagination_error":
+        message = f"Target {event['target']}: lỗi trang tiếp theo {event['url']}: {event['error']}"
+    elif name == "load_more_skipped":
+        message = (f"Target {event['target']}: bỏ qua nút tải thêm “{event['label']}” — "
+                   "không có URL tĩnh cùng host để theo")
+    elif name == "target_discovered":
+        message = f"Target {event['target']}: tìm thấy {event['count']} URL bài"
+    elif name == "batch_start":
+        message = (f"Target {event['target']}: xử lý batch {event['index']} "
+                   f"({event['size']} bài; {event['attempted']}/{event['cap']} URL)")
+    elif name == "article_start":
+        message = f"{stage}: [{event['index']}/{event['total']}] đang tải/xử lý {event['url']}"
+    elif name == "article_done":
+        detail = event.get("error") or event.get("title", "")
+        if event.get("error_type"):
+            detail = f"{event['error_type']}: {detail}"
+        counts = (f" | {event.get('entities', 0)} entity, {event.get('relations', 0)} relation"
+                  if "entities" in event else "")
+        content = (f" | {event['word_count']} từ, {event['body_paragraphs']} đoạn, "
+                   f"{event['nlp_sentences']} câu NLP" if "word_count" in event else "")
+        message = (f"{stage}: [{event['index']}/{event['total']}] {event['status']} "
+                   f"{detail}{counts}{content}").rstrip()
+    elif name == "batch_done":
+        counts = event["counts"]
+        message = (f"Target {event['target']}: batch {event['index']} xong — "
+                   f"{counts['articles']} bài, {counts['nodes']} node, "
+                   f"{counts['relations']} cạnh, {counts['relation_types']} loại")
+    elif name == "dataset_replay_start":
+        message = f"Bắt đầu phát lại {event['runs']} run đã lưu vào dataset {event['dataset']}"
+    elif name == "models_loading":
+        message = "Đang nạp mô hình NLP"
+    elif name == "dataset_batch_start":
+        message = (f"Dataset: nạp batch {event['size']} bài "
+                   f"({event['allocated']}/{event['budget']} URL đã phân bổ)")
+    elif name == "dataset_batch_done":
+        counts = event["counts"]
+        message = (f"Dataset hiện có {counts['articles']} bài, {counts['nodes']} node, "
+                   f"{counts['relations']} cạnh, {counts['relation_types']} loại")
+    elif name == "heartbeat":
+        message = f"{event['message']} ({event['elapsed_seconds']} giây)"
+    elif name == "error":
+        context = f"batch {event.get('batch')} " if event.get("batch") else ""
+        message = (f"LỖI {event.get('stage', 'weconomy')} {context}"
+                   f"{event.get('error_type', 'Error')}: {event.get('error', 'Không rõ nguyên nhân')}")
+    elif name == "info":
+        message = event["message"]
+    elif name == "finished":
+        message = event.get("status", "tác vụ đã kết thúc")
+    else:
+        return
+    _write_progress(message, event)
+
+
+def main(argv=None):
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Evidence-first news knowledge graph")
-    parser.add_argument("--config", default="config/pipeline.yaml")
+    parser.add_argument("--config", type=Path)
     sub = parser.add_subparsers(dest="command", required=True)
+    crawl = sub.add_parser("crawl", help="Run bounded Katana discovery and process article batches")
+    crawl.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    crawl.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    collect = sub.add_parser("collect", help="Crawl with Katana and add the results to the default dataset")
+    collect.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    collect.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    collect.add_argument("--dataset", type=Path, default=_DEFAULT_DATASET)
+    collect.add_argument("--articles", type=int)
+    collect.add_argument("--nodes", type=int, default=2000)
+    collect.add_argument("--relations", type=int, default=5000)
+    collect.add_argument("--relation-types", type=int, default=11)
+    collect.add_argument("--max-candidates", type=int, default=10000)
+    collect.add_argument("--batch-size", type=int, default=20)
+    collect_mode = collect.add_mutually_exclusive_group()
+    collect_mode.add_argument("--resume", action="store_true")
+    collect_mode.add_argument("--force", action="store_true",
+                              help="Create a new uniquely named dataset beside an existing one")
+    cycle = sub.add_parser("graph-cycle", help="Collect, normalize, check targets, and publish a domain graph")
+    cycle.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
+    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-verified-v15"))
+    cycle.add_argument("--source-dataset", type=Path,
+                       default=Path("data/datasets/international-business-gliner-v2"),
+                       help="Existing committed catalog to reuse on first run, without replaying NLP")
+    cycle.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
+    cycle.add_argument("--nodes", type=int, default=2000)
+    cycle.add_argument("--relations", type=int, default=5000)
+    cycle.add_argument("--relation-types", type=int, default=11)
+    cycle.add_argument("--max-candidates", type=int, default=10000)
+    cycle.add_argument("--batch-size", type=int, default=20)
+    cycle.add_argument("--max-rounds", type=int, default=3)
+    cycle.add_argument("--allow-processing-upgrade", action="store_true",
+                       help="Record an analysis-version transition for new articles only")
+    cycle.add_argument("--publish", action="store_true", help="Import only after verified targets are met")
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
@@ -26,12 +191,35 @@ def main():
     inputs.add_argument("--from-run", type=Path, help="Reprocess saved bronze HTML without network requests")
     run.add_argument("--ner", choices=["gazetteer", "models"])
     run.add_argument("--allow-excerpts", action="store_true", help="Diagnostic NLP on declared excerpts only")
-    collect = sub.add_parser("collect", help="RSS -> full article body checks -> NER/relations -> immutable run")
-    collect.add_argument("--source", action="append", required=True, help="Repeat for multiple sources")
-    collect.add_argument("--limit", type=int, default=3, help="Maximum article URLs attempted per source")
-    collect.add_argument("--ner", choices=["gazetteer", "models"], default="models")
-    collect.add_argument("--skip-run", type=Path, action="append", default=[],
-                         help="Skip URLs already accepted as full text in this run; repeat as needed")
+    dataset_collect = sub.add_parser("collect-dataset", help="Collect a resumable, persistent topic dataset")
+    dataset_collect.add_argument("--dataset", type=Path, default=_DEFAULT_DATASET)
+    dataset_inputs = dataset_collect.add_mutually_exclusive_group(required=True)
+    dataset_inputs.add_argument("--urls", type=Path, help="File containing one article URL per line")
+    dataset_inputs.add_argument("--from-run", type=Path, action="append", dest="from_runs",
+                                help="Replay eligible full-page bodies from a saved run; repeat in preference order")
+    for name in ("articles", "nodes", "relations", "relation-types"):
+        dataset_collect.add_argument(f"--{name}", type=int, dest=name.replace("-", "_"))
+    dataset_collect.add_argument("--max-candidates", type=int, default=1000)
+    dataset_collect.add_argument("--batch-size", type=int, default=20)
+    dataset_mode = dataset_collect.add_mutually_exclusive_group()
+    dataset_mode.add_argument("--resume", action="store_true")
+    dataset_mode.add_argument("--force", action="store_true",
+                              help="Create a new uniquely named dataset beside an existing one")
+    dataset_collect.add_argument("--ner", choices=["gazetteer", "models"])
+    for command in (collect, dataset_collect):
+        command.add_argument("--allow-processing-upgrade", action="store_true",
+                             help="Use the current analysis version on new URLs while retaining old analysis")
+    status = sub.add_parser("dataset-status", help="Show persisted dataset counts and collection state")
+    status.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
+    dataset_export = sub.add_parser("export-dataset", help="Export committed dataset tables as JSONL")
+    dataset_export.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
+    dataset_export.add_argument("--output", type=Path, default=_DEFAULT_EXPORT)
+    domain_export = sub.add_parser("filter-domain", help="Create an evidence-filtered domain graph export")
+    domain_export.add_argument("source", type=Path, help="Existing export-dataset directory")
+    domain_export.add_argument("--output", type=Path, required=True)
+    sources = sub.add_parser("sources", help="Show configured sources or probe one page per source")
+    sources.add_argument("--check", action="store_true")
+    sources.add_argument("--source", action="append", dest="source_ids")
     merge = sub.add_parser("merge-runs", help="Reprocess and deduplicate accepted full-text snapshots offline")
     merge.add_argument("--run", dest="runs", type=Path, action="append", required=True,
                        help="Repeat in revision preference order; last accepted capture of each URL wins")
@@ -41,12 +229,9 @@ def main():
     export.add_argument("--table", choices=["articles", "sentences", "mentions", "entities", "relations", "events"],
                         required=True)
     export.add_argument("--output", type=Path, required=True)
-    discovery = sub.add_parser("discover")
-    discovery.add_argument("source")
-    discovery.add_argument("--limit", type=int, default=10)
-    discovery.add_argument("--output", type=Path, required=True)
     for name in ("validate", "analytics", "import-neo4j", "label-tasks", "evaluate"):
-        p = sub.add_parser(name)
+        p = sub.add_parser(name, help="Import a validated run or dataset JSONL export into Neo4j"
+                           if name == "import-neo4j" else None)
         p.add_argument("run", type=Path)
         if name == "analytics":
             p.add_argument("--small-world", action="store_true")
@@ -67,43 +252,114 @@ def main():
     pull.add_argument("--run-id", required=True)
     pull.add_argument("--revision", default="main", help="Commit SHA recommended for reproducibility")
     pull.add_argument("--output", type=Path, default=Path("data/runs"), help="Local parent directory")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     code = 0
     try:
-        if args.command == "hf-push":
+        collection_config = None
+        if args.command in {"collect", "collect-dataset"}:
+            if args.force:
+                previous = args.dataset
+                args.dataset = _unique_output_path(args.dataset)
+                if args.dataset != previous:
+                    _console_progress({"event": "info", "message":
+                                       f"Giữ dataset cũ; tạo dataset mới tại {args.dataset}"})
+            elif args.dataset.exists() and not args.resume:
+                raise FileExistsError(f"Dataset đã tồn tại: {args.dataset}; dùng --resume hoặc --force")
+            elif args.resume and not args.dataset.exists():
+                raise FileNotFoundError(f"Không tìm thấy dataset để resume: {args.dataset}")
+            if args.command == "collect-dataset":
+                collection_config = load_config(args.config or "config/collection.yaml")
+                if args.ner:
+                    collection_config["ner_backend"] = args.ner
+            elif args.resume:
+                collection_config = load_config(args.config)
+            if args.resume:
+                validate_dataset_resume(collection_config, args.dataset,
+                                        allow_processing_upgrade=args.allow_processing_upgrade)
+        if args.command == "crawl":
+            result = run_collection(args.config, target_ids=args.targets, progress=_console_progress)
+            code = int(result["status"] != "completed")
+        elif args.command == "collect":
+            from .dataset import dataset_seen_urls
+            crawl = run_collection(args.config, target_ids=args.targets, progress=_console_progress,
+                                   discover_only=True, exclude_urls=dataset_seen_urls(args.dataset))
+            urls = list(dict.fromkeys(url for target in crawl["targets"] for url in target.get("article_urls", [])))
+            if not urls:
+                result = {"status": "failed", "crawl": crawl, "dataset": None}
+                code = 1
+            else:
+                config = collection_config or load_config(args.config)
+                dataset = collect_dataset(
+                    config, args.dataset, urls=urls, articles=args.articles,
+                    nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                    max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
+                    progress=_console_progress,
+                    allow_processing_upgrade=args.allow_processing_upgrade,
+                )
+                code = (1 if dataset.get("errors") else
+                        2 if not dataset["targets_met"] or crawl["status"] != "completed" else 0)
+                result = {"status": "completed" if code == 0 else "partial",
+                          "crawl": crawl, "dataset": dataset}
+        elif args.command == "graph-cycle":
+            result = graph_cycle(
+                args.dataset, config_path=args.config, target_ids=args.targets,
+                source_dataset=args.source_dataset,
+                nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                max_candidates=args.max_candidates, batch_size=args.batch_size,
+                max_rounds=args.max_rounds, allow_processing_upgrade=args.allow_processing_upgrade,
+                publish=args.publish,
+                progress=_console_progress,
+            )
+            if not result["targets_met"]:
+                code = 2
+        elif args.command == "hf-push":
             result = push_run(args.run, args.repo, dry_run=args.dry_run)
         elif args.command == "hf-pull":
             result = pull_run(args.repo, args.run_id, args.output, revision=args.revision)
         elif args.command == "schema":
             result = {"tables": {key: str(value) for key, value in SCHEMAS.items()},
                       "relations": RELATION_TYPES}
-        elif args.command in {"run", "collect", "discover", "merge-runs"}:
-            config = load_config(args.config)
-            if args.command in {"run", "collect", "merge-runs"}:
+        elif args.command in {"run", "merge-runs", "collect-dataset", "sources"}:
+            default_config = "config/collection.yaml" if args.command == "collect-dataset" else "config/pipeline.yaml"
+            config = collection_config or load_config(args.config or default_config)
+            if args.command in {"run", "merge-runs"}:
                 if args.ner:
                     config["ner_backend"] = args.ner
-                if args.command == "collect":
-                    run, report = process(config, sources=args.source, limit_per_source=args.limit,
-                                          skip_runs=args.skip_run)
-                elif args.command == "merge-runs":
-                    run, report = process(config, from_runs=args.runs)
+                if args.command == "merge-runs":
+                    run, report = process(config, from_runs=args.runs, progress=_console_progress)
                 else:
                     config["allow_excerpts"] = args.allow_excerpts
                     run, report = process(config, manifest=args.manifest, from_run=args.from_run,
-                                          urls=katana_urls(args.urls) if args.urls else None)
+                                          urls=katana_urls(args.urls) if args.urls else None,
+                                          progress=_console_progress)
                 result = {"run": str(run), **report}
                 code = int(report["status"] not in {"completed", "no_new_documents"})
-            else:
-                if args.limit <= 0 or args.limit > config["max_documents"]:
-                    raise ValueError("Discovery limit must be within configured document budget")
-                access = Access(config)
-                try:
-                    urls = access.discover(args.source, args.limit)
-                finally:
-                    access.close()
-                with args.output.open("x", encoding="utf-8") as stream:
-                    stream.write("\n".join(urls) + "\n")
-                result = {"urls": len(urls), "output": str(args.output)}
+            elif args.command == "collect-dataset":
+                urls = ([line.strip() for line in args.urls.read_text(encoding="utf-8-sig").splitlines()
+                         if line.strip()] if args.urls else None)
+                result = collect_dataset(
+                    config, args.dataset, urls=urls, articles=args.articles,
+                    nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
+                    max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
+                    from_runs=args.from_runs, progress=_console_progress,
+                    allow_processing_upgrade=args.allow_processing_upgrade,
+                )
+                if result.get("errors"):
+                    code = 1
+                elif any((args.articles, args.nodes, args.relations, args.relation_types)) and not result.get("targets_met"):
+                    code = 2
+            elif args.command == "sources":
+                result = source_status(config, check=args.check, source_ids=args.source_ids)
+        elif args.command == "dataset-status":
+            result = dataset_status(args.dataset)
+        elif args.command == "export-dataset":
+            output = _unique_output_path(args.output)
+            if output != args.output:
+                _console_progress({"event": "info", "message":
+                                   f"Giữ bản export cũ; ghi bản mới tại {output}"})
+            result = export_dataset(args.dataset, output)
+        elif args.command == "filter-domain":
+            result = filter_domain_export(args.source, args.output)
         elif args.command == "validate":
             result = validate(args.run)
             code = int(not result["valid"])
@@ -125,9 +381,13 @@ def main():
             result = {"rows": len(rows), "table": args.table, "output": str(args.output)}
         if getattr(args, "output", None) and args.command in {"analytics", "evaluate"}:
             write_new_json(args.output, result)
+        _console_progress({"event": "finished", "status":
+                           result.get("status", result.get("reason", "tác vụ đã kết thúc"))})
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
         return code
     except Exception as exc:
+        _console_progress({"event": "error", "stage": args.command,
+                           "error_type": type(exc).__name__, "error": str(exc)})
         print(json.dumps({"error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False), file=sys.stderr)
         return 1
 

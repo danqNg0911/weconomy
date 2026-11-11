@@ -3,7 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from weconomy.nlp import NLP, align_token, extract_relations, normalize, route, sentences
+from weconomy.nlp import (
+    NLP,
+    document_person_aliases,
+    extract_relations,
+    normalize,
+    route,
+    sentences,
+)
 from weconomy.pipeline import load_config
 from weconomy.schema import stable_id
 
@@ -25,15 +32,48 @@ def nlp():
     ("Bill Gates is the CEO of Microsoft.", "en", "CEO_OF"),
     ("Bill Gates founded Microsoft.", "en", "FOUNDED"),
     ("GitHub is a subsidiary of Microsoft.", "en", "SUBSIDIARY_OF"),
+    ("Microsoft owns a stake in GitHub.", "en", "OWNS_STAKE_IN"),
+    ("Bill Gates is a board member of Microsoft.", "en", "BOARD_MEMBER_OF"),
+    ("Microsoft signed a contract with GitHub.", "en", "CONTRACTED_WITH"),
+    ("Microsoft awarded a contract to GitHub.", "en", "AWARDED_CONTRACT_TO"),
+    ("United States filed an antitrust action against Microsoft.", "en", "ANTITRUST_ACTION_AGAINST"),
+    ("United States sanctioned Microsoft.", "en", "SANCTIONED"),
+    ("Microsoft disrupted the supply to GitHub.", "en", "DISRUPTED_SUPPLY_TO"),
+    ("Microsoft spun off from GitHub.", "en", "SPUN_OFF_FROM"),
     ("Microsoft đã mua lại GitHub.", "vi", "ACQUIRED"),
     ("Microsoft đã đầu tư vào GitHub.", "vi", "INVESTED_IN"),
     ("Bill Gates thành lập Microsoft.", "vi", "FOUNDED"),
+    ("Microsoft nắm giữ cổ phần tại GitHub.", "vi", "OWNS_STAKE_IN"),
+    ("Bill Gates là thành viên hội đồng quản trị của Microsoft.", "vi", "BOARD_MEMBER_OF"),
+    ("Microsoft ký hợp đồng với GitHub.", "vi", "CONTRACTED_WITH"),
+    ("Microsoft trao hợp đồng cho GitHub.", "vi", "AWARDED_CONTRACT_TO"),
+    ("United States khởi kiện chống độc quyền nhằm vào Microsoft.", "vi", "ANTITRUST_ACTION_AGAINST"),
+    ("United States áp đặt trừng phạt đối với Microsoft.", "vi", "SANCTIONED"),
+    ("Microsoft làm gián đoạn nguồn cung cho GitHub.", "vi", "DISRUPTED_SUPPLY_TO"),
+    ("Microsoft tách ra khỏi GitHub.", "vi", "SPUN_OFF_FROM"),
 ])
 def test_direct_rules(nlp, text, lang, predicate):
     found = extract_relations(text, nlp.mentions(text, lang), lang)
     assert len(found) == 1
     assert found[0]["predicate"] == predicate
     assert found[0]["subject_id"] != found[0]["object_id"]
+
+
+def test_vietnamese_partnered_with_rule(nlp):
+    text = "Microsoft k\u00fd k\u1ebft h\u1ee3p t\u00e1c v\u1edbi Vingroup."
+    found = extract_relations(text, nlp.mentions(text, "vi"), "vi")
+    assert len(found) == 1 and found[0]["predicate"] == "PARTNERED_WITH"
+
+
+def test_antitrust_rule_rejects_non_government_subject(nlp):
+    text = "Microsoft filed an antitrust action against GitHub."
+    assert not extract_relations(text, nlp.mentions(text, "en"), "en")
+
+
+def test_vietnamese_nhien_lieu_does_not_trigger_uncertainty_filter(nlp):
+    text = "Microsoft mua lại GitHub trong bối cảnh thiếu hụt nhiên liệu."
+    found = extract_relations(text, nlp.mentions(text, "vi"), "vi")
+    assert len(found) == 1 and found[0]["predicate"] == "ACQUIRED"
 
 
 @pytest.mark.parametrize("text,lang", [
@@ -48,6 +88,8 @@ def test_direct_rules(nlp, text, lang, predicate):
     ("Microsoft acquired GitHub and Apple.", "en"),
     ("Microsoft chưa mua lại GitHub.", "vi"),
     ("Nếu Microsoft mua lại GitHub, họ sẽ thay đổi.", "vi"),
+    ("Liệu Microsoft mua lại GitHub?", "vi"),
+    ("Microsoft cân nhắc liệu có mua lại GitHub.", "vi"),
     ("Bill Gates acquired Microsoft.", "en"),
     ("Disney buys Pixar", "en"),
 ])
@@ -64,6 +106,33 @@ def test_alias_and_span_boundaries(nlp):
     assert len(mentions) == 2
     assert nlp.resolve("Microsof", "ORG")["entity_id"] != nlp.resolve("Microsoft", "ORG")["entity_id"]
     assert nlp.suggestions("Microsof")
+
+
+def test_document_person_aliases_use_unique_full_name_anchor():
+    entities = {
+        "elon": {"name": "Elon Musk", "entity_type": "PERSON"},
+        "musk-person": {"name": "Musk", "entity_type": "PERSON"},
+        "musk-org": {"name": "Musk", "entity_type": "ORG"},
+    }
+    mentions = [
+        {"entity_id": "elon", "surface": "Elon Musk"},
+        {"entity_id": "musk-person", "surface": "Ông Musk"},
+        {"entity_id": "musk-org", "surface": "Musk"},
+    ]
+    assert document_person_aliases(entities, mentions) == {
+        "musk-person": "elon",
+    }
+
+
+def test_document_person_aliases_abstain_when_surname_is_ambiguous():
+    entities = {
+        "elon": {"name": "Elon Musk", "entity_type": "PERSON"},
+        "kimbal": {"name": "Kimbal Musk", "entity_type": "PERSON"},
+        "musk": {"name": "Musk", "entity_type": "PERSON"},
+    }
+    mentions = [{"entity_id": key, "surface": entity["name"]}
+                for key, entity in entities.items()]
+    assert document_person_aliases(entities, mentions) == {}
 
 
 def test_offsets_unicode_and_language(nlp):
@@ -84,73 +153,111 @@ def test_sentence_decimal_and_last_fragment():
         "The deal is worth $7.4 billion.", "Last fragment", "New line."]
 
 
-def test_vietnamese_tokenizer_inserted_quote_spaces_keep_original_offsets(nlp):
-    # Underthesea can return a token '‘ quân' for source '‘quân'. Token spacing is not source spacing.
+class FakeRelex:
+    def __init__(self, entities, relations):
+        self.entities, self.relations = entities, relations
+        self.calls = 0
+
+    def inference(self, **kwargs):
+        self.calls += 1
+        return [self.entities], [self.relations]
+
+
+def test_document_context_is_applied_before_entity_and_claim_creation_and_reset(nlp):
+    text = "X partnered with Microsoft."
     nlp.backend = "models"
-    nlp.vi_ner = lambda _: [
-        ("Vingroup", "N", "B-NP", "B-ORG"), ("có", "V", "B-VP", "O"),
-        ("‘ quân", "N", "B-NP", "O"), ("bài ’", "N", "I-NP", "O"),
-        ("mới", "A", "B-AP", "O"), (".", "CH", "O", "O"),
-    ]
-    text = "Vingroup có ‘quân bài’ mới."
-    found = nlp.mentions(text, "vi")
-    assert [(m["surface"], m["start"], m["end"]) for m in found] == [("Vingroup", 0, 8)]
+    nlp.models["en"] = FakeRelex([
+        {"start": 0, "end": 1, "text": "X", "label": "organization", "score": 0.99}], [])
+    nlp.aliases["x"] = ("Twitter", "ORG")
+    ids = []
+    for context, name in [("Alphabet’s X moonshot factory.", "X (Alphabet)"),
+                          ("Musk’s social media company X.", "X (social network)")]:
+        nlp.begin_document(context + " " + text)
+        mentions = nlp.mentions(text, "en")
+        assert mentions[0]["entity"]["name"] == name
+        ids.append(mentions[0]["entity"]["entity_id"])
+        claims = nlp.relations(text, mentions, "en")
+        assert len(claims) == 1 and claims[0]["subject_id"] == ids[-1]
+    assert ids[0] != ids[1]
+    nlp.begin_document(text)
+    mentions = nlp.mentions(text, "en")
+    assert not any(row["surface"] == "X" for row in mentions)
+    assert any(row["reason"] == "ambiguous_organization_context" for row in nlp.validation)
 
 
-def test_alignment_does_not_jump_over_source_words_or_change_letters():
-    with pytest.raises(ValueError, match="offsets"):
-        align_token("Other Microsoft", "Microsoft", 0)
-    with pytest.raises(ValueError, match="offsets"):
-        align_token("Vingroup", "Vingroub", 0)
-    assert align_token("Hồ Chí Minh", "Hồ_Chí_Minh", 0) == (0, 11)
-    assert align_token("name_with_underscore", "name_with_underscore", 0) == (0, 20)
-    assert align_token("Tuỳ vào", "Tùy", 0) == (0, 3)
-    assert align_token("Hoà Bình", "Hòa Bình", 0) == (0, 8)
-    with pytest.raises(ValueError):
-        align_token("Túy", "Tùy", 0)  # A different tone is not spelling normalization.
-
-
-@pytest.fixture(scope="module")
-def model_nlp():
-    pytest.importorskip("en_core_web_sm")
-    result = NLP(load_config(ROOT / "config/pipeline.yaml"))
-    import spacy
-    result.backend = "models"
-    result.en = spacy.load("en_core_web_sm")
-    return result
-
-
-@pytest.mark.parametrize("text,predicate,subject,object_", [
-    ("Microsoft recently acquired GitHub.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("GitHub was recently acquired by Microsoft.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("Bill Gates founded Microsoft in 1975.", "FOUNDED", "Bill Gates", "Microsoft"),
-    ("Microsoft invested heavily in GitHub.", "INVESTED_IN", "Microsoft", "GitHub"),
-    ("Microsoft acquired GitHub.", "ACQUIRED", "Microsoft", "GitHub"),
-    ("Microsoft has acquired software company GitHub, the companies announced on Tuesday.",
-     "ACQUIRED", "Microsoft", "GitHub"),
-    ("Microsoft announced that Apple recently acquired GitHub.", "ACQUIRED", "Apple", "GitHub"),
+@pytest.mark.parametrize("text,language,entities,relations,predicate,subject,object_", [
+    ("Microsoft invested in GitHub.", "en", [
+        {"start": 0, "end": 9, "text": "Microsoft", "label": "organization", "score": 0.9},
+        {"start": 22, "end": 28, "text": "GitHub", "label": "organization", "score": 0.9},
+    ], [{"head": {"start": 0, "end": 9}, "tail": {"start": 22, "end": 28},
+         "relation": "invested in", "score": 0.9}], "INVESTED_IN", "Microsoft", "GitHub"),
+    ("Vingroup đầu tư vào Microsoft.", "vi", [
+        {"start": 0, "end": 8, "text": "Vingroup", "label": "tổ chức", "score": 0.9},
+        {"start": 20, "end": 29, "text": "Microsoft", "label": "tổ chức", "score": 0.9},
+    ], [{"head": {"start": 0, "end": 8}, "tail": {"start": 20, "end": 29},
+         "relation": "đầu tư vào", "score": 0.9}], "INVESTED_IN", "Vingroup", "Microsoft"),
 ])
-def test_model_dependency_arguments_and_rule_dedup(model_nlp, text, predicate, subject, object_):
-    found = model_nlp.relations(text, model_nlp.mentions(text, "en"), "en")
-    assert len(found) == 1
-    assert found[0]["predicate"] == predicate
-    assert found[0]["subject_id"] == model_nlp.resolve(subject, "ORG")["entity_id"]
-    assert found[0]["object_id"] == model_nlp.resolve(object_, "ORG")["entity_id"]
+def test_gliner_joint_extraction_maps_both_languages_once(
+        nlp, text, language, entities, relations, predicate, subject, object_):
+    from unittest.mock import patch
+    nlp.backend = "models"
+    model = FakeRelex(entities, relations)
+    nlp.models[language] = model
+    mentions = nlp.mentions(text, language)
+    with patch("weconomy.nlp.extract_relations", return_value=[]):
+        claims = nlp.relations(text, mentions, language)
+    assert len(claims) == 1
+    assert claims[0]["predicate"] == predicate
+    assert claims[0]["subject_id"] == nlp.resolve(subject, "ORG")["entity_id"]
+    assert claims[0]["object_id"] == nlp.resolve(object_, "ORG")["entity_id"]
+    assert model.calls == 1
 
 
-@pytest.mark.parametrize("text", [
-    "Microsoft may acquire GitHub.", "Microsoft plans to acquire GitHub.",
-    "Microsoft acquired a stake in GitHub.", "Microsoft acquired GitHub’s assets.",
-    "Microsoft did not acquire GitHub.", "It acquired GitHub.",
-    "Microsoft recently acquired GitHub and Apple.",
-    "Microsoft denied that Apple acquired GitHub.",
-    "Microsoft said Apple may acquire GitHub.",
-    "Microsoft might announce that Apple recently acquired GitHub.",
-    "Microsoft imagined Apple recently acquired GitHub.",
-    "Microsoft announced that it recently acquired GitHub.",
+def test_gliner_aliases_keep_curated_entity_types(nlp):
+    nlp.backend = "models"
+    nlp.models["vi"] = FakeRelex(
+        [{"start": 0, "end": 20, "text": "Pháp Emmanuel Macron", "label": "địa điểm", "score": 0.9}], [])
+    found = nlp.mentions("Pháp Emmanuel Macron", "vi")
+    assert [(m["surface"], m["entity"]["entity_type"]) for m in found] == [
+        ("Pháp", "GOV"), ("Emmanuel Macron", "PERSON")]
+
+
+def test_financing_round_is_retained_in_audit_but_not_used_as_company(nlp):
+    text = "Cerebras raised a Series H."
+    nlp.backend = "models"
+    nlp.models["en"] = FakeRelex([
+        {"start": 0, "end": 8, "text": "Cerebras", "label": "organization", "score": 0.99},
+        {"start": 18, "end": 26, "text": "Series H", "label": "organization", "score": 0.99},
+    ], [{"head": {"start": 0, "end": 8}, "tail": {"start": 18, "end": 26},
+         "relation": "invested in", "score": 0.99}])
+    mentions = nlp.mentions(text, "en")
+    assert [m["surface"] for m in mentions] == ["Cerebras"]
+    assert nlp.relations(text, mentions, "en") == []
+    audit = nlp.audit_record(text, "en")
+    assert len(audit["entities"]) == 2
+    assert audit["validation"][0]["reason"] == "financing_round_not_organization"
+
+
+@pytest.mark.parametrize("role", [
+    "Former Microsoft CEO Bill Gates", "Microsoft former CEO Bill Gates",
+    "Microsoft ex-CEO Bill Gates", "Bill Gates, former CEO of Microsoft",
+    "Bill Gates is the former chief executive officer of Microsoft",
+    "Former Microsoft co-founder and CEO Bill Gates",
 ])
-def test_dependency_abstains_on_modal_partial_ownership_and_unresolved_subjects(model_nlp, text):
-    assert not model_nlp.relations(text, model_nlp.mentions(text, "en"), "en")
+def test_new_model_predictions_do_not_promote_former_ceo_to_current_role(nlp, role):
+    text = role + " spoke today."
+    nlp.backend = "models"
+    nlp.models["en"] = FakeRelex([], [{
+        "head": {"start": text.index("Bill Gates"), "end": text.index("Bill Gates") + 10},
+        "tail": {"start": text.index("Microsoft"), "end": text.index("Microsoft") + 9},
+        "relation": "is ceo of", "score": 0.99}])
+    mentions = nlp.mentions(text, "en")
+    claims = nlp.relations(text, mentions, "en")
+    assert not any(row["predicate"] == "CEO_OF" for row in claims)
+    if "co-founder" in role:
+        assert any(row["predicate"] == "FOUNDED" for row in claims)
+    assert any(row["reason"] == "historical_role_requires_temporal_qualification"
+               for row in nlp.audit_record(text, "en")["validation"])
 
 
 def test_acquisition_agreement_is_not_a_completed_acquisition(nlp):
@@ -170,6 +277,14 @@ def test_abbreviation_does_not_cut_evidence_mid_sentence():
     text = "A company serves the U.S. military. It has an office."
     assert [s["text"] for s in sentences(text)] == [
         "A company serves the U.S. military.", "It has an office."]
+
+
+def test_initials_in_fund_names_and_parenthesis_endings_preserve_offsets():
+    text = "Acme raised $15 million led by The O.H.I.O. Fund. (Acme was acquired by Globex.) Next sentence."
+    chunks = list(sentences(text))
+    assert [s["text"] for s in chunks] == [
+        "Acme raised $15 million led by The O.H.I.O. Fund.", "(Acme was acquired by Globex.)", "Next sentence."]
+    assert all(text[s["start"]:s["end"]] == s["text"] for s in chunks)
 
 
 @pytest.mark.parametrize("text,lang,predicate,subject,object_", [

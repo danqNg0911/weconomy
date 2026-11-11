@@ -4,8 +4,8 @@
 
 ```mermaid
 flowchart LR
-    RSS[RSS / Atom] --> Gate[Policy + robots + rate limit]
-    K[URL / Katana JSONL] --> Gate
+    K[Katana category discovery] --> Gate[Policy + robots + rate limit]
+    U[Explicit article URLs] --> Gate
     Gate --> B[Bronze: HTML + nguồn + giấy phép]
     Local[Trích đoạn thật có ghi công] --> B
     B --> T[Trafilatura + normalization]
@@ -21,28 +21,27 @@ flowchart LR
 
 Đơn vị dữ liệu trung tâm là **claim có câu bằng chứng**, không phải cặp tên cùng xuất hiện.
 Một sự kiện có thể có nhiều claims từ nhiều câu. Machine candidates chưa đồng nghĩa với sự thật đã duyệt.
-Neo4j có Entity, Event, Claim, Sentence, Document. Phép chiếu analytics chỉ dùng Entity và cạnh nghiệp vụ,
-không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
+Neo4j chỉ có node Entity và cạnh quan hệ trực tiếp giữa các entity. Event ID, trạng thái, trigger, rule ID và document IDs là thuộc tính của cạnh; raw HTML/toàn văn được lưu ở Hugging Face, không đưa vào graph.
 
 ## Những quyết định đã thực thi
 
 | Quyết định | Lý do | Giới hạn cần theo dõi |
 |---|---|---|
-| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | Model spaCy cài riêng, cần --no-sync |
-| feedparser trước, Katana nhập URL tùy chọn | RSS đủ kiểm tra discovery, giảm crawler cần vận hành | RSS không cung cấp lịch sử đầy đủ |
-| Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/RSS riêng | Chưa thử parser toàn trang từng báo thương mại |
+| Python 3.11 + uv.lock | Wheels NLP trên Windows, môi trường tái lập | GLiNER weights tải lần đầu vào Hugging Face cache; cần mạng và vài GB dung lượng |
+| Katana khám phá danh mục | Dùng target URL, giới hạn scope/page/time và policy hiện tại | Phụ thuộc cấu trúc trang danh mục và các cap hữu hạn |
+| Registry adapter theo host | Cùng extractor, mỗi nguồn có policy/language/body selector riêng | Chưa thử parser toàn trang từng báo thương mại |
 | Trafilatura | Tái sử dụng extractor có sẵn thay viết parser từng báo | Chưa kiểm tra chất lượng full-page thực tế do 403 |
-| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay, có đường nâng cấp | Gazetteer bị giới hạn tên và không có GOV ban đầu |
-| Alias xác định, fuzzy chỉ đề xuất | Tránh gộp nhầm doanh nghiệp/người trùng tên | Exact-surface chưa giải quyết đồng danh/đa ngôn ngữ đầy đủ |
-| 11 predicate với type constraints | Schema chung cho cả Sprint 1 và 2; tách acquisition agreement khỏi completed acquisition | Mẫu trực tiếp có recall thấp; số predicate định nghĩa khác số loại quan sát thật |
+| Gazetteer mặc định, models tùy chọn | Chạy offline nhẹ ngay; models dùng GLiNER-Relex với model ID riêng theo ngôn ngữ, một lượt lấy entities và relations | Nhãn business tiếng Việt truyền cho Barb là zero-shot; chưa đo trên tin kinh doanh |
+| Alias xác định, fuzzy chỉ đề xuất; surname PERSON được resolve theo anchor duy nhất trong cùng bài | Gộp các cách gọi như “Elon Musk”/“ông Musk” mà không gộp họ chung xuyên bài | Nếu bài nhắc nhiều người cùng họ, hệ thống giữ riêng mention dạng họ |
+| 19 predicate với type constraints | Bao phủ đầu tư, sở hữu, vai trò lãnh đạo, hợp đồng, M&A, chống độc quyền và chuỗi cung ứng; tách acquisition agreement khỏi completed acquisition | Rule là mẫu tường minh, chưa đo precision/recall trên nhãn thật; số predicate định nghĩa khác số loại quan sát |
 | Parquet + immutable run | Debug/reprocess có thể truy vết và không ghi đè | Chưa catalog/version table nhiều người ghi |
 | Event identity bảo thủ | Tránh gộp những vòng đầu tư khác nhau | Chưa dedup sự kiện xuyên bài/run khi không có ngày sự kiện |
-| Neo4j Community | Lưu graph có truy vấn provenance, chạy local | Chưa nghiệm thu live khi Engine không hoạt động |
+| Neo4j Community | Lưu entity và cạnh quan hệ để truy vấn/visualize local | Raw và toàn văn nằm ở Hugging Face; truy vết từ cạnh qua document IDs |
 | NetworkX trước GDS | Không phụ thuộc plugin server để phân tích pilot | Thuật toán toàn cặp chưa tối ưu cho graph lớn |
 
 ## Contracts giữa module
 
-- `access.py` là cổng cho mọi request của Python. Source bị khóa không được download cả RSS.
+- `access.py` là cổng cho mọi request tải bằng Python. Katana chỉ khám phá URL; URL tải bài vẫn qua policy, robots và rate limit trong pipeline.
   Chuyển hướng phải qua policy lại. robots không tải được thì dừng, không tự suy ra cho phép.
 - Manifest offline là đầu vào do người dùng quản lý, phải có giấy phép/ghi công/source/kind/thời điểm;
   không dùng nó để hợp thức hóa tập dữ liệu không có quyền. Snapshot có SHA thì kiểm tra SHA.
@@ -61,8 +60,8 @@ không tính các nút provenance vào chỉ tiêu 2.000 thực thể.
 1. Thu thập đủ quyền từ nguồn thật, đo extraction theo nguồn/ngôn ngữ; giữ metadata xuất bản và snapshot.
 2. Thêm tập nhãn theo article/event/time split; bổ sung alias đã duyệt, định danh ngoài (Wikidata/LEI)
    khi có bằng chứng đồng nhất. Chỉ fuzzy/embedding không đủ kết luận cùng thực thể.
-3. Backend models hiện có dependency RE tiếng Anh cho các argument tường minh. Mở rộng RE tiếng Việt
-   và kiểm định mô hình local trên nhãn độc lập. Tách reported/planned/
+3. Backend models dùng GLiNER-Relex chung adapter và rule determinist làm fallback.
+   Kiểm định cả hai trên nhãn độc lập. Tách reported/planned/
    denied/rumoured, vai trò chủ thể/đối tượng, thời gian quan hệ và attribution. Không nâng số cạnh bằng co-occurrence.
 4. Khi batch tăng, thay pairwise shingles hiện O(n²) bằng MinHash/LSH; index xuyên run, partition Parquet
    theo source/date/language. Không cần Kafka để đạt vài nghìn thực thể; SQLite job ledger + batch là bước kế.

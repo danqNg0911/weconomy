@@ -15,13 +15,13 @@ Xem [STATUS.md](STATUS.md) để biết trạng thái tool, corpus tham chiếu 
 - [x] Viết nhãn task và phép đo Precision/Recall/F1, từ chối nhãn chưa duyệt.
 - [x] Viết test tích hợp offline và các trường hợp từ chối trích xuất.
 - [x] Chuẩn bị NetworkX, schema Neo4j, importer, Docker Compose và tài liệu.
-- [x] Chạy NER spaCy/underthesea trên mẫu, kiểm định pilot (chưa độc lập).
+- [x] Chuẩn hóa extraction qua GLiNER-Relex; checkpoint EN và VI riêng (chưa đánh giá corpus độc lập).
 - [x] Neo4j live import/reimport/query; Docker build và chạy mẫu offline đã xác minh.
 - [x] Thu thập tiếp có bỏ qua URL toàn văn thành công; gom các run offline và dedup lại, không cộng replay.
-- [x] RE có mẫu bị động/chức danh; backend English models có thêm dependency arguments và test hướng cạnh.
+- [x] RE có mẫu rule bị động/chức danh; backend GLiNER-Relex chung cho EN/VI, kèm test map predicate/hướng cạnh bằng adapter giả.
 - [ ] Thu thập toàn văn tin Việt/Anh ở quy mô đại diện với quyền truy cập đã xác minh.
 - [ ] Xác nhận chính thức với giảng viên “2000 nghìn nút” là 2.000 hay 2 triệu.
-- [ ] Đạt 2.000 entity nodes, 5.000 distinct validated event edges, 10 observed predicates.
+- [ ] Đạt 2.000 entity nodes, 5.000 distinct validated event edges, 11 (>10) observed predicates.
 - [ ] Bộ nhãn độc lập ≥150–200 câu, đủ loại, đo ≥90% precision cùng recall/F1 và khoảng tin cậy.
 - [ ] Báo cáo nộp ≥10 trang, phân công nhóm thực, liên kết GitHub thật và phân tích số liệu đủ quy mô.
 
@@ -56,6 +56,6 @@ Chỉ thêm orchestration hoặc xử lý phân tán sau khi benchmark chỉ ra 
 
 - Mỗi claim truy được về câu, bài, URL và giấy phép: validation phải 100%.
 - Không đếm PERSON/ORG từ số lần xuất hiện thành nhiều node; không đếm provenance node vào target.
-- Đếm 10 loại trên các quan hệ thật được duyệt; không bịa thêm predicate/câu để đủ số.
+- Đếm 11 (>10) loại trên các quan hệ thật được duyệt; không bịa thêm predicate/câu để đủ số.
 - Đo lại khi đổi NER, alias hoặc rules; test được giữ kín, không dùng test labels để chỉnh rules.
 - Nếu nguồn bị chặn/không được phép, thay nguồn được phép hoặc xin cấp phép; không lách chặn.

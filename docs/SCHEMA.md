@@ -19,9 +19,15 @@ và toàn bộ thực thể. Số cạnh phải phân biệt claims, events và 
 
 ## Loại thực thể
 
-`PERSON`, `ORG`, `PLACE`, `GOV`. spaCy/underthesea chuyển nhãn địa danh về PLACE;
-GOV cần alias hoặc classifier được duyệt, không tự đổi mọi ORG có chữ ministry thành GOV.
-Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nhu cầu truy vấn rõ ràng.
+`PERSON`, `ORG`, `PLACE`, `GOV`. GLiNER dùng nhãn tương ứng; GOV có nhãn riêng cho chính phủ/cơ quan quản lý
+và alias đã duyệt. Không tự đổi mọi ORG có chữ ministry thành GOV; bản ghi nghi sai loại được đưa sang review.
+Quỹ và tập đoàn vẫn là ORG trong schema gốc. `filter-domain` v15 tạo export riêng, kiểm tra tên,
+bằng chứng domain sát actor và predicate/hướng của từng claim. Chỉ entity có cạnh đã kiểm định được
+tính vào ngưỡng node. Entity chưa đủ căn cứ vẫn nằm trong source và `audit/entities.jsonl`; claim được
+giữ hoặc đưa sang review có lý do trong `audit/claims.jsonl`. Xem [quy trình](DOMAIN_VERIFICATION.md).
+Các kiểm tra này chưa phải nhãn chuẩn hay phép đo precision; `OTHER` không phải điều kiện lọc v15.
+Rule tham chiếu vòng vốn có thể tạo evidence window gồm vài câu liên tục. Window có offset thật và
+mention của cả hai actor, được lưu dưới schema Sentence; rule_id phân biệt nó với một câu NLP thông thường.
 
 ## Quan hệ có hướng
 
@@ -38,9 +44,26 @@ Quỹ và tập đoàn là ORG trong v1; subtype sẽ thêm khi có nhãn và nh
 | FOUNDED | PERSON/ORG → ORG | Người/tổ chức sáng lập → tổ chức được sáng lập |
 | SUBSIDIARY_OF | ORG → ORG | Công ty con → công ty mẹ |
 | REGULATES | GOV → ORG | Cơ quan quản lý → tổ chức chịu quản lý |
+| OWNS_STAKE_IN | PERSON/ORG → ORG | Cá nhân/tổ chức nắm cổ phần tại tổ chức; không suy ra từ việc mua tài sản |
+| BOARD_MEMBER_OF | PERSON → ORG | Thành viên hội đồng quản trị → tổ chức |
+| CONTRACTED_WITH | ORG → ORG | Hai tổ chức ký hợp đồng; chỉ lấy khi câu nêu rõ hành động ký |
+| AWARDED_CONTRACT_TO | GOV/ORG → ORG | Bên trao/giao hợp đồng → bên nhận |
+| ANTITRUST_ACTION_AGAINST | GOV → ORG | Hành động pháp lý chống độc quyền được nêu rõ; không suy từ một cuộc điều tra bất kỳ |
+| SANCTIONED | GOV → ORG/PERSON | Chính phủ áp đặt trừng phạt → tổ chức/cá nhân |
+| DISRUPTED_SUPPLY_TO | GOV/ORG → ORG | Tác nhân làm gián đoạn nguồn cung → tổ chức chịu ảnh hưởng |
+| SPUN_OFF_FROM | ORG → ORG | Công ty tách ra → công ty mẹ/đơn vị gốc |
+| INVESTIGATES | GOV → ORG/PERSON | Cơ quan tiến hành điều tra đối tượng; không khẳng định đối tượng vi phạm |
+| CLOSED_INVESTIGATION_INTO | GOV → ORG/PERSON | Cơ quan đã kết thúc/đóng cuộc điều tra; không đồng nghĩa phán quyết vô tội |
+| LICENSED_TECH_FROM | ORG → ORG | Bên nhận quyền sử dụng công nghệ → bên cấp quyền; không đồng nghĩa mua công ty |
 
-Patterns tiếng Anh/Việt đều có trong code. REGULATES cần GOV seed thực, bộ mẫu hiện chưa có GOV.
-Từ 31/10 có 11 predicate định nghĩa; AGREED_TO_ACQUIRE giữ riêng trạng thái thỏa thuận. Không nâng
+Có 22 predicate trong schema; các predicate quan hệ mới có rule song ngữ và nhãn model tương ứng.
+Ba predicate bổ sung ở v20 không đổi cấu trúc Arrow 1.1: nhãn vẫn là chuỗi và các trường giữ nguyên.
+Điều tra được diễn đạt ở quá khứ dùng `historical_reported`; trạng thái hiện tại phải đọc cùng ngày bài và bằng chứng,
+không coi một cạnh INVESTIGATES cũ là cuộc điều tra vẫn đang mở hôm nay. Trường hợp đóng điều tra có predicate riêng.
+LICENSED_TECH_FROM chỉ nhận giao dịch cấp quyền được nguồn khẳng định; thỏa thuận/dự định cấp quyền chưa có
+predicate riêng và không được nâng thành đã cấp quyền. `HIRED_TEAM_FROM`/mua IP cũng chưa được suy từ đó.
+Các rule mới chỉ khớp một số cách diễn đạt tường minh. REGULATES và quan hệ cần GOV vẫn phụ thuộc GOV seed/model.
+AGREED_TO_ACQUIRE giữ riêng trạng thái thỏa thuận. Không nâng
 thỏa thuận/dự định thành ACQUIRED đã hoàn tất để tăng số cạnh.
 Số loại **định nghĩa** không được báo thành số loại **quan sát**.
 `assertion_status=reported` nghĩa là câu trình bày khẳng định theo nguồn, không có nghĩa đã fact-check.
@@ -51,7 +74,7 @@ Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô t
 
 - `document_id = hash(canonical URL, raw SHA256)`; loại tracking, giữ query có nghĩa như oldid.
 - `sentence_id = hash(document_id, start, text)`; `mention_id = hash(sentence_id, start, end)`.
-- `entity_id = hash(entity_type, casefold(canonical name))`; alias khác type/đồng danh cần xử lý thủ công.
+- `entity_id = hash(entity_type, casefold(canonical name))`; alias khác type/đồng danh cần xử lý thủ công. Trong cùng một bài, surname/tước xưng được gộp vào PERSON tên đầy đủ chỉ khi có đúng một anchor khớp; nhiều người cùng họ thì giữ riêng.
 - Text hash và Jaccard 5-word-shingle loại bài giống trong cùng run; vẫn giữ snapshot bronze/silver.
   `merge-runs` chọn một capture toàn văn/NLP thành công mỗi URL theo thứ tự input (cuối thắng),
   rồi chạy lại cùng phép dedup trên toàn bộ corpus đã chọn. Không cộng số liệu của các run nguồn.
@@ -64,13 +87,12 @@ Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô t
 ## Neo4j và phép chiếu
 
 ```text
-(Entity)-[:ACQUIRED|... {event_id, review_status, assertion_status}]->(Entity)
-(Claim)-[:ABOUT_EVENT]->(Event)-[:SUBJECT|OBJECT]->(Entity)
-(Claim)-[:EVIDENCED_BY]->(Sentence)-[:IN_DOCUMENT]->(Document)
+(Entity)-[:ACQUIRED|... {relation_id, collection_id, event_ids, review_status,
+                          assertion_status, triggers, rule_ids, document_ids,
+                          event_details_json}]->(Entity)
+                          rule_ids, document_ids, collection_ids}]->(Entity)
 ```
 
-Constraint unique trên các ID node. Edge nghiệp vụ MERGE theo event_id.
-Full raw HTML không đưa vào Neo4j; truy vết qua document_id đến Parquet.
-Đếm node provenance vào quy mô thực thể hoặc đếm hai lần cạnh reciprocal là sai.
+Neo4j chỉ lưu node Entity và cạnh quan hệ trực tiếp. Mỗi bộ ba đã chuẩn hóa là một cạnh trong từng collection; predicate đối xứng có thứ tự endpoint chuẩn. Các event và claim nguồn được giữ trong `event_ids`, `event_count`, `claim_count` và `event_details_json`; cạnh cũng lưu trigger, rule và `document_ids` để tra bài trong kho Hugging Face. Khóa cạnh gồm `relation_id` và `collection_id`, nên import lặp cùng collection là idempotent và các snapshot khác nhau vẫn tách biệt. Không tạo node Document, Sentence, Event, Claim hay Collection; không lưu câu evidence, raw HTML hay toàn văn trong graph.
 Analytics mặc định giữ isolate, loại cạnh lặp/hướng/trọng số bằng undirected simple projection;
 đường đi toàn cặp chỉ báo trên LCC, cùng số cặp reachable và tỷ lệ bao phủ.

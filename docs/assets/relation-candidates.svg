@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="804" viewBox="0 0 1024 804">
+<rect width="100%" height="100%" fill="#f5f7fa"/>
+<style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#142536}.muted{fill:#607386}.small{font-size:14px}
+.label{font-size:13px;font-weight:700;letter-spacing:.7px}.node{fill:white;stroke:#b9c8d5;stroke-width:1.5}
+.edge{stroke:#147d78;stroke-width:2.5;fill:none}</style><text x="54" y="55" font-size="27" font-weight="700">Ứng viên quan hệ từ catalog thực tế</text>
+<text x="54" y="84" class="muted small">Dataset export · 229 bài · 31 node có cạnh · 16 cạnh phân biệt · 2 loại quan hệ</text>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#147d78"/></marker></defs>
+<rect class="node" x="54" y="118" width="270" height="48" rx="9"/>
+<text x="70" y="138" class="muted small">PERSON</text>
+<text x="70" y="157" font-size="16" font-weight="600">Zhang Yiming</text>
+<line class="edge" x1="335" y1="142" x2="638" y2="142" marker-end="url(#arrow)"/>
+<rect x="420" y="126" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="146" text-anchor="middle" class="label">FOUNDED</text>
+<rect class="node" x="650" y="118" width="320" height="48" rx="9"/>
+<text x="666" y="138" class="muted small">ORG</text>
+<text x="666" y="157" font-size="16" font-weight="600">TikTok</text>
+<rect class="node" x="54" y="194" width="270" height="48" rx="9"/>
+<text x="70" y="214" class="muted small">PERSON</text>
+<text x="70" y="233" font-size="16" font-weight="600">Elon Musk</text>
+<line class="edge" x1="335" y1="218" x2="638" y2="218" marker-end="url(#arrow)"/>
+<rect x="420" y="202" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="222" text-anchor="middle" class="label">FOUNDED</text>
+<rect class="node" x="650" y="194" width="320" height="48" rx="9"/>
+<text x="666" y="214" class="muted small">ORG</text>
+<text x="666" y="233" font-size="16" font-weight="600">Tesla</text>
+<rect class="node" x="54" y="270" width="270" height="48" rx="9"/>
+<text x="70" y="290" class="muted small">PERSON</text>
+<text x="70" y="309" font-size="16" font-weight="600">Tim Cook</text>
+<line class="edge" x1="335" y1="294" x2="638" y2="294" marker-end="url(#arrow)"/>
+<rect x="420" y="278" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="298" text-anchor="middle" class="label">CEO_OF</text>
+<rect class="node" x="650" y="270" width="320" height="48" rx="9"/>
+<text x="666" y="290" class="muted small">ORG</text>
+<text x="666" y="309" font-size="16" font-weight="600">Apple</text>
+<rect class="node" x="54" y="346" width="270" height="48" rx="9"/>
+<text x="70" y="366" class="muted small">PERSON</text>
+<text x="70" y="385" font-size="16" font-weight="600">Phuong Pham</text>
+<line class="edge" x1="335" y1="370" x2="638" y2="370" marker-end="url(#arrow)"/>
+<rect x="420" y="354" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="374" text-anchor="middle" class="label">CEO_OF</text>
+<rect class="node" x="650" y="346" width="320" height="48" rx="9"/>
+<text x="666" y="366" class="muted small">ORG</text>
+<text x="666" y="385" font-size="16" font-weight="600">AKA Digital</text>
+<rect class="node" x="54" y="422" width="270" height="48" rx="9"/>
+<text x="70" y="442" class="muted small">PERSON</text>
+<text x="70" y="461" font-size="16" font-weight="600">Thanh Tung</text>
+<line class="edge" x1="335" y1="446" x2="638" y2="446" marker-end="url(#arrow)"/>
+<rect x="420" y="430" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="450" text-anchor="middle" class="label">CEO_OF</text>
+<rect class="node" x="650" y="422" width="320" height="48" rx="9"/>
+<text x="666" y="442" class="muted small">ORG</text>
+<text x="666" y="461" font-size="16" font-weight="600">GreenNode</text>
+<rect class="node" x="54" y="498" width="270" height="48" rx="9"/>
+<text x="70" y="518" class="muted small">PERSON</text>
+<text x="70" y="537" font-size="16" font-weight="600">Jeff Bezos</text>
+<line class="edge" x1="335" y1="522" x2="638" y2="522" marker-end="url(#arrow)"/>
+<rect x="420" y="506" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="526" text-anchor="middle" class="label">FOUNDED</text>
+<rect class="node" x="650" y="498" width="320" height="48" rx="9"/>
+<text x="666" y="518" class="muted small">ORG</text>
+<text x="666" y="537" font-size="16" font-weight="600">Amazon</text>
+<rect class="node" x="54" y="574" width="270" height="48" rx="9"/>
+<text x="70" y="594" class="muted small">PERSON</text>
+<text x="70" y="613" font-size="16" font-weight="600">Mark Zuckerberg</text>
+<line class="edge" x1="335" y1="598" x2="638" y2="598" marker-end="url(#arrow)"/>
+<rect x="420" y="582" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="602" text-anchor="middle" class="label">CEO_OF</text>
+<rect class="node" x="650" y="574" width="320" height="48" rx="9"/>
+<text x="666" y="594" class="muted small">ORG</text>
+<text x="666" y="613" font-size="16" font-weight="600">Meta</text>
+<rect class="node" x="54" y="650" width="270" height="48" rx="9"/>
+<text x="70" y="670" class="muted small">PERSON</text>
+<text x="70" y="689" font-size="16" font-weight="600">Stephan Mergenthaler</text>
+<line class="edge" x1="335" y1="674" x2="638" y2="674" marker-end="url(#arrow)"/>
+<rect x="420" y="658" width="132" height="31" rx="15" fill="#e2f1ef"/>
+<text x="486" y="678" text-anchor="middle" class="label">CEO_OF</text>
+<rect class="node" x="650" y="650" width="320" height="48" rx="9"/>
+<text x="666" y="670" class="muted small">ORG</text>
+<text x="666" y="689" font-size="16" font-weight="600">the World Economic Forum</text>
+<text x="54" y="738" class="muted small">Hiển thị 8/16 cạnh; đều là ứng viên unreviewed. Không hiển thị câu bài báo.</text></svg>

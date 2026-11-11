@@ -1,251 +1,167 @@
-# Weconomy — News Knowledge Graph
+# Weconomy
 
-Pipeline mã nguồn mở, chạy local cho mạng tập đoàn, cá nhân và quỹ đầu tư từ văn bản Việt/Anh.
-Mục tiêu nghiệm thu là **2.000 thực thể / 5.000 sự kiện quan hệ / 10 loại quan hệ / precision ≥90%**.
-Các mục tiêu này **chưa đạt**. Xem số đo và bằng chứng ở `reports/SPRINT1.md`.
-Kết quả pilot ngày 31/10 sau sửa review, kiểm Docker và nhập Neo4j thật ở `reports/FINAL_2026-10-31.md`.
-Các đợt mở rộng sau pilot ghi số đo trong `data/runs/<id>/manifest.json`; dùng manifest của corpus
-đã gom để xem số liệu mới nhất. Theo yêu cầu hiện tại, chưa làm báo cáo nộp.
-`initial.md` là đề bài gốc, được giữ nguyên.
+Pipeline nghiên cứu mã nguồn mở chạy local, tạo **đồ thị tri thức ứng viên** từ tin kinh doanh tiếng Việt và tiếng Anh về tập đoàn đa quốc gia, tỷ phú và quỹ đầu tư quốc tế. Phạm vi đề tài kết nối lãnh đạo công nghệ/tài chính, startup, quỹ đầu tư mạo hiểm và chính phủ qua đầu tư, M&A, kiện chống độc quyền, hợp tác hoặc đứt gãy chuỗi cung ứng. Mỗi quan hệ giữ dấu vết về câu, bài và nguồn để người nghiên cứu kiểm tra.
 
-**Người mới bắt đầu:** đọc [trạng thái hiện tại, giới hạn và những việc chưa làm](docs/STATUS.md).
-Mục lục tài liệu nằm ở [docs/README.md](docs/README.md).
+**Cập nhật 05/11/2026:** discovery hiện dùng Katana; đường RSS, `feedparser` và pilot `news_collector` đã được gỡ. NLP `--ner models` dùng GLiNER-Relex chung interface với checkpoint EN/VI riêng. Lệnh `collect` tự crawl và nạp vào catalog mặc định; `collect-dataset` vẫn nhận URL/run rõ ràng. Bộ kiểm tra hiện có **224 test pass** và Ruff qua. Dataset v4 bên dưới là snapshot lịch sử ngày 04/11; lượt crawl 05/11 ban đầu có 0 relation, còn phát lại 275 câu bằng code mới tìm được 2 cạnh REQUESTS. Các kết quả này chưa phải phép đo precision độc lập.
 
-**Chia sẻ corpus trong nhóm:** đã có CLI `hf-push` / `hf-pull` cho Hugging Face Dataset Hub private,
-checksum và phiên bản commit. Xem [hướng dẫn Hugging Face](docs/HUGGINGFACE.md).
-Hiện mới kiểm thử local/Hub giả lập; chưa upload corpus thật lên tài khoản nhóm.
+| Chỉ số | Mục tiêu | Đã ghi nhận ở v4 |
+|---|---:|---:|
+| Bài được nhận | Tùy chọn | 229 |
+| Node có cạnh | 2.000 | 31 |
+| Cạnh phân biệt | 5.000 | 16 |
+| Loại quan hệ quan sát được | 10 | 2 |
+| Precision | Trên 90% | Chưa đo độc lập |
 
-## Thu thập thân bài và chạy NER/quan hệ (cập nhật 31/10)
+Mục tiêu số lượng graph **chưa đạt**. So với bản cũ, bản sửa khôi phục một bài lỗi NER, loại ba claims gán sai vai trò người sáng lập và khôi phục hai claims CEO có bằng chứng. Kết quả còn 17 claims hỗ trợ 16 cạnh phân biệt; đây là ứng viên máy trích xuất, chưa được nghiệm thu precision. Dữ liệu cũ được giữ ở dataset riêng. Corpus hiện tại còn hạn chế về phân loại thực thể Việt và độ đa dạng quan hệ; tăng ngân sách URL không bảo đảm đạt các ngưỡng.
 
-Nhánh `duy` có lệnh chạy RSS → tải HTML gốc → kiểm định thân bài → NER/RE → Parquet:
+Lượt thử nghiệm Katana trên trang VnExpress quốc tế (05/11/2026) khi đó lấy 100 URL, xử lý 10 bài trong safety cap và dừng khi đạt 100 entity rows (thực tế 219). Nhưng số relation bằng 0, vì vậy graph nodes/edges bằng 0; NER có nhiều nhãn sai loại. Đây là kết quả lịch sử, không phản ánh giới hạn crawl hiện tại. Xem chi tiết ở phần [crawl danh mục](#crawl-danh-mục-bằng-katana).
 
-```powershell
-cd D:\Project\weconomy
-# Cài extras/model như hướng dẫn NER bên dưới nếu máy mới chưa có.
-uv run --no-sync weconomy collect --source vnexpress --source tuoitre --source techcrunch --limit 3 --ner models
-$run = (Get-ChildItem data/runs -Directory | Where-Object {
-    $runManifestPath = Join-Path $_.FullName 'manifest.json'
-    (Test-Path $runManifestPath) -and ((Get-Content $runManifestPath -Raw | ConvertFrom-Json).status -eq 'completed')
-} | Sort-Object Name | Select-Object -Last 1).FullName
-uv run --no-sync weconomy validate $run
-uv run --no-sync weconomy export $run --table articles --output "$run/articles.jsonl"
-uv run --no-sync weconomy export $run --table entities --output "$run/entities.jsonl"
-uv run --no-sync weconomy export $run --table relations --output "$run/relations.jsonl"
-```
+![Ví dụ các cạnh ứng viên trong export v4 thực tế](docs/assets/relation-candidates.png)
 
-`--limit` là số URL bài thử mỗi nguồn, không hứa đủ từng ấy bài hợp lệ. Mỗi bài lưu bytes gốc
-ở `bronze/html/<document_id>.html` và bronze Parquet, gồm checksum/source/URL/headers/căn cứ truy cập.
-`discovery.json` giữ URL và metadata RSS; **RSS summary không được dùng thay thân bài**.
-Article JSONL chứa văn bản đầy đủ đã lấy cùng trạng thái và chỉ số kiểm tra. Entity/relation JSONL
-là đầu ra ứng viên; relation giữ câu evidence và offset, không tự nhận đã đạt precision mục tiêu.
+*Ảnh xem trước 8 trong 16 cạnh của export v4 thực tế tại `data/experiments/collection-20261104/v4-export`. Corpus có 229 bài được nhận, 31 node có cạnh và 2 loại quan hệ. Các cạnh đều là ứng viên tự động, trạng thái `unreviewed`; hình chỉ hiện tên thực thể và predicate, không sao chép câu bài báo.*
 
-Nguồn có adapter DOM riêng. Loại sidebar, related, quảng cáo, comment, caption, bảng và nội dung ẩn;
-so Trafilatura với các đoạn thân bài sạch. Nếu Trafilatura bỏ đoạn thì phục hồi từ DOM thân bài,
-giữ tiêu đề mục và đoạn cuối. Chỉ `body_checked` mới được chạy NLP mặc định.
+![Dấu vết từ một quan hệ ứng viên đến bài nguồn thực tế](docs/assets/provenance-trace.png)
 
-RSS dùng kinh doanh của VnExpress và ưu tiên startup/venture của TechCrunch, có XML/entries khi kiểm tra
-local ngày 31/10. Feed `doanh-nghiep.rss` đã được thử nhưng không giữ trong config vì trả nhiều hồ sơ
-sản phẩm từ năm 2021. XML hợp lệ không chứng minh đây là feed tin đúng chủ đề hoặc còn cập nhật.
-`body_checked` nghĩa là đã lấy đủ phần thân bài **đang có trong HTML được trả về**, không chứng nhận
-nội dung nằm ở trang tiếp theo/JavaScript/paywall mà server không gửi. `partial`, `restricted`, `unknown`
-được giữ riêng, không tạo thực thể/cạnh. Kết quả run có bài bị cách ly/lỗi trả exit code 1 để kiểm tra.
+*Một claim trong export v4 được lần ngược về hostname nguồn, document ID và offset evidence trong thân bài; văn bản bài báo không được chép vào ảnh.*
 
-Chạy lại parser hoặc đổi NER trên cùng dữ liệu **không cần tải báo lần nữa**:
+![Phát lại output CLI status thực tế](docs/assets/dataset-status-replay.gif)
 
-```powershell
-uv run --no-sync weconomy run --from-run $run --ner models
-```
+*GIF phát lại rút gọn output JSON của `dataset-status` trên dataset v4, cùng số liệu với snapshot phía trên. Đây là minh họa CLI, không phải bản ghi màn hình giao diện.*
 
-Kết quả tạo run mới, giữ nguyên ngày thu thập và checksum HTML của dữ liệu cũ. Các run/schema 1.0
-vẫn đọc được; bản mới 1.1 thêm kiểm định thân bài. Xem `docs/FULLTEXT.md`.
+## Cài đặt trên Windows
 
-## Chạy ngay trên Windows (PowerShell)
+Cần Python 3.11–3.13, `uv` và kết nối mạng lần đầu cài package/tải model. Backend `--ner models` dùng GLiNER-Relex chung API: `knowledgator/gliner-relex-base-v1.0` cho tiếng Anh và `barb-2-ie-vi` cho tiếng Việt. Model được tải tự động vào Hugging Face cache khi chạy lần đầu; tổng weights cần vài GB. Quan hệ business tiếng Việt được gọi bằng nhãn zero-shot tùy biến; benchmark 62,14 F1 trên model card Barb dùng nhãn khác nên không đại diện cho chất lượng cấu hình này. Backend `gazetteer` không tải model.
 
 ```powershell
 cd D:\Project\weconomy
-uv sync --locked --extra dev
-uv run weconomy run --manifest samples/excerpts/manifest.json --allow-excerpts
-$run = (Get-ChildItem data/runs -Directory | Where-Object {
-    $runManifestPath = Join-Path $_.FullName 'manifest.json'
-    (Test-Path $runManifestPath) -and ((Get-Content $runManifestPath -Raw | ConvertFrom-Json).status -eq 'completed')
-} | Sort-Object Name | Select-Object -Last 1).FullName
-uv run weconomy validate $run
-uv run weconomy analytics $run --output reports/my-analytics.json
-uv run pytest -q
-uv run ruff check .
+uv sync --locked --extra nlp --extra dev
+uv run --no-sync weconomy sources
 ```
 
-Mỗi lệnh `run` tạo thư mục mới, không ghi đè lần chạy cũ. Các đầu ra JSON được chỉ định qua
-`--output` cũng từ chối ghi đè. Nếu có lỗi bài, CLI trả mã thoát 1 và ghi lỗi vào manifest;
-đọc `counts` và `errors` trước khi dùng kết quả. Không suy ra thành công từ việc có thư mục.
-Không có yêu cầu API trả phí. Lần cài đầu cần Internet; chạy mẫu sau đó không cần mạng.
+Lệnh `sources` liệt kê nguồn theo policy hiện tại. `sources --check` kiểm tra policy và robots.txt ở host gốc; lệnh này không khám phá/tải bài và không xác minh quyền tái sử dụng nội dung.
 
-## Nội dung thực sự được triển khai
+## Crawl danh mục bằng Katana
 
-- RSS/Atom bằng feedparser; nhập URL/JSONL khám phá từ Katana tùy chọn.
-- Registry adapter theo host, ngôn ngữ, RSS, giấy phép, căn cứ truy cập và nhịp yêu cầu.
-- Cổng truy cập dùng chung: HTTPS, allowlist, kiểm tra IP công khai, robots, giới hạn dung lượng,
-  timeout, kiểm tra lại mỗi redirect; dừng khi gặp 403/429. Không vượt paywall.
-- Trafilatura → chuẩn hóa Unicode NFC và khoảng trắng → chia câu có offset → định tuyến Việt/Anh.
-- `run` mặc định: từ điển thực thể có kiểm soát, **không phải open-world NER**. `collect` mặc định dùng models.
-  Chế độ `models`: spaCy cho Anh, underthesea cho Việt; lỗi thiếu model được báo rõ.
-- Entity resolution bằng alias rõ ràng + loại thực thể. RapidFuzz chỉ gợi ý, không tự gộp gần giống.
-- 11 loại quan hệ có ràng buộc kiểu và mẫu trực tiếp Việt/Anh; gồm `AGREED_TO_ACQUIRE` tách khỏi
-  thương vụ đã hoàn tất. Không sinh cạnh chỉ vì cùng câu.
-  Tránh phủ định, điều kiện, lời đồn, trích dẫn; chưa xử lý coreference/quan hệ ngầm.
-- Bronze/silver/gold Parquet có schema cố định kể cả khi rỗng; provenance, evidence, checksum,
-  manifest và cấu hình mỗi lần chạy. Graph chứa **machine candidates**, chưa được người duyệt.
-- Dedup URL, văn bản chính xác/gần giống; event dedup bảo thủ trong từng tài liệu.
-- CLI nhãn câu đầy đủ; P/R/F1 cho NER exact-span và relation exact-triple, Wilson interval.
-- Neo4j import có constraint, tham số hóa, một transaction dữ liệu và MERGE idempotent, không xóa.
-- NetworkX: thành phần liên thông, shortest paths trên LCC, clustering, centrality, PageRank,
-  communities và small-world sigma có điều kiện. GDS để giai đoạn 2, có truy vấn tham khảo.
-
-## Mẫu hợp pháp và giới hạn thu thập
-
-`samples/excerpts/manifest.json` có 3 trích đoạn báo Wikinews tiếng Anh (CC BY 2.5) và
-1 trích đoạn Wikipedia tiếng Việt (CC BY-SA 4.0, **nguồn bách khoa**, không tính là báo).
-Đây là văn bản thật được đọc qua công cụ tra cứu, bọc lại HTML để thử extraction.
-Không phải HTML gốc tải toàn trang, không phải dữ liệu báo chí do AI sáng tác.
-Mẫu gồm lịch sử 2006/2007/2018; không đại diện tin tức hiện tại.
-Nguồn, ngày đăng (nếu biết), thời điểm ghi nhận, giấy phép, tác giả tập thể, history URL,
-phương pháp ghi nhận và checksum đều có trong manifest. Giữ ghi công/giấy phép khi chia sẻ mẫu
-và văn bản phái sinh; giấy phép MIT của mã nguồn không thay giấy phép dữ liệu.
-
-Lần tải trực tiếp đầu tiên bị HTTP 403 ở robots.txt; chi tiết nằm trong `samples/manifest.json`.
-Script không cố vượt chặn. Có thể thử thu thập lại khi truy cập hợp lệ đã được khôi phục:
+Tool crawl mới đọc danh mục từ `config/collection.yaml`, dùng Katana qua Docker để tìm endpoint, rồi chỉ giữ URL bài được liên kết bên trong card bài của đúng target. Link menu và link tới danh mục khác bị loại trước khi tải bài; host, robots.txt và regex URL vẫn được kiểm tra. Collector nhận diện trang sau từ dấu hiệu trong DOM như `rel`, nhãn, class hoặc `alt` (“next”, “trang sau”), không dựa vào cấu trúc URL phân trang riêng từng báo. Với nút “Xem thêm”/“Load more”, collector chỉ theo URL tĩnh cùng host được công khai trong HTML; nút không có URL cùng host được ghi log và bỏ qua. URL tiếp tục phải qua policy và robots.txt. Nó theo trang tuần tự đến `crawl.max_pages_per_target`; log hiển thị số bài mới và tổng bài theo từng trang. Nội dung bài được trích theo selector riêng từng nguồn. Trên Windows cần Docker Desktop đang chạy và image Katana tải được. Dùng:
 
 ```powershell
-uv run weconomy discover wikinews_en --limit 10 --output candidate-urls.txt
-uv run weconomy run --urls candidate-urls.txt
+uv run --no-sync weconomy crawl --config config/collection.yaml
+uv run --no-sync weconomy crawl --config config/collection.yaml --target techcrunch_venture
 ```
 
-VnExpress, Tuổi Trẻ và TechCrunch được bật cho đợt nghiên cứu local có giới hạn theo yêu cầu người dùng;
-kiểm tra robots trước mỗi trang. Dữ liệu giữ trong `data/` bị Git bỏ qua, nhãn copyright publisher,
-không tự cấp giấy phép mở cho nội dung báo. Reuters/Bloomberg vẫn `allowed: false`.
-Quyền đọc/RSS không đồng nghĩa quyền công bố lại toàn văn; không đưa snapshot báo thương mại vào Git.
+Katana là công cụ discovery hiện tại; không còn RSS discovery. YAML quy định target, objectives và giới hạn crawl. Mỗi target hiện được giới hạn 500 URL bài và 500 trang danh mục; tổng lượt tối đa 3.500 URL. URL trang sau phải cùng host, được kiểm tra qua policy/robots và chống lặp. `nodes` đếm entity endpoints có relation; `entities` đếm entity rows. Crawl chạy theo batch và dừng khi đạt objectives hoặc hết giới hạn. Entity rows không đồng nghĩa node/cạnh có ý nghĩa hay precision; NER tiếng Việt hiện cần rà soát và đánh giá độc lập.
 
-Katana không cần cho MVP và chưa cài. Chỉ chạy với nguồn đã cho phép, scope đúng host,
-giới hạn độ sâu/nhịp/trang và tuân thủ robots; **cổng Python không kiểm soát crawler ngoài**.
-Nhập kết quả khám phá đã có (URL mỗi dòng hoặc JSONL `request.endpoint`):
+## Thu thập dataset có thể tiếp tục
+
+Lệnh thường dùng là `collect`: nó chạy Katana, lấy run vừa tạo và nạp vào catalog mặc định `data/datasets/international-business-katana`. Catalog cũ `data/datasets/international-business` được giữ nguyên vì dùng pipeline trước. Truyền `--dataset PATH` chỉ khi muốn lưu sang chỗ khác.
 
 ```powershell
-uv run weconomy run --urls katana-output.jsonl
+uv run --no-sync weconomy collect
 ```
 
-Không phát lệnh Katana tự động với nguồn bị khóa. Bộ thu thập hiện tuần tự, tối đa 100 bài/run
-mặc định; cấu hình có thể đổi sau khi đo thông lượng và quyền truy cập. Chưa có scheduler phân tán.
+Trong lúc chạy, terminal ghim tiến độ hiện tại ở dòng cuối, hiển thị URL/giai đoạn, phần trăm batch và heartbeat mỗi 10 giây ở bước lâu. Lỗi được tô đỏ và ghi nguyên nhân; log đi ra `stderr`, JSON tổng kết vẫn ở `stdout`.
 
-## Thu thập tiếp và gom corpus
-
-Mỗi run giữ nguyên snapshot của mình. Thu thập tiếp với danh sách các run đã thành công để bỏ qua
-URL đã có toàn văn; bài lỗi hoặc chưa qua NER vẫn được thử lại. Giới hạn là số URL **mới** mỗi nguồn,
-không phải số bài chắc chắn đạt. Khi feed không còn URL mới, status là `no_new_documents` và exit code 0.
+Mục tiêu mặc định là 2.000 node, 5.000 cạnh và 11 loại quan hệ (>10). Crawl hiện giới hạn tổng 3.500 URL; mỗi target tối đa 500 URL bài và 500 trang danh mục. `graph-cycle --max-candidates` vẫn giới hạn số candidate được phân bổ vào catalog cho mỗi lượt chạy. Mục tiêu có thể chưa đạt nếu hết trang được khám phá hoặc extractor không tìm được đủ quan hệ. Tiếp tục cùng catalog bằng `--resume`:
 
 ```powershell
-uv run --no-sync weconomy collect --source vnexpress --source tuoitre --source techcrunch --limit 10 --skip-run $run --ner models
-# Gán $next bằng đường dẫn run trả về. Gom offline, không cộng số đếm của các lần replay.
-uv run --no-sync weconomy merge-runs --run $run --run $next --ner models
+uv run --no-sync weconomy collect --resume
 ```
 
-`merge-runs` chỉ chọn capture `body_checked` và NER thành công. Cùng URL xuất hiện nhiều lần thì
-capture cuối trong thứ tự `--run` được chọn, sau đó trích xuất/NLP/dedup nội dung chạy lại từ bronze.
-Run gốc không bị sửa. Manifest ghi `merged_from`, `skip_runs` và số URL đã biết. Bài trích đoạn,
-bài bị cách ly và các lần replay không được cộng vào corpus. Muốn thử sửa bài lỗi, dùng `run --from-run`
-trước khi gom. Giới hạn `max_documents` vẫn áp dụng; không tự nâng ngân sách tải.
+Khi dataset đã tồn tại, `--resume` tiếp tục catalog đó và kiểm tra fingerprint trước khi crawl. `--force` tạo một catalog mới với hậu tố thời gian/ID duy nhất bên cạnh đường dẫn đã chọn; nó không xóa hay ghi đè dataset cũ. Nếu một batch gặp lỗi, collector ghi lỗi, tiếp tục batch khác và đưa URL lỗi vào hàng đợi khi chạy lại với `--resume`.
 
-## Dùng NER thống kê (tùy chọn)
+Xem trạng thái và xuất các bảng đã commit thành JSONL:
 
 ```powershell
-uv sync --locked --extra dev --extra nlp
-uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
-uv run --no-sync weconomy run --manifest samples/excerpts/manifest.json --allow-excerpts --ner models
+uv run --no-sync weconomy dataset-status
+uv run --no-sync weconomy export-dataset
 ```
 
-Model spaCy là tài nguyên cài riêng ngoài `uv.lock`; URL được ghim phiên bản, không tự đổi phiên bản.
-Dùng `--no-sync` sau khi cài để uv không xóa model ngoài lock. underthesea có thể cần tải tài nguyên
-ở lần dùng đầu. Kiểm tra giấy phép model riêng trước khi phân phối. So sánh chất lượng hai backend
-trên cùng bộ nhãn; không suy ra chất lượng từ tên model.
+Export gồm `articles.jsonl`, `entities.jsonl`, `relations.jsonl`, `claims.jsonl` và manifest. Nếu thư mục export đã tồn tại, CLI tạo thư mục tên duy nhất và giữ bản cũ. Mã thoát `0` nghĩa là hoàn tất hoặc đã đạt mọi ngưỡng được yêu cầu; `2` nghĩa là kết thúc lượt nhưng ngưỡng chưa đạt; `1` báo lỗi. Đọc `counts`, `remaining`, `errors` và `targets_met` trước khi sử dụng kết quả.
 
-Backend `models` dùng thêm dependency parser spaCy cho một số động từ tiếng Anh: chủ ngữ/tân ngữ
-phải khớp mention có offset và đúng kiểu. Có mẫu bị động, mẫu chức danh và khử trùng giữa rules/parser.
-Mệnh đề dưới động từ tường thuật khẳng định như `announced/reported` có thể được nhận dưới trạng thái
-`reported`; phủ định và tình thái ở cả động từ quan hệ lẫn động từ tường thuật đều phải vượt kiểm tra.
-Không giải đại từ, không suy quan hệ từ đồng xuất hiện; câu phủ định và giả định vẫn bỏ qua.
-Quan hệ hành động trong câu có lời trích dẫn vẫn bỏ qua; mẫu chức danh có thể nhận phần vai trò
-tường minh nằm ngoài cặp ngoặc kép, không lấy vai trò nằm bên trong lời trích dẫn.
-Tiếng Việt hiện dùng mẫu câu tường minh, chưa có dependency RE. Các quan hệ đều `unreviewed`;
-tăng độ bao phủ của bộ trích xuất không chứng minh precision. Underthesea được căn lại một số biến thể
-đặt dấu tương đương như `Tuỳ/Tùy`, giữ nguyên text gốc và offset.
+`dataset-status` và `export-dataset` cũng mặc định dùng catalog nói trên. Export mặc định ở `data/exports/international-business-katana`; dùng `--output PATH` nếu muốn lưu nơi khác hoặc tạo export mới.
 
-## Đánh giá và kiểm định
+GNU Make là tiện ích tùy chọn; `make collect` chạy cùng luồng crawl → dataset:
 
 ```powershell
-uv run weconomy label-tasks $run --limit 200 --output reports/labels-to-review.json
-# Người gán nhãn: đọc mọi câu, đánh dấu complete, điền reviewer và đầy đủ entities/relations.
-uv run weconomy evaluate $run --labels reports/labels-to-review.json --output reports/evaluation.json
+make collect
+make collect RESUME=1
+make dataset-status
+make export-dataset
 ```
 
-Đọc `docs/ANNOTATION.md`. Nhãn chưa hoàn chỉnh bị từ chối; câu không có quan hệ vẫn được lấy mẫu
-để đo false negatives. Không gán `complete=true` chỉ để chạy qua. Pilot do agent gán nhãn được
-ghi rõ, không thay bộ test độc lập. Chưa có workflow duyệt ghi ngược Neo4j.
+Có thể đổi đường dẫn bằng `DATASET=...` và `OUTPUT=...`. Xem [toàn bộ tham số và cách đếm](docs/collection.md).
 
-## Neo4j local
+## Cách dữ liệu đi qua pipeline
 
-Máy này đã có `.env` với mật khẩu ngẫu nhiên và container dự án đang chạy; giữ nguyên tệp này.
-Khi triển khai máy mới, tạo `.env` từ `.env.example` và thay mật khẩu trước khi chạy.
+| Lớp | Nội dung | Vai trò |
+|---|---|---|
+| Bronze | HTML nhận được, URL, checksum, publisher và thông tin truy xuất | Dấu vết nguồn; không phát hành lại nội dung báo chí |
+| Silver | Bài đã chuẩn hóa, câu và mention có offset | Chỉ nội dung qua cổng kiểm tra thân bài mới đủ điều kiện NLP mặc định |
+| Gold | Entity, claim, event và relation kèm predicate, evidence và provenance | Đầu ra trích xuất tự động; quan hệ vẫn cần người rà soát |
+| Catalog | SQLite theo dõi queue, quyết định nhận và các batch Parquet bất biến | Cho phép tiếp tục bằng `--resume`, xem status và export JSONL |
+
+Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy trình thân bài trong [FULLTEXT.md](docs/FULLTEXT.md), và kiến trúc trong [ARCHITECTURE.md](docs/ARCHITECTURE.md). `import-neo4j` nhận immutable run Parquet hoặc thư mục export JSONL của dataset; `hf-push` chỉ nhận immutable run Parquet. Hugging Face Bucket có thể đồng bộ thư mục `data` theo hướng dẫn tại [HUGGINGFACE.md](docs/HUGGINGFACE.md).
+
+Để tạo bản graph chỉ gồm entity đã được gán subtype theo `initial.md`, dùng `weconomy filter-domain`; lệnh chi tiết và cách đọc bằng chứng nằm trong [docs/commands.md](docs/commands.md). Bản export gốc không bị thay đổi.
+
+Để phân tích lại các run cũ, crawl bổ sung nếu graph sau lọc domain còn thiếu, rồi import Neo4j/AuraDB khi đạt chỉ tiêu, chạy một lệnh:
 
 ```powershell
-docker compose up -d
-# Nạp mật khẩu từ tệp local, không in ra màn hình.
-$env:NEO4J_PASSWORD = ((Get-Content .env | Where-Object { $_ -like 'NEO4J_PASSWORD=*' }) -split '=', 2)[1]
-uv run weconomy import-neo4j $run
+uv run --no-sync weconomy graph-cycle `
+  --dataset data/datasets/international-business-gliner-coref-v3 `
+  --nodes 2000 --relations 5000 --relation-types 11 `
+  --max-candidates 10000 --batch-size 20
 ```
 
-Browser: http://localhost:7474 (localhost only). Volume giữ dữ liệu. Không chạy `down -v` nếu cần giữ DB.
-Importer có thể chạy lại cùng run; ID tài liệu bao gồm URL và checksum nên revision mới không xóa revision cũ.
-Tổng count toàn DB có thể lớn hơn count một run. Bằng chứng xem qua `Claim → Sentence → Document`;
-edge nghiệp vụ được gộp theo `event_id`. Dữ liệu từ Wikipedia và Wikinews có `Document.kind` riêng.
+Lần đầu mặc định phát lại các run đã commit trong `data/datasets/international-business-gliner-v1`; có thể đổi nguồn bằng `--source-dataset`. Các lượt sau tiếp tục dataset đích và chỉ crawl thêm khi graph đã lọc chưa đạt. Workflow chỉ khám phá URL, sau đó catalog tải full body và chạy NLP một lượt; URL đã có bị loại trước NLP. Nó kiểm tra node/cạnh trên export domain, không dừng sớm theo số đếm thô. Nếu thiếu chỉ tiêu, export được giữ lại, lệnh trả mã `2`, và không import graph. Cấu hình Neo4j/AuraDB được đọc từ biến môi trường hoặc `.env`.
 
-```cypher
-MATCH (c:Claim)-[:ABOUT_EVENT]->(e:Event), (c)-[:EVIDENCED_BY]->(s)-[:IN_DOCUMENT]->(d)
-RETURN c.predicate, c.review_status, e.event_id, s.text, d.url, d.license LIMIT 25;
-```
+## Xử lý lại HTML đã lưu
 
-Dockerfile ứng dụng cài core dependencies từ `requirements.lock` có hash. Chạy container offline:
+`collect-dataset --from-run` trích xuất và chạy NLP lại từ bronze của một run đã lưu, theo từng batch. Lặp cờ này để ghép nhiều run; bản chụp được kiểm tra checksum và policy nguồn hiện tại trước khi xử lý. Đầu ra giữ dấu vết về run, document và checksum gốc. Ví dụ trên dùng đường dẫn run của bạn thay cho `RUN_ID`.
 
 ```powershell
-docker build -t weconomy:corpus-v3 .
-docker run --rm --network none --mount "type=bind,source=D:\Project\weconomy\data,target=/app/data" weconomy:corpus-v3 run --manifest samples/excerpts/manifest.json --allow-excerpts
+uv run --no-sync weconomy collect-dataset `
+  --from-run data/runs/RUN_ID --batch-size 20 --max-candidates 1000 --ner models
 ```
 
-Image chỉ chứa backend gazetteer; models chạy trong môi trường local có extras NLP.
-GDS chưa được bật tự động và chưa được nghiệm thu.
+Có thể bổ sung run khác vào cùng dataset bằng `--resume` khi cấu hình xử lý tương thích. Khi đổi NER/rule, tạo dataset mới để giữ kết quả cũ và đo trước–sau. Xem [hướng dẫn crawl/replay và ngân sách](docs/collection.md).
 
-## Cấu trúc và mở rộng
+## Policy nguồn và giới hạn
 
-```text
-config/             policy nguồn, alias, tham số
-src/weconomy/       access, nlp, pipeline, schema, quality, graph, analytics, cli
-samples/            trích đoạn thật có ghi công + log thu thập thất bại
-tests/              logic và tích hợp offline; câu nhân tạo chỉ nằm ở test
-docs/               kiến trúc, schema, hướng dẫn nhãn, lộ trình
-reports/            báo cáo sơ bộ và số đo thực
-data/runs/<id>/     bronze/, silver/, gold/, manifest + config/policy snapshots (gitignored)
+Nguồn được chọn từ `config/sources.yaml`; policy có thể thay đổi. Collector tôn trọng allowlist, robots, giới hạn tốc độ/kích thước và redirect; không vượt paywall hay cơ chế chống bot. Hãy kiểm tra policy và target trước khi chạy.
+
+Quyền truy cập trang không cấp quyền tái phân phối toàn văn. Dữ liệu báo được giữ local và không đưa snapshot báo thương mại vào Git. `body_checked` chỉ xác nhận nội dung có trong HTML đã nhận; nó không chứng minh đã lấy được phần ẩn, phân trang hay sau paywall. Bộ lọc chủ đề là heuristic, không phải phép đo độ chính xác.
+
+Các fixture trong `samples/` là trích đoạn có ghi nhận giấy phép, dùng kiểm tra extraction/NLP offline; chúng không đại diện cho tin tức hiện hành hay corpus thu thập đầy đủ. Không dùng chúng thay kết quả thu thập thực.
+
+## Lệnh khác
+
+```powershell
+uv run --no-sync weconomy schema
+uv run --no-sync weconomy sources --check
+uv run --no-sync pytest -q tests
+uv run --no-sync ruff check src/weconomy tests
 ```
 
-Xem `docs/ARCHITECTURE.md`, `docs/SCHEMA.md`, `docs/ROADMAP.md`.
-Không thêm orchestration/Kafka/UI cho pilot. Những điểm cần nâng cấp trước khi mở rộng:
-NER/linking ngoài từ điển có kiểm định, RE Việt và attribution, entity linking có duyệt, event identity có thời gian,
-index dedup tăng dần, annotation độc lập và thu thập nguồn đủ phép ở quy mô lớn hơn.
+Ví dụ run immutable, reprocess, gán nhãn, Neo4j và Docker nằm trong [các lệnh bổ sung](docs/commands.md); trạng thái triển khai và mục lục tài liệu ở [docs/README.md](docs/README.md). Quy trình Hugging Face nằm trong [HUGGINGFACE.md](docs/HUGGINGFACE.md).
 
-## Nguồn kỹ thuật chính
+## Tài liệu
 
-- [Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html)
-- [feedparser](https://feedparser.readthedocs.io/en/latest/)
-- [spaCy models](https://spacy.io/usage/models)
-- [underthesea](https://github.com/undertheseanlp/underthesea)
-- [Katana](https://github.com/projectdiscovery/katana)
-- [Neo4j Docker](https://neo4j.com/docs/operations-manual/current/docker/introduction/)
-- [NetworkX sigma](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.smallworld.sigma.html)
-- [Wikinews copyright](https://en.wikinews.org/wiki/Wikinews:Copyright)
+- [Trạng thái, bằng chứng và việc chưa nghiệm thu](docs/STATUS.md)
+- [Thu thập dataset, resume và giới hạn ngân sách](docs/collection.md)
+- [Toàn văn và cách ly nội dung](docs/FULLTEXT.md)
+- [Schema, predicate và provenance](docs/SCHEMA.md)
+- [Gán nhãn và đánh giá](docs/ANNOTATION.md)
+- [Lộ trình](docs/ROADMAP.md)
+
+Ảnh PNG và GIF có thể tạo lại từ JSONL export và output JSON của `dataset-status` bằng `scripts/render_readme_media.py`. Trên Windows, lưu trạng thái rồi chạy renderer như sau; Pillow chỉ được nạp trong một môi trường tạm, không đổi `pyproject.toml` hay `uv.lock`:
+
+```powershell
+$dataset = "data/datasets/international-business"
+uv run --no-sync weconomy dataset-status $dataset | Set-Content -Encoding utf8 "$dataset/status.json"
+uv run --no-project --with pillow python scripts/render_readme_media.py `
+  --export-dir data/exports/international-business `
+  --status-json "$dataset/status.json" --output-dir docs/assets --max-edges 8
+```
+
+Microsoft Edge được dùng để render SVG; Pillow tạo GIF với 700 ms giữa các bước, dừng 2,5 giây ở trạng thái cuối rồi lặp lại. Ảnh graph mặc định vẽ tối đa 8 cạnh thật, còn header giữ tổng số từ catalog; renderer kiểm tra counts giữa JSON status và export trước khi ghi ảnh.

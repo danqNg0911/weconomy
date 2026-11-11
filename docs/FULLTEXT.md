@@ -7,9 +7,10 @@ Input sai không tạo run; README chọn run hoàn tất có manifest. Bằng c
 
 ## Dữ liệu nào được xử lý?
 
-CLI `collect` khám phá URL qua RSS, tải trang qua Access có policy/robots/rate/timeout/size limit,
-giữ HTML bytes rồi gọi `extract_article`. Adapter DOM của VnExpress/Tuổi Trẻ/TechCrunch chỉ ra vùng
-thân bài. RSS title/summary phục vụ discovery, không được ghép vào thân bài để đủ số từ.
+CLI `crawl` dùng Katana khám phá URL từ danh mục đã cấu hình, sau đó pipeline tải URL qua Access có
+policy/robots/rate/timeout/size limit, giữ HTML bytes rồi gọi `extract_article`. Adapter DOM của
+VnExpress/Tuổi Trẻ/TechCrunch chỉ ra vùng thân bài. `collect-dataset` chỉ nhận URL rõ ràng hoặc replay
+các immutable runs; nó không tự khám phá nguồn.
 
 Metadata JSON-LD chọn theo canonical URL/@id/mainEntityOfPage; đối tượng bài liên quan có URL khác
 không được ghi đè. Nếu không đủ căn cứ phân biệt các đối tượng, không lấy ngày/tác giả tùy tiện.
@@ -59,7 +60,6 @@ Schema 1.1 thêm:
   word_count, body_paragraphs, paragraph_coverage, trafilatura_coverage, nlp_eligible,
   quality_flags (JSON), authors (JSON), published_at.
 - `<run>/bronze/html/<id>.html`: bytes đúng checksum, không tái tạo từ text.
-- `<run>/discovery.json`: nguồn discovery và metadata RSS khi dùng collect.
 
 `run --from-run <old>` đọc bronze, kiểm checksum, chạy parser/NLP hiện tại trong run mới, không request
 mạng và không ghi đè snapshot. Manifest giữ `reprocessed_from`, config/alias/source snapshots và package versions.
@@ -74,7 +74,7 @@ từ manifest ghi rõ excerpt, chỉ dùng chạy chức năng với --allow-exc
 
 - Kiểm tra body dựa trên HTML/adapter, không render CSS/JavaScript. Visibility từ CSS stylesheet bên ngoài
   chưa xác định được; các trường hợp mơ hồ cần xem snapshot và duyệt.
-- Body có pagination/accordion AJAX chưa tự ghép. Trang bị chặn được ghi lỗi, không bypass.
+- Nút tải thêm chỉ được theo khi HTML cung cấp URL tĩnh cùng host; nút chỉ gọi JavaScript hoặc endpoint bị policy/robots chặn sẽ không được bấm hay bypass.
 - Dedup văn bản vẫn trong run; event identity và entity resolution chưa được chứng nhận trên corpus lớn.
-- `collect --limit N` giới hạn URL thử, không bổ sung vô hạn URL cho đến khi đủ N bài hợp lệ.
+- `crawl` bị giới hạn bởi article/page/time caps trong config; không tự crawl vô hạn đến khi đủ mục tiêu.
 - Chưa coi tất cả tin kinh doanh là phù hợp đề tài mạng đa quốc gia; cần tập nhãn relevance/phạm vi riêng.

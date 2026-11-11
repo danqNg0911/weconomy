@@ -1,0 +1,32 @@
+{
+  "counts": {
+    "articles": 3,
+    "nodes": 10,
+    "relations": 5,
+    "claims": 5,
+    "relation_types": 2
+  },
+  "queue": {
+    "accepted": 3,
+    "out_of_scope": 1
+  },
+  "attempts_allocated": 4,
+  "candidate_counts": {},
+  "errors": [],
+  "reason": "budget_exhausted",
+  "targets_met": false,
+  "targets": {
+    "articles": null,
+    "nodes": 2000,
+    "relation_types": 10,
+    "relations": 5000
+  },
+  "remaining": {
+    "articles": null,
+    "nodes": 1990,
+    "relation_types": 8,
+    "relations": 4995
+  },
+  "scope": "international business; domain heuristic",
+  "candidate_basis": "explicit URLs passing current source policy"
+}

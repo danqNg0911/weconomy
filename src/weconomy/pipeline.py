@@ -13,9 +13,11 @@ import pyarrow.parquet as pq
 import yaml
 
 from .access import Access, canonical_url
+from .entity_quality import organization_name_aliases
 from .extraction import EXTRACTOR_VERSION, extract_article, utc_date
-from .nlp import NLP, normalize, route, sentences
-from .schema import SCHEMA_VERSION, SCHEMAS, stable_id
+from .funding import funding_references
+from .nlp import NLP, document_person_aliases, normalize, route, sentences
+from .schema import RELATION_TYPES, SCHEMA_VERSION, SCHEMAS, stable_id
 
 
 def now():
@@ -60,13 +62,12 @@ def fulltext_snapshots(runs):
     return [selected[url] for url in sorted(selected)]
 
 
-def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=3, from_run=None,
-            from_runs=None, skip_runs=None):
-    if sum(value is not None for value in (manifest, urls, sources, from_run, from_runs)) != 1:
-        raise ValueError("Provide exactly one input: manifest, URLs, sources, from_run or from_runs")
-    if skip_runs and sources is None:
-        raise ValueError("skip_runs is only valid for source collection")
-    excluded_urls = {canonical_url(row["url"]) for row in fulltext_snapshots(skip_runs or [])}
+def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
+            nlp_engine=None, source_overrides=None, progress=None, prior_signatures=(), topic_filter=False):
+    if sum(value is not None for value in (manifest, urls, from_run, from_runs)) != 1:
+        raise ValueError("Provide exactly one input: manifest, URLs, from_run or from_runs")
+    if urls is not None and not urls:
+        raise ValueError("Provide at least one article URL")
     if manifest is not None:
         manifest = Path(manifest).resolve()
         items = json.loads(manifest.read_text(encoding="utf-8"))["documents"]
@@ -80,44 +81,52 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
         items = fulltext_snapshots(from_runs)
         if not items:
             raise ValueError("No accepted full-text captures to merge")
-    elif sources is not None:
-        if not sources or limit_per_source <= 0 or len(set(sources)) * limit_per_source > config["max_documents"]:
-            raise ValueError("Collection limit exceeds the configured document budget")
-        items = []
     else:
         items = [{"url": u} for u in urls]
     if len(items) > config["max_documents"]:
         raise ValueError("Input exceeds the configured document budget")
     # Invalid local inputs must not allocate a model/client or leave an orphan latest-run directory.
-    nlp = NLP(config)
+    nlp = nlp_engine if nlp_engine is not None else NLP(config)
     access = Access(config)
-    run = Path(config["output"]) / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
+    if source_overrides:
+        for source_id, override in source_overrides.items():
+            if source_id not in access.sources:
+                access.close()
+                raise ValueError(f"Unknown source for article extraction: {source_id}")
+            access.sources[source_id].update(override)
+    output = Path(config["output"])
     try:
-        run.mkdir(parents=True, exist_ok=False)
+        while True:
+            run = output / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8])
+            try:
+                run.mkdir(parents=True, exist_ok=False)
+                break
+            except FileExistsError:
+                continue
     except OSError:
         access.close()
         raise
     tables = {key: [] for key in SCHEMAS}
-    errors, seen_urls, seen_documents, seen_text = [], set(), set(), []
+    errors, seen_urls, seen_documents, seen_text = [], set(), set(), list(prior_signatures)
     entities, events, claim_ids = {}, {}, set()
-    if sources is not None:
-        for source_id in dict.fromkeys(sources):
-            try:
-                records = (access.discover_records(source_id, limit_per_source, exclude_urls=excluded_urls)
-                           if excluded_urls else access.discover_records(source_id, limit_per_source))
-                items.extend(records)
-                if not records and not excluded_urls:
-                    errors.append({"source_id": source_id, "stage": "discovery", "error": "No article URLs found"})
-            except Exception as exc:
-                errors.append({"source_id": source_id, "stage": "discovery", "error": str(exc)})
-        errors.extend(access.discovery_errors)
-        (run / "discovery.json").write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+    requested_urls = {}
+    analysis_records = []
+    entity_resolutions = []
+    analyzed_documents = set()
     try:
-        for item in items:
+        for index, item in enumerate(items, 1):
             article = None
+            current_url = item.get("url", "")
+            title, entity_count, relation_count = "", 0, 0
+            if progress:
+                progress({"event": "article_start", "index": index, "total": len(items),
+                          "url": current_url})
             try:
                 url = canonical_url(item["url"])
                 if url in seen_urls:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_url"})
                     continue
                 seen_urls.add(url)
                 if from_run is not None or from_runs is not None:
@@ -128,7 +137,7 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     scope = item.get("capture_scope", "unknown")
                 elif manifest is not None:
                     # Offline snapshots require explicit source provenance and a redistribution basis.
-                    for key in ("source_id", "license", "attribution", "retrieved_at", "kind"):
+                    for key in ("source_id", "attribution", "retrieved_at", "kind"):
                         if not item.get(key):
                             raise ValueError(f"Missing snapshot provenance: {key}")
                     local = (manifest.parent / item["path"]).resolve()
@@ -150,13 +159,18 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     if "text/html" not in headers.get("content-type", "").lower():
                         raise ValueError("Article response is not HTML")
                     source = fetched["source"]
+                    source = {**source, **(source_overrides or {}).get(fetched["source_id"], {})}
                     metadata = dict(source, source_id=fetched["source_id"], retrieved_at=now(),
                                     attribution=f"{source.get('attribution', fetched['source_id'])}; {url}",
                                     language_hint=source["language"])
                     scope = "full_page"
                 raw_hash = hashlib.sha256(raw).hexdigest()
                 doc_id = stable_id(url, raw_hash)
+                requested_urls.setdefault(doc_id, []).append(canonical_url(item["url"]))
                 if doc_id in seen_documents:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_document"})
                     continue
                 seen_documents.add(doc_id)
                 raw_html = raw.decode("utf-8", errors="replace")
@@ -165,8 +179,8 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                 (run / raw_path).write_bytes(raw)
                 tables["bronze"].append({
                     "document_id": doc_id, "url": url, "source_id": metadata["source_id"],
-                    "kind": metadata["kind"], "license": metadata["license"],
-                    "attribution": metadata["attribution"], "retrieved_at": metadata["retrieved_at"],
+                    "kind": metadata["kind"], "attribution": metadata["attribution"],
+                    "retrieved_at": metadata["retrieved_at"],
                     "published_at": metadata.get("published_at", ""),
                     "language_hint": metadata.get("language_hint", ""), "raw_html": raw_html,
                     "raw_sha256": raw_hash, "response_headers": json.dumps(headers),
@@ -202,8 +216,25 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     "authors": json.dumps(extracted["authors"], ensure_ascii=False),
                     "quality_flags": json.dumps(extracted["quality_flags"], ensure_ascii=False)}
                 tables["articles"].append(article)
+                title = article["title"]
                 if duplicate or not article["nlp_eligible"]:
+                    if progress:
+                        progress({"event": "article_done", "index": index, "total": len(items),
+                                  "url": url, "status": "duplicate_content" if duplicate else article["content_status"],
+                                  "title": title, "word_count": article["word_count"],
+                                  "body_paragraphs": article["body_paragraphs"], "nlp_sentences": 0})
                     continue
+                if topic_filter:
+                    from .domain import classify
+                    if not classify(title, text, language)["in_scope"]:
+                        if progress:
+                            progress({"event": "article_done", "index": index, "total": len(items),
+                                      "url": url, "status": "out_of_scope_before_nlp", "title": title,
+                                      "word_count": article["word_count"], "body_paragraphs": article["body_paragraphs"],
+                                      "nlp_sentences": 0, "entities": 0, "relations": 0})
+                        continue
+                analyzed_documents.add(doc_id)
+                getattr(nlp, "begin_document", lambda *_: None)(text)
                 doc_sentences, doc_mentions, doc_relations = [], [], []
                 doc_entities, doc_events = {}, {}
                 for sentence in sentences(text):
@@ -219,29 +250,76 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                             "entity_type": entity["entity_type"], "surface": mention["surface"],
                             "method": mention["method"], "start": start, "end": end})
                     for relation in nlp.relations(sentence["text"], mentions, language):
-                        # shortcut: unknown event dates deduplicate within document only. Never merge repeated
-                        # investments/acquisitions across articles solely by the actor pair or publication date.
-                        event_date = ""
-                        eid = stable_id(relation["subject_id"], relation["predicate"], relation["object_id"],
-                                        relation["assertion_status"], doc_id)
-                        doc_events[eid] = {"event_id": eid, "subject_id": relation["subject_id"],
-                            "predicate": relation["predicate"], "object_id": relation["object_id"],
-                            "assertion_status": relation["assertion_status"], "event_date": event_date,
-                            "dedup_scope": "within_document_unknown_date"}
-                        claim_id = stable_id(eid, sid)
-                        if claim_id in claim_ids:
-                            continue
-                        claim_ids.add(claim_id)
-                        doc_relations.append(dict(relation, claim_id=claim_id, event_id=eid,
-                            document_id=doc_id, sentence_id=sid, evidence=sentence["text"],
-                            evidence_start=sentence["start"], evidence_end=sentence["end"],
-                            review_status="unreviewed", event_date=event_date))
+                        doc_relations.append(dict(relation, document_id=doc_id, sentence_id=sid,
+                            evidence=sentence["text"], evidence_start=sentence["start"],
+                            evidence_end=sentence["end"], review_status="unreviewed", event_date=""))
+                    audit = getattr(nlp, "audit_record", lambda *_: None)(sentence["text"], language)
+                    if audit is not None:
+                        analysis_records.append(dict(audit, document_id=doc_id, sentence_id=sid))
+                base_sentence_count = len(doc_sentences)
+                if language == "en":
+                    recovered = funding_references(text, doc_id, doc_sentences, doc_mentions, doc_entities)
+                    doc_entities.update({row["entity_id"]: row for row in recovered["entities"]})
+                    doc_sentences.extend(recovered["sentences"])
+                    doc_mentions.extend(recovered["mentions"])
+                    doc_relations.extend(recovered["claims"])
+                alias_map = document_person_aliases(doc_entities, doc_mentions)
+                org_aliases = organization_name_aliases(
+                    [(row["start"], row["end"], row["entity_id"]) for row in doc_mentions
+                     if doc_entities[row["entity_id"]]["entity_type"] == "ORG"],
+                    {entity_id: row["name"] for entity_id, row in doc_entities.items()})
+                alias_map.update(org_aliases)
+                entity_resolutions.extend({"document_id": doc_id, "source_entity_id": source,
+                    "canonical_entity_id": target, "source_name": doc_entities[source]["name"],
+                    "canonical_name": doc_entities[target]["name"],
+                    "reason": "document_corporate_name_expansion" if source in org_aliases else "document_person_alias"}
+                    for source, target in alias_map.items())
+                for mention in doc_mentions:
+                    mention["entity_id"] = alias_map.get(mention["entity_id"], mention["entity_id"])
+                    mention["entity_type"] = doc_entities[mention["entity_id"]]["entity_type"]
+                doc_entities = {entity_id: entity for entity_id, entity in doc_entities.items()
+                                if entity_id not in alias_map}
+                resolved_relations = []
+                for relation in doc_relations:
+                    relation["subject_id"] = alias_map.get(relation["subject_id"], relation["subject_id"])
+                    relation["object_id"] = alias_map.get(relation["object_id"], relation["object_id"])
+                    if relation["subject_id"] == relation["object_id"]:
+                        continue
+                    constraints = RELATION_TYPES.get(relation["predicate"])
+                    subject = doc_entities.get(relation["subject_id"])
+                    object_ = doc_entities.get(relation["object_id"])
+                    if (constraints and (not subject or not object_
+                            or subject["entity_type"] not in constraints[0]
+                            or object_["entity_type"] not in constraints[1])):
+                        continue
+                    # shortcut: unknown event dates deduplicate within document only.
+                    eid = stable_id(relation["subject_id"], relation["predicate"], relation["object_id"],
+                                    relation["assertion_status"], doc_id)
+                    claim_id = stable_id(eid, relation["sentence_id"])
+                    if claim_id in claim_ids:
+                        continue
+                    claim_ids.add(claim_id)
+                    relation.update(event_id=eid, claim_id=claim_id)
+                    resolved_relations.append(relation)
+                    doc_events[eid] = {"event_id": eid, "subject_id": relation["subject_id"],
+                        "predicate": relation["predicate"], "object_id": relation["object_id"],
+                        "assertion_status": relation["assertion_status"], "event_date": relation["event_date"],
+                        "dedup_scope": "within_document_unknown_date"}
+                doc_relations = resolved_relations
                 tables["sentences"].extend(doc_sentences)
                 tables["mentions"].extend(doc_mentions)
                 tables["relations"].extend(doc_relations)
                 entities.update(doc_entities)
                 events.update(doc_events)
                 seen_text.append((doc_id, language, digest, sig))
+                entity_count, relation_count = len(doc_entities), len(doc_relations)
+                if progress:
+                    progress({"event": "article_done", "index": index, "total": len(items),
+                              "url": url, "status": article["content_status"], "title": title,
+                              "word_count": article["word_count"],
+                              "body_paragraphs": article["body_paragraphs"],
+                              "nlp_sentences": base_sentence_count,
+                              "entities": entity_count, "relations": relation_count})
             except Exception as exc:
                 # Retain per-document failures and continue; CLI returns nonzero if any failed.
                 if article is not None:
@@ -249,6 +327,10 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
                     flags = json.loads(article["quality_flags"])
                     article["quality_flags"] = json.dumps([*flags, "nlp_processing_failed"])
                 errors.append({"url": item.get("url"), "error": f"{type(exc).__name__}: {exc}"})
+                if progress:
+                    progress({"event": "article_done", "index": index, "total": len(items),
+                              "url": current_url, "status": "error", "error_type": type(exc).__name__,
+                              "error": str(exc)})
     finally:
         access.close()
     tables["entities"] = list(entities.values())
@@ -261,29 +343,39 @@ def process(config, *, manifest=None, urls=None, sources=None, limit_per_source=
         pq.write_table(pa.Table.from_pylist(rows, schema=SCHEMAS[name]), folder / f"{name}.parquet",
                        compression="zstd")
     report = {"schema_version": SCHEMA_VERSION, "created_at": now(), "config": config,
+              "layers": {"raw": "bronze", "analyzed": ["silver", "gold"],
+                         "entity_resolutions": "silver/entity_resolutions.jsonl",
+                         "model_predictions": "silver/model_predictions.jsonl"},
               "counts": {key: len(value) for key, value in tables.items()}, "errors": errors,
               "duplicate_documents": sum(bool(a["duplicate_of"]) for a in tables["articles"]),
               "content_statuses": dict(Counter(a["content_status"] for a in tables["articles"])),
-              "nlp_documents": sum(a["nlp_eligible"] and not a["duplicate_of"] for a in tables["articles"]),
+              "nlp_documents": len(analyzed_documents),
               "quarantined_documents": quarantined, "extractor_version": EXTRACTOR_VERSION,
               "reprocessed_from": str(from_run) if from_run else None,
               "merged_from": [str(Path(p).resolve()) for p in (from_runs or [])],
-              "skip_runs": [str(Path(p).resolve()) for p in (skip_runs or [])],
-              "known_fulltext_urls": len(excluded_urls),
+              "requested_urls_by_document": requested_urls,
               "relation_types_observed": sorted({r["predicate"] for r in tables["relations"]}),
               "quality": {"precision": None, "recall": None, "f1": None,
                           "reason": "Requires independently annotated held-out labels"},
               "targets": {"nodes": 2000, "edges": 5000, "relation_types": 10, "precision": 0.9},
               "packages": {p: importlib.metadata.version(p) for p in
-                           ("weconomy", "trafilatura", "pyarrow", "feedparser", "networkx", "neo4j")},
-              "status": ("partial" if errors or quarantined or (not tables["articles"] and not excluded_urls)
+                           ("weconomy", "trafilatura", "pyarrow", "networkx", "neo4j")},
+              "status": ("partial" if errors or quarantined
                          else "completed" if tables["articles"] else "no_new_documents")}
     if config["ner_backend"] == "models":
-        for package in ("spacy", "underthesea", config["english_model"]):
-            report["packages"][package] = importlib.metadata.version(package)
-    (run / "manifest.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        report["packages"]["gliner"] = importlib.metadata.version("gliner")
+    (run / "silver/model_predictions.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n" for row in analysis_records),
+        encoding="utf-8")
+    (run / "silver/entity_resolutions.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in entity_resolutions), encoding="utf-8")
     (run / "config.yaml").write_text(yaml.safe_dump(config, allow_unicode=True), encoding="utf-8")
     # Preserve the exact alias/source policy alongside each immutable run.
     for key in ("aliases", "sources"):
         (run / f"{key}.yaml").write_bytes(Path(config[key]).read_bytes())
+    # A manifest is the durable completion marker consumed by recovery.
+    manifest_path = run / "manifest.json"
+    manifest_path.with_suffix(".json.tmp").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    manifest_path.with_suffix(".json.tmp").replace(manifest_path)
     return run, report

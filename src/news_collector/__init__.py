@@ -1,1 +1,0 @@
-"""News collection feasibility pilot."""

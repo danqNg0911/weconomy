@@ -1,6 +1,8 @@
 """Synthetic HTTP tests; fixtures are excluded from the real article corpus."""
 import json
+from datetime import datetime as RealDateTime
 from pathlib import Path
+from uuid import UUID
 
 import httpx
 import pyarrow as pa
@@ -8,12 +10,67 @@ import pyarrow.parquet as pq
 import pytest
 import yaml
 
+from weconomy import pipeline
 from weconomy.access import Access
 from weconomy.pipeline import load_config, process, read_table
 from weconomy.quality import validate
 from weconomy.schema import SCHEMAS
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_fresh_url_resolves_local_corporate_names_before_storing_claims(tmp_path, monkeypatch):
+    from weconomy.schema import stable_id
+
+    config = load_config(ROOT / "config/pipeline.yaml")
+    config["output"] = str(tmp_path / "runs")
+    aliases = tmp_path / "aliases.yaml"
+    aliases.write_text(yaml.safe_dump([
+        {"name": "Northstar", "type": "ORG", "aliases": []},
+        {"name": "Northstar Technologies", "type": "ORG", "aliases": []},
+        {"name": "Jane Doe", "type": "PERSON", "aliases": []},
+        {"name": "John Roe", "type": "PERSON", "aliases": []},
+    ]), encoding="utf-8")
+    config["aliases"] = str(aliases)
+    sources = tmp_path / "sources.yaml"
+    sources.write_text(yaml.safe_dump({"sources": {"fixture": {
+        "hosts": ["example.org"], "allowed": True, "permission_basis": "Unit test fixture",
+        "language": "en", "kind": "news", "license": "fixture", "min_interval_seconds": 0,
+        "body_xpath": "//article",
+    }}}), encoding="utf-8")
+    config["sources"] = str(sources)
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /")
+        words = " ".join(f"body{i}" for i in range(150))
+        return httpx.Response(200, headers={"content-type": "text/html"}, text=(
+            "<html><head><title>Corporate news</title></head><body><article><h1>Corporate news</h1>"
+            "<p>Northstar Technologies is a software company.</p>"
+            "<p>Jane Doe, CEO of Northstar, spoke today.</p>"
+            "<p>Former Northstar CEO John Roe spoke today.</p>"
+            f"<p>{words}</p></article></body></html>"))
+
+    def make_access(settings):
+        access = Access(settings)
+        access.client.close()
+        access.client = httpx.Client(transport=httpx.MockTransport(handler))
+        return access
+
+    monkeypatch.setattr("weconomy.pipeline.Access", make_access)
+    monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
+    run, report = process(config, urls=["https://example.org/new-company-news"], topic_filter=True)
+    assert not report["errors"]
+    claims = read_table(run, "relations")
+    assert len(claims) == 1
+    assert claims[0]["subject_id"] == stable_id("PERSON", "jane doe")
+    assert claims[0]["object_id"] == stable_id("ORG", "northstar technologies")
+    resolutions = [json.loads(line) for line in (run / "silver/entity_resolutions.jsonl").read_text("utf-8").splitlines()]
+    assert any(row["source_name"] == "Northstar" and row["canonical_name"] == "Northstar Technologies"
+               for row in resolutions)
+    article = read_table(run, "articles")[0]
+    assert article["text"][claims[0]["evidence_start"]:claims[0]["evidence_end"]] == claims[0]["evidence"]
+    assert validate(run)["valid"]
 
 
 def test_excerpts_are_quarantined_by_default_and_raw_files_preserved(tmp_path):
@@ -28,6 +85,27 @@ def test_excerpts_are_quarantined_by_default_and_raw_files_preserved(tmp_path):
     assert validate(run)["valid"]
 
 
+def test_run_folder_collision_allocates_another_unique_id(tmp_path, monkeypatch):
+    class FixedDateTime(RealDateTime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 1, 2, tzinfo=tz)
+
+    config = load_config(ROOT / "config/pipeline.yaml")
+    output = tmp_path / "runs"
+    output.mkdir()
+    config["output"] = str(output)
+    monkeypatch.setattr(pipeline, "datetime", FixedDateTime)
+    ids = iter([UUID("deadbeef000000000000000000000000"), UUID("cafebabe000000000000000000000000")])
+    monkeypatch.setattr(pipeline, "uuid4", lambda: next(ids))
+    (output / "20260102T000000-deadbeef").mkdir()
+
+    run, _ = process(config, manifest=ROOT / "samples/excerpts/manifest.json")
+
+    assert run.name == "20260102T000000-cafebabe"
+    assert (output / "20260102T000000-deadbeef").is_dir()
+
+
 def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
     config = load_config(ROOT / "config/pipeline.yaml")
     config["output"] = str(tmp_path / "runs")
@@ -35,7 +113,7 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
     source_path.write_text(yaml.safe_dump({"sources": {"fixture": {
         "hosts": ["example.org"], "allowed": True, "permission_basis": "Unit test fixture",
         "language": "en", "kind": "news", "license": "fixture", "min_interval_seconds": 0,
-        "feeds": ["https://example.org/feed"], "body_xpath": "//article",
+        "body_xpath": "//article",
     }}}), encoding="utf-8")
     config["sources"] = str(source_path)
     calls = []
@@ -44,10 +122,6 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
         calls.append(request.url.path)
         if request.url.path == "/robots.txt":
             return httpx.Response(200, text="User-agent: *\nAllow: /")
-        if request.url.path == "/feed":
-            return httpx.Response(200, text='''<rss version="2.0"><channel>
-                <item><link>https://example.org/full</link></item>
-                <item><link>https://example.org/preview</link></item></channel></rss>''')
         if request.url.path == "/alias":
             return httpx.Response(302, headers={"location": "/full"})
         words = " ".join(f"body{i}" for i in range(150))
@@ -65,7 +139,15 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
 
     monkeypatch.setattr("weconomy.pipeline.Access", make_access)
     monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
-    run, report = process(config, sources=["fixture"], limit_per_source=2)
+    progress = []
+    run, report = process(config, urls=["https://example.org/full", "https://example.org/preview"],
+                          progress=progress.append)
+    assert [event["event"] for event in progress].count("article_start") == 2
+    assert [event.get("status") for event in progress if event["event"] == "article_done"] == [
+        "body_checked", "partial"]
+    full_progress = next(event for event in progress if event.get("status") == "body_checked")
+    assert full_progress["word_count"] > 100 and full_progress["body_paragraphs"] >= 2
+    assert full_progress["nlp_sentences"] >= 2
     assert report["content_statuses"] == {"body_checked": 1, "partial": 1}
     assert report["counts"]["bronze"] == 2 and report["counts"]["relations"] == 1
     assert report["nlp_documents"] == 1 and report["quarantined_documents"] == 1
@@ -91,18 +173,6 @@ def test_collection_gate_and_offline_reprocessing(tmp_path, monkeypatch):
     assert dedup_report["duplicate_documents"] == 1
     assert dedup_report["counts"]["relations"] == 1
     assert validate(deduplicated)["valid"]
-    full_requests = calls.count("/full")
-    resumed, resumed_report = process(config, sources=["fixture"], limit_per_source=2, skip_runs=[merged])
-    assert calls.count("/full") == full_requests
-    assert resumed_report["known_fulltext_urls"] == 1
-    assert resumed_report["counts"]["articles"] == 1  # Failed preview may be tried again.
-    assert validate(resumed)["valid"]
-    monkeypatch.setattr(Access, "discover_records", lambda *args, **kwargs: [])
-    unchanged, unchanged_report = process(config, sources=["fixture"], skip_runs=[merged])
-    assert unchanged_report["status"] == "no_new_documents"
-    assert unchanged_report["counts"]["articles"] == 0
-    assert unchanged_report["errors"] == []
-    assert validate(unchanged)["valid"]
     redirected, redirected_report = process(config, urls=["https://example.org/alias", "https://example.org/full"])
     assert redirected_report["counts"]["bronze"] == 1
     assert redirected_report["counts"]["relations"] == 1
@@ -142,8 +212,7 @@ def test_nlp_failure_does_not_publish_half_a_document(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("case", ["missing_manifest", "invalid_json", "oversize_manifest", "two_inputs",
-                                  "missing_run", "empty_sources", "source_budget", "empty_merge",
-                                  "skip_without_sources"])
+                                  "missing_run", "empty_urls", "source_budget", "empty_merge"])
 def test_invalid_input_does_not_create_run_directory(tmp_path, case):
     config = load_config(ROOT / "config/pipeline.yaml")
     config["output"] = str(tmp_path / "runs")
@@ -161,15 +230,13 @@ def test_invalid_input_does_not_create_run_directory(tmp_path, case):
         args = {"manifest": path, "urls": []}
     elif case == "missing_run":
         args = {"from_run": tmp_path / "missing"}
-    elif case == "empty_sources":
-        args = {"sources": []}
+    elif case == "empty_urls":
+        args = {"urls": []}
     elif case == "empty_merge":
         args = {"from_runs": []}
-    elif case == "skip_without_sources":
-        args = {"urls": [], "skip_runs": [tmp_path / "missing"]}
     else:
         config["max_documents"] = 1
-        args = {"sources": ["vnexpress"], "limit_per_source": 2}
+        args = {"urls": ["https://example.org/a", "https://example.org/b"]}
     with pytest.raises((ValueError, FileNotFoundError)):
         process(config, **args)
     assert not Path(config["output"]).exists()
