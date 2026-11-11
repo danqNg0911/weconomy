@@ -50,16 +50,18 @@ uv run --no-sync weconomy collect-dataset `
 
 ## Chạy một chu trình graph
 
-Lần đầu, lệnh tự phát lại các run đã commit trong dataset nguồn cũ bằng NLP hiện tại, xuất và lọc domain. Khi cần crawl thêm, lệnh chỉ khám phá URL rồi để catalog tải full body và chạy NLP một lượt; URL có trong catalog bị bỏ trước NLP. Mục tiêu node/cạnh/loại quan hệ chỉ được kiểm tra trên export đã lọc domain, không dừng theo số đếm thô. Dataset đích được resume, run cũ không bị sửa. Nếu dataset nguồn mặc định không phù hợp, đổi `--source-dataset`:
+Lần đầu, lệnh tái sử dụng catalog và kết quả đã commit từ dataset nguồn, không phân tích lại bài cũ. Khi thiếu chỉ tiêu normalize, mỗi vòng tìm URL mới rồi tải và phân tích một lượt. Xem [quy trình kiểm định domain](DOMAIN_VERIFICATION.md) để đọc tiêu chí, audit và các tầng lưu trữ.
 
 ```powershell
 uv run --no-sync weconomy graph-cycle `
-  --dataset data/datasets/international-business-gliner-coref-v3 `
+  --dataset data/datasets/international-business-verified-v15 `
+  --source-dataset data/datasets/international-business-gliner-v2 `
+  --allow-processing-upgrade `
   --nodes 2000 --relations 5000 --relation-types 11 `
-  --max-candidates 10000 --batch-size 20
+  --max-candidates 1000 --max-rounds 3 --batch-size 20
 ```
 
-Mặc định nguồn cũ là `data/datasets/international-business-gliner-v1`. Dataset đích chỉ phát lại nguồn này khi được tạo lần đầu; những lần sau tiếp tục catalog đích, không phân tích lại bài đã xử lý. Mỗi lượt tạo export có tên riêng. Nếu bản domain chưa đạt chỉ tiêu, export vẫn được giữ, lệnh trả mã thoát `2`, và không import vào Neo4j. Chạy lại cùng lệnh để tiếp tục; catalog chống URL/nội dung trùng. Importer không xóa entity/cạnh đã có trong AuraDB.
+Mặc định nguồn cũ là `data/datasets/international-business-gliner-v2`. Export phân tích nằm trong `data/analysis/exports`, mạng kiểm định trong `data/normalized`, còn `layers.json` của dataset liên kết các tầng và phiên bản. Nếu chưa đủ chỉ tiêu, lệnh trả mã thoát `2`. Mặc định không import Neo4j; việc xuất bản cần thao tác riêng sau khi duyệt chất lượng. Chạy lại cùng lệnh để bổ sung tiếp trong ngân sách mới, không NLP lại URL/thân bài cũ.
 
 ## Gán nhãn và đánh giá
 
@@ -75,7 +77,7 @@ uv run --no-sync weconomy evaluate $run --labels reports/labels-to-review.json -
 
 ## Tạo export chỉ gồm node thuộc domain
 
-`filter-domain` đọc export JSONL đầy đủ, gán subtype bằng cue tiếng Việt/Anh ở cấu trúc apposition gần tên entity, giữ node đã phân loại kể cả node chưa có cạnh, và chỉ giữ claim có cả hai đầu mút thuộc domain. Bản v8 loại các alias phổ biến chỉ là đại từ/vai trò, năm, từ chung hoặc tên quốc gia bị NER gán nhầm `ORG`; alias GOV được curated vẫn được giữ. Đây vẫn là heuristic và không kiểm định riêng tính đúng của predicate quan hệ. Lệnh tạo thư mục mới, không sửa export nguồn; kiểm tra `domain_types` và `domain_evidence` trước khi nhập graph.
+`filter-domain` đọc export JSONL đầy đủ; GOV được nhận theo entity type. ORG có alias curate hoặc cue subtype được nhận ngay; ORG phổ thông cần tên viết hoa, không thuộc alias chung/địa danh, và xuất hiện ở ít nhất hai bài khác nhau. PERSON vẫn cần cue subtype. Bản v14 chuẩn hóa ID claim theo tài liệu/câu và khử claim trùng trước khi lọc domain. Đây vẫn là heuristic và không kiểm định riêng tính đúng của predicate quan hệ. Lệnh tạo thư mục mới, không sửa export nguồn; kiểm tra `domain_types` và `domain_evidence` trước khi nhập graph.
 
 ```powershell
 $source = 'data/exports/international-business-gliner-v2-full-20261107T042155-6b3c94'
@@ -102,7 +104,7 @@ uv run --no-sync weconomy import-neo4j $export
 
 Neo4j Browser chỉ bind vào localhost tại `http://localhost:7474`; cổng Bolt là `7687`. Các volume Docker giữ dữ liệu. `docker compose down` dừng dịch vụ; thêm `-v` sẽ xóa cả volume graph.
 
-Neo4j chỉ nhận node Entity và cạnh quan hệ. Cạnh giữ type quan hệ, `event_id`, trigger, rule ID, trạng thái và document IDs; document IDs dùng để tra bài ở Hugging Face, còn `collection_ids` phân biệt lần nhập. Không lưu câu evidence hay toàn văn. Import không xóa dữ liệu cũ.
+Neo4j chỉ nhận node Entity và cạnh quan hệ. Mỗi bộ ba chuẩn hóa có một cạnh trong collection; predicate đối xứng có endpoint theo thứ tự chuẩn. Cạnh giữ `relation_id`, `collection_id`, danh sách event và document IDs, trigger, rule ID, trạng thái cùng `event_details_json`; không lưu câu evidence hay toàn văn. Import không xóa dữ liệu cũ.
 
 Để nhập cùng export lên AuraDB, nạp cấu hình từ `.env` vào tiến trình PowerShell rồi chạy importer. Đoạn lệnh không in giá trị môi trường:
 
@@ -127,7 +129,8 @@ Truy vấn cạnh và tìm tài liệu nguồn trong Hugging Face:
 
 ```cypher
 MATCH (a:Entity)-[r]->(b:Entity)
-RETURN a.name, type(r), b.name, r.triggers, r.rule_ids, r.review_status, r.event_id, r.document_ids
+RETURN a.name, type(r), b.name, r.relation_id, r.event_count, r.claim_count,
+       r.triggers, r.rule_ids, r.review_status, r.event_ids, r.document_ids
 LIMIT 25;
 ```
 

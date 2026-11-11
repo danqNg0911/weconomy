@@ -76,7 +76,8 @@ def _setup(tmp_path, monkeypatch, stories):
         manifest = fixture_dir / f"manifest-{len(calls)}.json"
         manifest.write_text(json.dumps({"documents": documents}), encoding="utf-8")
         return real_process(batch_config, manifest=manifest,
-                            nlp_engine=kwargs.get("nlp_engine"))
+                            nlp_engine=kwargs.get("nlp_engine"), prior_signatures=kwargs.get("prior_signatures", ()),
+                            topic_filter=kwargs.get("topic_filter", False))
 
     monkeypatch.setattr(pipeline, "process", offline_process)
     return config, calls
@@ -133,7 +134,7 @@ def test_duplicates_across_batches_and_same_edge_stories(tmp_path, monkeypatch):
     urls = [f"https://example.org/{i}" for i in range(3)]
     config, _ = _setup(tmp_path, monkeypatch, {
         urls[0]: _story(), urls[1]: _story(),
-        urls[2]: _story("A synthetic report says Microsoft acquired GitHub."),
+        urls[2]: _story("A synthetic report says Microsoft acquired GitHub.", prefix="independentword"),
     })
     dataset.collect_dataset(config, "dedupe", urls=config["test_urls"], max_candidates=3, batch_size=1)
     status = dataset.dataset_status("dedupe")
@@ -190,6 +191,66 @@ def test_resume_requires_existing_catalog_and_compatible_config(tmp_path, monkey
         dataset.validate_dataset_resume(changed, "existing")
     with pytest.raises(ValueError):
         dataset.collect_dataset(changed, "existing", urls=config["test_urls"], resume=True)
+
+
+def test_seed_and_analysis_upgrade_preserve_old_rows_without_old_nlp(tmp_path, monkeypatch):
+    first, second = "https://example.org/old", "https://example.org/new"
+    config, calls = _setup(tmp_path, monkeypatch, {
+        first: _story(prefix="oldword"), second: _story(prefix="newword")})
+    dataset.collect_dataset(config, "source", urls=[first])
+    old_status = dataset.dataset_status("source")
+    dataset.seed_dataset("source", "verified")
+    assert calls == [first]
+    assert dataset.dataset_status("verified")["counts"] == old_status["counts"]
+    changed = dict(config, min_article_words=101)
+    with pytest.raises(ValueError, match="fingerprint"):
+        dataset.validate_dataset_resume(changed, "verified")
+    dataset.validate_dataset_resume(changed, "verified", allow_processing_upgrade=True)
+    result = dataset.collect_dataset(changed, "verified", urls=[first, second], resume=True,
+                                     allow_processing_upgrade=True)
+    assert calls == [first, second]
+    assert result["counts"]["articles"] == 2
+    assert dataset.dataset_status("source")["counts"] == old_status["counts"]
+    layers = json.loads(Path("verified/layers.json").read_text("utf-8"))
+    assert layers["processing_history"][0]["scope"] == "new_articles_only"
+    assert len({row["processing_fingerprint"] for row in layers["batches"]}) == 2
+    assert all(Path(row["raw"]).is_dir() for row in layers["batches"])
+    assert dataset.dataset_seen_urls("verified") == {first, second}
+
+
+def test_duplicate_bodies_and_out_of_scope_articles_skip_nlp(tmp_path, monkeypatch):
+    first, copy, unrelated = [f"https://example.org/{name}" for name in ("first", "copy", "unrelated")]
+    config, _ = _setup(tmp_path, monkeypatch, {
+        first: _story(), copy: _story(),
+        unrelated: _story(prefix="sports").replace("TEST_ONLY startup company report.", "Sports match report.")
+        .replace(EDGE, "The players celebrated their victory.")})
+    dataset.collect_dataset(config, "filtered", urls=[first])
+    monkeypatch.setattr("weconomy.nlp.NLP.mentions", lambda *a, **k: pytest.fail("NLP must be skipped"))
+    result = dataset.collect_dataset(config, "filtered", urls=[copy, unrelated], resume=True)
+    assert result["counts"]["articles"] == 1
+    assert result["queue"]["duplicate_content"] == 1
+    assert result["queue"]["out_of_scope"] == 1
+
+
+@pytest.mark.parametrize("tail", [
+    "Microsoft raised $30 million in a Series B round. The round was led by Atlas Ventures.",
+    "Microsoft raised $30 million in a Series B round led by Atlas Ventures.",
+])
+def test_initial_pipeline_saves_round_windows_with_valid_offsets_and_endpoints(tmp_path, monkeypatch, tail):
+    url = "https://example.org/funding"
+    config, _ = _setup(tmp_path, monkeypatch, {url: _story(tail)})
+    result = dataset.collect_dataset(config, "rounds", urls=[url])
+    assert result["counts"]["relations"] == 1
+    conn = dataset._read_connect("rounds")
+    try:
+        article = dataset._rows(conn, "articles")[0]
+    finally:
+        conn.close()
+    from weconomy.quality import validate
+    assert validate(article["source_run"])["valid"]
+    claims = pipeline.read_table(article["source_run"], "relations")
+    assert claims[0]["rule_id"] == "en-explicit-round-reference-v1"
+    assert "Microsoft" in claims[0]["evidence"] and "Atlas Ventures" in claims[0]["evidence"]
 
 
 def test_status_and_export_do_not_initialize_nlp(tmp_path, monkeypatch):

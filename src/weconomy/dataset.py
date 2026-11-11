@@ -21,7 +21,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
-from . import access, domain, extraction, nlp, pipeline, schema
+from . import access, domain, entity_quality, extraction, funding, nlp, pipeline, schema
 from .access import Access, canonical_url
 from .progress import heartbeat
 from .quality import validate
@@ -47,7 +47,7 @@ def _file_hash(path):
 
 
 def _code_hash():
-    modules = (pipeline, extraction, nlp, schema, domain, access)
+    modules = (pipeline, extraction, nlp, schema, domain, access, entity_quality, funding)
     return _hash(b"\n".join(Path(m.__file__).read_bytes() for m in modules))
 
 
@@ -78,16 +78,28 @@ def _processing_fingerprint(config):
                         "domain": domain.DOMAIN_VERSION, "code": _code_hash()}).encode())
 
 
-def validate_dataset_resume(config, dataset):
+def _validate_processing_upgrade(conn, config):
+    for (run,) in conn.execute("SELECT run FROM batches WHERE run IS NOT NULL AND status='committed'"):
+        path = Path(run)
+        manifest = json.loads((path / "manifest.json").read_text("utf-8"))
+        if manifest.get("schema_version") != schema.SCHEMA_VERSION:
+            raise ValueError("Processing upgrade requires a compatible stored schema")
+        if _file_hash(path / "aliases.yaml") != _file_hash(config["aliases"]):
+            raise ValueError("Processing upgrade cannot change entity aliases; use a separate migration")
+
+
+def validate_dataset_resume(config, dataset, *, allow_processing_upgrade=False):
     """Fail before crawling when a requested catalog cannot be resumed safely."""
     db = Path(dataset) / _DB
     if not db.is_file():
         raise FileNotFoundError(db)
     with closing(sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
         row = conn.execute("SELECT value FROM meta WHERE key='processing_fingerprint'").fetchone()
-    previous = json.loads(row[0]) if row else None
-    if previous and previous != _processing_fingerprint(config):
-        raise ValueError("Dataset processing fingerprint is incompatible")
+        previous = json.loads(row[0]) if row else None
+        if previous and previous != _processing_fingerprint(config):
+            if not allow_processing_upgrade:
+                raise ValueError("Dataset processing fingerprint is incompatible")
+            _validate_processing_upgrade(conn, config)
 
 
 def _connect(dataset):
@@ -271,7 +283,7 @@ def _ingest(conn, run, batch_id, requested_urls=(), replay_provenance=None):
                 decisions[request_key] = value
 
         if article.get("duplicate_of"):
-            decide("duplicate_url")
+            decide("duplicate_content")
             continue
         if article.get("content_status") != "body_checked" or not article.get("nlp_eligible"):
             decide("quarantined")
@@ -593,11 +605,72 @@ def dataset_status(dataset: Path) -> dict:
         return _status(conn)
 
 
+def dataset_seen_urls(dataset):
+    """All attempted/queued and accepted URLs, including previously rejected articles."""
+    if not (Path(dataset) / _DB).is_file():
+        return set()
+    with closing(_read_connect(dataset)) as conn:
+        urls = {row[0] for row in conn.execute("SELECT url FROM queue")}
+        urls.update(row.get("canonical_url") for row in _rows(conn, "articles") if row.get("canonical_url"))
+    return {canonical_url(url) for url in urls}
+
+
+def seed_dataset(source, destination):
+    """Fork committed catalog rows and immutable run references without executing NLP."""
+    source, destination = Path(source), Path(destination)
+    if not (source / _DB).is_file():
+        raise FileNotFoundError(source / _DB)
+    with _writer_lock(source), _writer_lock(destination):
+        if (destination / _DB).exists():
+            raise FileExistsError(destination / _DB)
+        with closing(_read_connect(source)) as reader:
+            if reader.execute("SELECT 1 FROM batches WHERE status='pending'").fetchone():
+                raise ValueError("Recover pending source batches before seeding a dataset")
+            temporary = destination / "catalog.seed.sqlite3"
+            with closing(sqlite3.connect(temporary)) as writer:
+                reader.backup(writer)
+            temporary.replace(destination / _DB)
+        with closing(_connect(destination)) as conn:
+            with conn:
+                _set_meta(conn, "seeded_from", str(source.resolve()))
+            _write_layer_index(conn, destination)
+
+
+def _write_layer_index(conn, dataset):
+    batches = [{"batch_id": row["batch_id"], "run": row["run"],
+                "processing_fingerprint": _meta(conn, f"batch_processing:{row['batch_id']}",
+                                               _meta(conn, "processing_fingerprint")),
+                "raw": str(Path(row["run"]) / "bronze"),
+                "analyzed": [str(Path(row["run"]) / layer) for layer in ("silver", "gold")]}
+               for row in conn.execute("SELECT * FROM batches WHERE status='committed' AND run IS NOT NULL")]
+    index = {"version": 1, "dataset": str(Path(dataset).resolve()), "batches": batches,
+             "processing_history": _meta(conn, "processing_history", []),
+             "normalized": _meta(conn, "normalized_exports", [])}
+    path = Path(dataset) / "layers.json"
+    temporary = path.with_suffix(".json.tmp")
+    temporary.write_text(_json(index) + "\n", encoding="utf-8")
+    temporary.replace(path)
+    return index
+
+
+def register_normalized_export(dataset, output):
+    manifest = json.loads((Path(output) / "manifest.json").read_text("utf-8"))
+    with _writer_lock(dataset), closing(_connect(dataset)) as conn:
+        entries = _meta(conn, "normalized_exports", [])
+        entry = {"path": str(Path(output).resolve()), "filter": manifest["domain_filter"]["version"],
+                 "counts": manifest["counts"], "lineage": manifest["lineage"], "audit": "audit/"}
+        entries = [row for row in entries if row["path"] != entry["path"]] + [entry]
+        with conn:
+            _set_meta(conn, "normalized_exports", entries)
+        _write_layer_index(conn, dataset)
+
+
 def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, articles: int | None = None,
                     nodes: int | None = None, relations: int | None = None,
                     relation_types: int | None = None, max_candidates: int = 1000,
                     batch_size: int = 20, resume: bool = False,
-                    from_runs: list[Path] | None = None, progress=None) -> dict:
+                    from_runs: list[Path] | None = None, progress=None,
+                    allow_processing_upgrade=False) -> dict:
     """Collect explicitly supplied URLs or saved runs into a resumable dataset."""
     dataset = Path(dataset).resolve()
     targets = {"articles": articles, "nodes": nodes, "relations": relations,
@@ -621,8 +694,21 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
             fingerprint = _processing_fingerprint(config)
             previous = _meta(conn, "processing_fingerprint")
             if previous and previous != fingerprint:
-                raise ValueError("Dataset processing fingerprint is incompatible")
-            if not previous:
+                if not allow_processing_upgrade:
+                    raise ValueError("Dataset processing fingerprint is incompatible")
+                if from_runs is not None:
+                    raise ValueError("Processing upgrades collect new URLs only; saved runs remain immutable")
+                _validate_processing_upgrade(conn, config)
+                for row in conn.execute("SELECT batch_id FROM batches").fetchall():
+                    key = f"batch_processing:{row['batch_id']}"
+                    if not _meta(conn, key):
+                        _set_meta(conn, key, previous)
+                history = _meta(conn, "processing_history", [])
+                history.append({"previous_fingerprint": previous, "fingerprint": fingerprint,
+                                "activated_at": time.time(), "schema_version": schema.SCHEMA_VERSION,
+                                "scope": "new_articles_only"})
+                _set_meta(conn, "processing_history", history)
+            if not previous or previous != fingerprint:
                 _set_meta(conn, "processing_fingerprint", fingerprint)
             replay_items, replay_signatures = ({}, {})
             if from_runs is not None:
@@ -673,7 +759,10 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
             _set_meta(conn, "targets", targets)
             _set_meta(conn, "reason", "running")
             conn.commit()
-            existing_urls = {canonical_url(r.get("canonical_url") or "") for r in _rows(conn, "articles")}
+            known_articles = _rows(conn, "articles")
+            prior_signatures = [(row["document_id"], row["language"], row["content_sha256"],
+                                 pipeline.shingles(row["text"])) for row in known_articles]
+            existing_urls = {canonical_url(r.get("canonical_url") or "") for r in known_articles}
             existing_urls.update(row[0] for row in conn.execute("SELECT url FROM queue"))
             candidates = []
             candidate_counts = {}
@@ -762,6 +851,7 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                 with conn:
                     conn.execute("INSERT INTO batches VALUES(?,?,?,?,?,?)",
                                  (batch_id, str(batch_root), _json(chosen), "pending", None, time.time()))
+                    _set_meta(conn, f"batch_processing:{batch_id}", fingerprint)
                     conn.executemany("UPDATE queue SET status='pending',batch_id=? WHERE url=?",
                                      [(batch_id, url) for url in chosen])
                     allocated += len(chosen)
@@ -780,12 +870,14 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                         process_progress = (lambda event: progress({**event, "stage": "dataset"})) if progress else None
                         with heartbeat(progress, f"Đang chạy NLP cho batch dataset, {len(chosen)} bài"):
                             run, manifest = pipeline.process(batch_config, from_run=staged_run,
-                                                             nlp_engine=nlp_engine, progress=process_progress)
+                                                             nlp_engine=nlp_engine, progress=process_progress,
+                                                             prior_signatures=prior_signatures, topic_filter=True)
                     else:
                         process_progress = (lambda event: progress({**event, "stage": "dataset"})) if progress else None
                         with heartbeat(progress, f"Đang tải và chạy NLP cho batch dataset, {len(chosen)} bài"):
                             run, manifest = pipeline.process(batch_config, urls=chosen, nlp_engine=nlp_engine,
-                                                             progress=process_progress)
+                                                             progress=process_progress,
+                                                             prior_signatures=prior_signatures, topic_filter=True)
                     if not isinstance(manifest, dict):
                         manifest = {}
                     if manifest.get("status") not in {"completed", "partial"}:
@@ -802,6 +894,10 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                                           else {"batch": batch_id, "error": str(e)}
                                           for e in manifest["errors"])
                         _set_meta(conn, "errors", errors)
+                    for article in pipeline.read_table(run, "articles"):
+                        if decisions.get(article.get("canonical_url")) == "accepted":
+                            prior_signatures.append((article["document_id"], article["language"],
+                                                     article["content_sha256"], pipeline.shingles(article["text"])))
                     counts = _snapshot(conn)
                     if progress:
                         progress({"event": "dataset_batch_done", "size": len(chosen), "counts": counts})
@@ -831,6 +927,7 @@ def collect_dataset(config, dataset: Path, *, urls: list[str] | None = None, art
                 _set_meta(conn, "reason", "budget_exhausted")
             conn.commit()
             result = _status(conn)
+            _write_layer_index(conn, dataset)
             result["batch_overshoot"] = max(0, result["counts"]["articles"] - articles) if articles else 0
             return result
         except Exception:
@@ -852,11 +949,8 @@ def export_dataset(dataset: Path, output: Path) -> dict:
     output.mkdir(parents=True)
     with _writer_lock(dataset), closing(_connect(dataset)) as conn:
         status = _status(conn)
-        for name in ("articles", "entities", "relations"):
+        for name in ("articles", "entities", "relations", "sentences", "mentions"):
             rows = _rows(conn, name)
-            if name == "entities":
-                _, connected = _graph_claims(conn)
-                rows = [row for row in rows if row.get("entity_id") in connected]
             if name == "relations":
                 rows, _ = _graph_claims(conn)
                 unique = {}
@@ -870,6 +964,9 @@ def export_dataset(dataset: Path, output: Path) -> dict:
         (output / "claims.jsonl").write_text(
             "".join(_json(row) + "\n" for row in claims), encoding="utf-8")
         manifest = {"status": status, "counts": status["counts"],
+                    "storage_layer": "analyzed",
+                    "source_dataset": str(dataset.resolve()),
+                    "layers": _write_layer_index(conn, dataset),
                     "quality": {"precision": None, "scope": status["scope"],
                                 "candidate_basis": status["candidate_basis"]},
                     "source_runs": sorted({r.get("source_run") for r in [*claims, *_rows(conn, "articles")]

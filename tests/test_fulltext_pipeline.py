@@ -19,6 +19,60 @@ from weconomy.schema import SCHEMAS
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_fresh_url_resolves_local_corporate_names_before_storing_claims(tmp_path, monkeypatch):
+    from weconomy.schema import stable_id
+
+    config = load_config(ROOT / "config/pipeline.yaml")
+    config["output"] = str(tmp_path / "runs")
+    aliases = tmp_path / "aliases.yaml"
+    aliases.write_text(yaml.safe_dump([
+        {"name": "Northstar", "type": "ORG", "aliases": []},
+        {"name": "Northstar Technologies", "type": "ORG", "aliases": []},
+        {"name": "Jane Doe", "type": "PERSON", "aliases": []},
+        {"name": "John Roe", "type": "PERSON", "aliases": []},
+    ]), encoding="utf-8")
+    config["aliases"] = str(aliases)
+    sources = tmp_path / "sources.yaml"
+    sources.write_text(yaml.safe_dump({"sources": {"fixture": {
+        "hosts": ["example.org"], "allowed": True, "permission_basis": "Unit test fixture",
+        "language": "en", "kind": "news", "license": "fixture", "min_interval_seconds": 0,
+        "body_xpath": "//article",
+    }}}), encoding="utf-8")
+    config["sources"] = str(sources)
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /")
+        words = " ".join(f"body{i}" for i in range(150))
+        return httpx.Response(200, headers={"content-type": "text/html"}, text=(
+            "<html><head><title>Corporate news</title></head><body><article><h1>Corporate news</h1>"
+            "<p>Northstar Technologies is a software company.</p>"
+            "<p>Jane Doe, CEO of Northstar, spoke today.</p>"
+            "<p>Former Northstar CEO John Roe spoke today.</p>"
+            f"<p>{words}</p></article></body></html>"))
+
+    def make_access(settings):
+        access = Access(settings)
+        access.client.close()
+        access.client = httpx.Client(transport=httpx.MockTransport(handler))
+        return access
+
+    monkeypatch.setattr("weconomy.pipeline.Access", make_access)
+    monkeypatch.setattr("weconomy.access.socket.getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))])
+    run, report = process(config, urls=["https://example.org/new-company-news"], topic_filter=True)
+    assert not report["errors"]
+    claims = read_table(run, "relations")
+    assert len(claims) == 1
+    assert claims[0]["subject_id"] == stable_id("PERSON", "jane doe")
+    assert claims[0]["object_id"] == stable_id("ORG", "northstar technologies")
+    resolutions = [json.loads(line) for line in (run / "silver/entity_resolutions.jsonl").read_text("utf-8").splitlines()]
+    assert any(row["source_name"] == "Northstar" and row["canonical_name"] == "Northstar Technologies"
+               for row in resolutions)
+    article = read_table(run, "articles")[0]
+    assert article["text"][claims[0]["evidence_start"]:claims[0]["evidence_end"]] == claims[0]["evidence"]
+    assert validate(run)["valid"]
+
+
 def test_excerpts_are_quarantined_by_default_and_raw_files_preserved(tmp_path):
     config = load_config(ROOT / "config/pipeline.yaml")
     config["output"] = str(tmp_path / "runs")

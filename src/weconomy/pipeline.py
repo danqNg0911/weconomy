@@ -13,7 +13,9 @@ import pyarrow.parquet as pq
 import yaml
 
 from .access import Access, canonical_url
+from .entity_quality import organization_name_aliases
 from .extraction import EXTRACTOR_VERSION, extract_article, utc_date
+from .funding import funding_references
 from .nlp import NLP, document_person_aliases, normalize, route, sentences
 from .schema import RELATION_TYPES, SCHEMA_VERSION, SCHEMAS, stable_id
 
@@ -61,7 +63,7 @@ def fulltext_snapshots(runs):
 
 
 def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
-            nlp_engine=None, source_overrides=None, progress=None):
+            nlp_engine=None, source_overrides=None, progress=None, prior_signatures=(), topic_filter=False):
     if sum(value is not None for value in (manifest, urls, from_run, from_runs)) != 1:
         raise ValueError("Provide exactly one input: manifest, URLs, from_run or from_runs")
     if urls is not None and not urls:
@@ -105,9 +107,12 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
         access.close()
         raise
     tables = {key: [] for key in SCHEMAS}
-    errors, seen_urls, seen_documents, seen_text = [], set(), set(), []
+    errors, seen_urls, seen_documents, seen_text = [], set(), set(), list(prior_signatures)
     entities, events, claim_ids = {}, {}, set()
     requested_urls = {}
+    analysis_records = []
+    entity_resolutions = []
+    analyzed_documents = set()
     try:
         for index, item in enumerate(items, 1):
             article = None
@@ -219,6 +224,17 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                                   "title": title, "word_count": article["word_count"],
                                   "body_paragraphs": article["body_paragraphs"], "nlp_sentences": 0})
                     continue
+                if topic_filter:
+                    from .domain import classify
+                    if not classify(title, text, language)["in_scope"]:
+                        if progress:
+                            progress({"event": "article_done", "index": index, "total": len(items),
+                                      "url": url, "status": "out_of_scope_before_nlp", "title": title,
+                                      "word_count": article["word_count"], "body_paragraphs": article["body_paragraphs"],
+                                      "nlp_sentences": 0, "entities": 0, "relations": 0})
+                        continue
+                analyzed_documents.add(doc_id)
+                getattr(nlp, "begin_document", lambda *_: None)(text)
                 doc_sentences, doc_mentions, doc_relations = [], [], []
                 doc_entities, doc_events = {}, {}
                 for sentence in sentences(text):
@@ -237,7 +253,27 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                         doc_relations.append(dict(relation, document_id=doc_id, sentence_id=sid,
                             evidence=sentence["text"], evidence_start=sentence["start"],
                             evidence_end=sentence["end"], review_status="unreviewed", event_date=""))
+                    audit = getattr(nlp, "audit_record", lambda *_: None)(sentence["text"], language)
+                    if audit is not None:
+                        analysis_records.append(dict(audit, document_id=doc_id, sentence_id=sid))
+                base_sentence_count = len(doc_sentences)
+                if language == "en":
+                    recovered = funding_references(text, doc_id, doc_sentences, doc_mentions, doc_entities)
+                    doc_entities.update({row["entity_id"]: row for row in recovered["entities"]})
+                    doc_sentences.extend(recovered["sentences"])
+                    doc_mentions.extend(recovered["mentions"])
+                    doc_relations.extend(recovered["claims"])
                 alias_map = document_person_aliases(doc_entities, doc_mentions)
+                org_aliases = organization_name_aliases(
+                    [(row["start"], row["end"], row["entity_id"]) for row in doc_mentions
+                     if doc_entities[row["entity_id"]]["entity_type"] == "ORG"],
+                    {entity_id: row["name"] for entity_id, row in doc_entities.items()})
+                alias_map.update(org_aliases)
+                entity_resolutions.extend({"document_id": doc_id, "source_entity_id": source,
+                    "canonical_entity_id": target, "source_name": doc_entities[source]["name"],
+                    "canonical_name": doc_entities[target]["name"],
+                    "reason": "document_corporate_name_expansion" if source in org_aliases else "document_person_alias"}
+                    for source, target in alias_map.items())
                 for mention in doc_mentions:
                     mention["entity_id"] = alias_map.get(mention["entity_id"], mention["entity_id"])
                     mention["entity_type"] = doc_entities[mention["entity_id"]]["entity_type"]
@@ -282,7 +318,7 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                               "url": url, "status": article["content_status"], "title": title,
                               "word_count": article["word_count"],
                               "body_paragraphs": article["body_paragraphs"],
-                              "nlp_sentences": len(doc_sentences),
+                              "nlp_sentences": base_sentence_count,
                               "entities": entity_count, "relations": relation_count})
             except Exception as exc:
                 # Retain per-document failures and continue; CLI returns nonzero if any failed.
@@ -307,10 +343,13 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
         pq.write_table(pa.Table.from_pylist(rows, schema=SCHEMAS[name]), folder / f"{name}.parquet",
                        compression="zstd")
     report = {"schema_version": SCHEMA_VERSION, "created_at": now(), "config": config,
+              "layers": {"raw": "bronze", "analyzed": ["silver", "gold"],
+                         "entity_resolutions": "silver/entity_resolutions.jsonl",
+                         "model_predictions": "silver/model_predictions.jsonl"},
               "counts": {key: len(value) for key, value in tables.items()}, "errors": errors,
               "duplicate_documents": sum(bool(a["duplicate_of"]) for a in tables["articles"]),
               "content_statuses": dict(Counter(a["content_status"] for a in tables["articles"])),
-              "nlp_documents": sum(a["nlp_eligible"] and not a["duplicate_of"] for a in tables["articles"]),
+              "nlp_documents": len(analyzed_documents),
               "quarantined_documents": quarantined, "extractor_version": EXTRACTOR_VERSION,
               "reprocessed_from": str(from_run) if from_run else None,
               "merged_from": [str(Path(p).resolve()) for p in (from_runs or [])],
@@ -325,6 +364,11 @@ def process(config, *, manifest=None, urls=None, from_run=None, from_runs=None,
                          else "completed" if tables["articles"] else "no_new_documents")}
     if config["ner_backend"] == "models":
         report["packages"]["gliner"] = importlib.metadata.version("gliner")
+    (run / "silver/model_predictions.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n" for row in analysis_records),
+        encoding="utf-8")
+    (run / "silver/entity_resolutions.jsonl").write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in entity_resolutions), encoding="utf-8")
     (run / "config.yaml").write_text(yaml.safe_dump(config, allow_unicode=True), encoding="utf-8")
     # Preserve the exact alias/source policy alongside each immutable run.
     for key in ("aliases", "sources"):

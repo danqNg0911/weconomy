@@ -1,6 +1,5 @@
 import json
 from io import StringIO
-from pathlib import Path
 
 import pytest
 
@@ -29,7 +28,7 @@ def test_collect_dataset_passes_all_options_and_default_config(monkeypatch, tmp_
 
     monkeypatch.setattr(cli, "load_config", load_config)
     monkeypatch.setattr(cli, "collect_dataset", collect)
-    monkeypatch.setattr(cli, "validate_dataset_resume", lambda config, dataset: None)
+    monkeypatch.setattr(cli, "validate_dataset_resume", lambda config, dataset, **kwargs: None)
     (tmp_path / "dataset").mkdir()
     urls = tmp_path / "urls.txt"
     urls.write_text("\ufeffhttps://example.com/a\n\n https://example.com/b \n", encoding="utf-8")
@@ -88,7 +87,7 @@ def test_incompatible_resume_fails_before_collect_crawls(monkeypatch, tmp_path, 
     existing.mkdir()
     monkeypatch.setattr(cli, "load_config", lambda path: {})
     monkeypatch.setattr(cli, "validate_dataset_resume",
-                        lambda config, dataset: (_ for _ in ()).throw(ValueError("fingerprint mismatch")))
+                        lambda config, dataset, **kwargs: (_ for _ in ()).throw(ValueError("fingerprint mismatch")))
     monkeypatch.setattr(cli, "run_collection", lambda *a, **k: pytest.fail("crawl must not start"))
 
     assert cli.main(["collect", "--dataset", str(existing), "--resume"]) == 1
@@ -245,12 +244,13 @@ def test_collect_dataset_uses_repo_default_when_path_is_omitted(monkeypatch, tmp
     assert captured["dataset"] == cli._DEFAULT_DATASET
 
 
-def test_collect_crawls_then_replays_runs_into_default_dataset(monkeypatch, capsys):
+def test_collect_discovers_then_analyzes_urls_once(monkeypatch, capsys):
     captured = {}
-    runs = ["data/runs/run-a", "data/runs/run-b"]
-    monkeypatch.setattr(cli, "run_collection", lambda config, target_ids=None, progress=None: {
-        "status": "partial", "targets": [{"run_ids": runs}], "errors": [],
-    })
+    urls = ["https://example.test/a", "https://example.test/b"]
+    def discover(config, **kwargs):
+        assert kwargs["discover_only"] is True
+        return {"status": "partial", "targets": [{"article_urls": urls}], "errors": []}
+    monkeypatch.setattr(cli, "run_collection", discover)
     monkeypatch.setattr(cli, "load_config", lambda path: {"loaded_from": str(path)})
 
     def collect_dataset(config, dataset, **kwargs):
@@ -260,7 +260,8 @@ def test_collect_crawls_then_replays_runs_into_default_dataset(monkeypatch, caps
     monkeypatch.setattr(cli, "collect_dataset", collect_dataset)
     assert cli.main(["collect"]) == 2
     result = json.loads(capsys.readouterr().out)
-    assert captured["from_runs"] == [Path(run) for run in runs]
+    assert captured["urls"] == urls
+    assert "from_runs" not in captured
     assert captured["dataset"] == cli._DEFAULT_DATASET
     assert captured["nodes"] == 2000
     assert captured["relations"] == 5000

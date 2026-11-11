@@ -12,7 +12,8 @@ def test_configured_targets_use_live_allowed_sources():
     root = Path(__file__).resolve().parents[1]
     collection = yaml.safe_load((root / "config/collection.yaml").read_text(encoding="utf-8"))
     sources = yaml.safe_load((root / "config/sources.yaml").read_text(encoding="utf-8"))["sources"]
-    assert len(collection["targets"]) == 7
+    assert collection["targets"]
+    assert len({target["id"] for target in collection["targets"]}) == len(collection["targets"])
     assert all(sources[target["source"]]["allowed"] for target in collection["targets"])
     assert all(target.get("article_link_xpath") for target in collection["targets"])
     assert {"techcrunch_venture", "techcrunch_startups"} <= {target["id"] for target in collection["targets"]}
@@ -141,6 +142,11 @@ def test_crawl_target_follows_configured_category_pages_without_repeating_urls()
         type("Result", (), {"stdout": output})(), access_factory=access_factory)
 
     assert urls == [f"https://example.test/story-{number}.html" for number in range(1, 4)]
+    assert access.fetched == [page2, page3]
+    urls = crawler.crawl_target(target, settings, runner=lambda *a, **k:
+        type("Result", (), {"stdout": output})(), access_factory=access_factory,
+        max_articles=1, exclude_urls={"https://example.test/story-1.html", "https://example.test/story-2.html"})
+    assert urls == ["https://example.test/story-3.html"]
     assert access.fetched == [page2, page3]
 
 
