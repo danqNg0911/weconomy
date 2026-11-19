@@ -170,16 +170,20 @@ def main(argv=None):
                               help="Create a new uniquely named dataset beside an existing one")
     cycle = sub.add_parser("graph-cycle", help="Collect, normalize, check targets, and publish a domain graph")
     cycle.add_argument("--config", type=Path, default=Path("config/collection.yaml"))
-    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-gliner-coref-v3"))
+    cycle.add_argument("--dataset", type=Path, default=Path("data/datasets/international-business-verified-v15"))
     cycle.add_argument("--source-dataset", type=Path,
-                       default=Path("data/datasets/international-business-gliner-v1"),
-                       help="Existing dataset whose committed runs should be reanalyzed on first run")
+                       default=Path("data/datasets/international-business-gliner-v2"),
+                       help="Existing committed catalog to reuse on first run, without replaying NLP")
     cycle.add_argument("--target", action="append", dest="targets", help="Target ID; repeat to select multiple")
     cycle.add_argument("--nodes", type=int, default=2000)
     cycle.add_argument("--relations", type=int, default=5000)
     cycle.add_argument("--relation-types", type=int, default=11)
     cycle.add_argument("--max-candidates", type=int, default=10000)
     cycle.add_argument("--batch-size", type=int, default=20)
+    cycle.add_argument("--max-rounds", type=int, default=3)
+    cycle.add_argument("--allow-processing-upgrade", action="store_true",
+                       help="Record an analysis-version transition for new articles only")
+    cycle.add_argument("--publish", action="store_true", help="Import only after verified targets are met")
     run = sub.add_parser("run", help="Process licensed local snapshots or permitted article URLs")
     inputs = run.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--manifest", type=Path)
@@ -202,6 +206,9 @@ def main(argv=None):
     dataset_mode.add_argument("--force", action="store_true",
                               help="Create a new uniquely named dataset beside an existing one")
     dataset_collect.add_argument("--ner", choices=["gazetteer", "models"])
+    for command in (collect, dataset_collect):
+        command.add_argument("--allow-processing-upgrade", action="store_true",
+                             help="Use the current analysis version on new URLs while retaining old analysis")
     status = sub.add_parser("dataset-status", help="Show persisted dataset counts and collection state")
     status.add_argument("dataset", type=Path, nargs="?", default=_DEFAULT_DATASET)
     dataset_export = sub.add_parser("export-dataset", help="Export committed dataset tables as JSONL")
@@ -267,25 +274,27 @@ def main(argv=None):
             elif args.resume:
                 collection_config = load_config(args.config)
             if args.resume:
-                validate_dataset_resume(collection_config, args.dataset)
+                validate_dataset_resume(collection_config, args.dataset,
+                                        allow_processing_upgrade=args.allow_processing_upgrade)
         if args.command == "crawl":
             result = run_collection(args.config, target_ids=args.targets, progress=_console_progress)
             code = int(result["status"] != "completed")
         elif args.command == "collect":
-            crawl = run_collection(args.config, target_ids=args.targets, progress=_console_progress)
-            from_runs = [Path(run) for target in crawl["targets"] for run in target["run_ids"]]
-            if not from_runs:
+            from .dataset import dataset_seen_urls
+            crawl = run_collection(args.config, target_ids=args.targets, progress=_console_progress,
+                                   discover_only=True, exclude_urls=dataset_seen_urls(args.dataset))
+            urls = list(dict.fromkeys(url for target in crawl["targets"] for url in target.get("article_urls", [])))
+            if not urls:
                 result = {"status": "failed", "crawl": crawl, "dataset": None}
                 code = 1
             else:
                 config = collection_config or load_config(args.config)
-                _console_progress({"event": "dataset_replay_start", "runs": len(from_runs),
-                                   "dataset": args.dataset})
                 dataset = collect_dataset(
-                    config, args.dataset, from_runs=from_runs, articles=args.articles,
+                    config, args.dataset, urls=urls, articles=args.articles,
                     nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
                     max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
                     progress=_console_progress,
+                    allow_processing_upgrade=args.allow_processing_upgrade,
                 )
                 code = (1 if dataset.get("errors") else
                         2 if not dataset["targets_met"] or crawl["status"] != "completed" else 0)
@@ -297,6 +306,8 @@ def main(argv=None):
                 source_dataset=args.source_dataset,
                 nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
                 max_candidates=args.max_candidates, batch_size=args.batch_size,
+                max_rounds=args.max_rounds, allow_processing_upgrade=args.allow_processing_upgrade,
+                publish=args.publish,
                 progress=_console_progress,
             )
             if not result["targets_met"]:
@@ -331,6 +342,7 @@ def main(argv=None):
                     nodes=args.nodes, relations=args.relations, relation_types=args.relation_types,
                     max_candidates=args.max_candidates, batch_size=args.batch_size, resume=args.resume,
                     from_runs=args.from_runs, progress=_console_progress,
+                    allow_processing_upgrade=args.allow_processing_upgrade,
                 )
                 if result.get("errors"):
                     code = 1

@@ -78,4 +78,4 @@ objectives:
   nodes: 2000
   entities: null
   relations: 5000
-  relation_types: 19
+  relation_types: 11

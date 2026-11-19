@@ -163,6 +163,28 @@ class FakeRelex:
         return [self.entities], [self.relations]
 
 
+def test_document_context_is_applied_before_entity_and_claim_creation_and_reset(nlp):
+    text = "X partnered with Microsoft."
+    nlp.backend = "models"
+    nlp.models["en"] = FakeRelex([
+        {"start": 0, "end": 1, "text": "X", "label": "organization", "score": 0.99}], [])
+    nlp.aliases["x"] = ("Twitter", "ORG")
+    ids = []
+    for context, name in [("Alphabet’s X moonshot factory.", "X (Alphabet)"),
+                          ("Musk’s social media company X.", "X (social network)")]:
+        nlp.begin_document(context + " " + text)
+        mentions = nlp.mentions(text, "en")
+        assert mentions[0]["entity"]["name"] == name
+        ids.append(mentions[0]["entity"]["entity_id"])
+        claims = nlp.relations(text, mentions, "en")
+        assert len(claims) == 1 and claims[0]["subject_id"] == ids[-1]
+    assert ids[0] != ids[1]
+    nlp.begin_document(text)
+    mentions = nlp.mentions(text, "en")
+    assert not any(row["surface"] == "X" for row in mentions)
+    assert any(row["reason"] == "ambiguous_organization_context" for row in nlp.validation)
+
+
 @pytest.mark.parametrize("text,language,entities,relations,predicate,subject,object_", [
     ("Microsoft invested in GitHub.", "en", [
         {"start": 0, "end": 9, "text": "Microsoft", "label": "organization", "score": 0.9},
@@ -200,6 +222,44 @@ def test_gliner_aliases_keep_curated_entity_types(nlp):
         ("Pháp", "GOV"), ("Emmanuel Macron", "PERSON")]
 
 
+def test_financing_round_is_retained_in_audit_but_not_used_as_company(nlp):
+    text = "Cerebras raised a Series H."
+    nlp.backend = "models"
+    nlp.models["en"] = FakeRelex([
+        {"start": 0, "end": 8, "text": "Cerebras", "label": "organization", "score": 0.99},
+        {"start": 18, "end": 26, "text": "Series H", "label": "organization", "score": 0.99},
+    ], [{"head": {"start": 0, "end": 8}, "tail": {"start": 18, "end": 26},
+         "relation": "invested in", "score": 0.99}])
+    mentions = nlp.mentions(text, "en")
+    assert [m["surface"] for m in mentions] == ["Cerebras"]
+    assert nlp.relations(text, mentions, "en") == []
+    audit = nlp.audit_record(text, "en")
+    assert len(audit["entities"]) == 2
+    assert audit["validation"][0]["reason"] == "financing_round_not_organization"
+
+
+@pytest.mark.parametrize("role", [
+    "Former Microsoft CEO Bill Gates", "Microsoft former CEO Bill Gates",
+    "Microsoft ex-CEO Bill Gates", "Bill Gates, former CEO of Microsoft",
+    "Bill Gates is the former chief executive officer of Microsoft",
+    "Former Microsoft co-founder and CEO Bill Gates",
+])
+def test_new_model_predictions_do_not_promote_former_ceo_to_current_role(nlp, role):
+    text = role + " spoke today."
+    nlp.backend = "models"
+    nlp.models["en"] = FakeRelex([], [{
+        "head": {"start": text.index("Bill Gates"), "end": text.index("Bill Gates") + 10},
+        "tail": {"start": text.index("Microsoft"), "end": text.index("Microsoft") + 9},
+        "relation": "is ceo of", "score": 0.99}])
+    mentions = nlp.mentions(text, "en")
+    claims = nlp.relations(text, mentions, "en")
+    assert not any(row["predicate"] == "CEO_OF" for row in claims)
+    if "co-founder" in role:
+        assert any(row["predicate"] == "FOUNDED" for row in claims)
+    assert any(row["reason"] == "historical_role_requires_temporal_qualification"
+               for row in nlp.audit_record(text, "en")["validation"])
+
+
 def test_acquisition_agreement_is_not_a_completed_acquisition(nlp):
     text = "Microsoft has agreed to acquire GitHub."
     claims = extract_relations(text, nlp.mentions(text, "en"), "en")
@@ -217,6 +277,14 @@ def test_abbreviation_does_not_cut_evidence_mid_sentence():
     text = "A company serves the U.S. military. It has an office."
     assert [s["text"] for s in sentences(text)] == [
         "A company serves the U.S. military.", "It has an office."]
+
+
+def test_initials_in_fund_names_and_parenthesis_endings_preserve_offsets():
+    text = "Acme raised $15 million led by The O.H.I.O. Fund. (Acme was acquired by Globex.) Next sentence."
+    chunks = list(sentences(text))
+    assert [s["text"] for s in chunks] == [
+        "Acme raised $15 million led by The O.H.I.O. Fund.", "(Acme was acquired by Globex.)", "Next sentence."]
+    assert all(text[s["start"]:s["end"]] == s["text"] for s in chunks)
 
 
 @pytest.mark.parametrize("text,lang,predicate,subject,object_", [

@@ -76,7 +76,8 @@ def parse_katana_output(output: str) -> list[dict]:
     return rows
 
 
-def select_article_urls(rows: list[dict], target: str, article_pattern: str, limit: int) -> list[str]:
+def select_article_urls(rows: list[dict], target: str, article_pattern: str, limit: int, *,
+                        exclude_urls=()) -> list[str]:
     host = urlsplit(canonical_url(target)).hostname
     urls = []
     for row in rows:
@@ -87,6 +88,8 @@ def select_article_urls(rows: list[dict], target: str, article_pattern: str, lim
             continue
         parsed = urlsplit(url)
         if parsed.hostname != host or not re.search(article_pattern, parsed.path, re.I):
+            continue
+        if url in exclude_urls:
             continue
         if url not in urls:
             urls.append(url)
@@ -177,7 +180,7 @@ def _target_article_links(rows: list[dict], target: dict) -> set[str]:
 
 
 def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_factory=Access,
-                 max_articles: int | None = None, progress=None) -> list[str]:
+                 max_articles: int | None = None, progress=None, exclude_urls=()) -> list[str]:
     access = access_factory(settings)
     try:
         source = access.sources.get(target["source"])
@@ -238,7 +241,7 @@ def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_
                             reported_load_more.add(label)
                 added = 0
                 for endpoint in page_links:
-                    if endpoint in article_urls:
+                    if endpoint in article_urls or endpoint in exclude_urls:
                         continue
                     try:
                         access.policy(endpoint)
@@ -293,7 +296,8 @@ def crawl_target(target: dict, settings: dict, *, runner=subprocess.run, access_
                 continue
             entries.append(row)
         return select_article_urls(entries, target["url"],
-                                   target["article_pattern"], max_articles or target["max_articles"])
+                                   target["article_pattern"], max_articles or target["max_articles"],
+                                   exclude_urls=exclude_urls)
     finally:
         access.close()
 
@@ -304,7 +308,8 @@ def objective_reached(counts: dict, objectives: dict) -> bool:
 
 
 def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None, target_ids=None,
-                   objectives=None, discover_only=False, progress=None) -> dict:
+                   objectives=None, discover_only=False, progress=None, exclude_urls=(),
+                   max_new_urls=None) -> dict:
     from . import pipeline
 
     settings = load_collection(config_path)
@@ -331,8 +336,11 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
     if not targets:
         raise ValueError("No crawl targets selected")
     cap = min(settings["max_articles"], settings["max_documents"])
+    if max_new_urls is not None:
+        if max_new_urls <= 0:
+            raise ValueError("max_new_urls must be positive")
+        cap = min(cap, max_new_urls)
     batch_size = min(settings["batch_size"], cap, settings["max_documents"])
-    crawl_settings = settings["crawl"]
     failures, target_reports = [], []
     counts = {"articles": 0, "nodes": 0, "relations": 0, "relation_types": 0,
               "extracted_entities": 0, "entities": 0}
@@ -364,9 +372,18 @@ def run_collection(config_path: Path, *, runner=subprocess.run, process_fn=None,
         if progress:
             progress({"event": "target_start", "index": target_index, "total": len(targets),
                       "target": target["id"], "url": target["url"]})
-        target_urls = crawl_target(target, settings, runner=runner,
-                                   max_articles=crawl_settings["max_pages_per_target"],
-                                   progress=progress)
+        try:
+            target_urls = crawl_target(target, settings, runner=runner, max_articles=remaining,
+                                       progress=progress, exclude_urls=set(exclude_urls) | discovered_urls)
+        except Exception as exc:
+            error = {"target": target["id"], "url": target["url"],
+                     "error": f"{type(exc).__name__}: {exc}"}
+            failures.append(error)
+            target_reports.append({"id": target["id"], "discovered": 0, "processed": 0,
+                                   "run_ids": [], "article_urls": [], "errors": [error]})
+            if progress:
+                progress({"event": "info", "message": f"Discovery failed for {target['id']}: {error['error']}"})
+            continue
         target_urls = [url for url in target_urls if url not in attempted_urls]
         target_report = {"id": target["id"], "discovered": len(target_urls), "processed": 0,
                          "run_ids": [], "errors": []}
