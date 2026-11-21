@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    { "id": "company-1", "label": "Doanh nghiệp A", "type": "Company" },
+    { "id": "project-1", "label": "Dự án B", "type": "Project" },
+    { "id": "industry-1", "label": "Ngành C", "type": "Industry" }
+  ],
+  "edges": [
+    { "id": "rel-1", "source": "company-1", "target": "project-1", "label": "ĐẦU TƯ" },
+    { "id": "rel-2", "source": "project-1", "target": "industry-1", "label": "THUỘC NGÀNH" }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-1",
+      "targetType": "edge",
+      "targetId": "rel-1",
+      "quote": "Trích dẫn minh họa: Doanh nghiệp A đầu tư vào dự án B.",
+      "url": "https://example.org/source-1",
+      "title": "Nguồn minh họa"
+    },
+    {
+      "id": "evidence-2",
+      "targetType": "node",
+      "targetId": "industry-1",
+      "quote": "Đoạn trích minh họa về ngành C."
+    }
+  ]
+}

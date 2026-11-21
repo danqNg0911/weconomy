@@ -1,0 +1,240 @@
+# Weconomy Chatbot
+
+Ứng dụng chat web về **kinh tế và đầu tư quốc tế**, sử dụng GraphRAG để truy xuất dữ liệu Neo4j/AuraDB và suy luận qua nhiều hop. Giao diện xây trên assistant-ui ChatGPT; FastAPI xử lý guard, LLM, truy vấn đồ thị và lưu hội thoại.
+
+## 1. Cài đặt và chạy
+
+### Yêu cầu
+
+- Python 3.11 trở lên.
+- Node.js 22 trở lên và npm.
+- Neo4j/AuraDB đã có dữ liệu nghiệp vụ với node `Entity`, thuộc tính `name`, `entity_type` và các quan hệ giữa thực thể.
+- LLM có API tương thích OpenAI, ví dụ 9router.
+- Supabase PostgreSQL để lưu hội thoại; có thể dùng SQLite khi phát triển cục bộ.
+
+Các lệnh PowerShell dưới đây bắt đầu từ **thư mục gốc repository**, nơi chứa `chatbot/`.
+
+### Cài backend
+
+```powershell
+if (!(Test-Path .venv)) { python -m venv .venv }
+.\.venv\Scripts\python.exe -m pip install -r chatbot/be/requirements.txt
+if (!(Test-Path chatbot/be/.env)) {
+    Copy-Item chatbot/be/.env.example chatbot/be/.env
+}
+```
+
+Điền cấu hình vào [be/.env](be/.env), tham khảo [be/.env.example](be/.env.example):
+
+```env
+CHAT_MODE=llm
+OPENAI_API_KEY=your-key
+OPENAI_BASE_URL=http://localhost:PORT/v1
+OPENAI_MODEL=your-model
+OPENAI_API_MODE=responses
+LLM_HISTORY_MESSAGES=20
+
+NEO4J_URI=neo4j+s://your-instance.databases.neo4j.io
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your-password
+NEO4J_DATABASE=neo4j
+
+DATABASE_URL=
+CREATE_TABLES=false
+```
+
+- `OPENAI_API_MODE=responses` dùng endpoint `/responses`; đặt `chat` nếu provider/model dùng `/chat/completions`.
+- `OPENAI_BASE_URL` là URL gốc API, thường kết thúc bằng `/v1`, không bao gồm endpoint phía trên.
+- `OPENAI_REASONING_EFFORT`, `OPENAI_REASONING_SUMMARY` là tùy chọn phụ thuộc model; summary chỉ gửi với Responses. `LLM_SYSTEM_PROMPT` cho phép điều chỉnh chỉ dẫn trả lời.
+- Backend đọc cấu hình theo thứ tự ưu tiên tăng dần: `.env` tại gốc repository → `chatbot/be/.env` → biến môi trường của tiến trình. Neo4j đã cấu hình ở `.env` gốc thì không cần chép lại. `NEO4J_USER` được hỗ trợ khi không có `NEO4J_USERNAME`.
+- Backend không đọc `.env.local` của UI. Khởi động lại backend sau khi đổi cấu hình.
+
+Nếu để trống `DATABASE_URL`, backend tự tạo SQLite ở `chatbot/be/.data/chat.db`. Thư mục này được bỏ qua bởi Git.
+
+**Dùng Supabase:** đặt kết nối PostgreSQL trong backend `.env`:
+
+```env
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:5432/postgres?sslmode=require
+CREATE_TABLES=false
+```
+
+Lấy host/port/user/database từ mục Connect của Supabase, dùng direct connection hoặc session pooler phù hợp kết nối mạng. URL-encode ký tự đặc biệt trong mật khẩu. Backend cũng chấp nhận tiền tố `postgresql://` và `postgres://`. Dữ liệu SQLite cũ không tự chuyển sang PostgreSQL.
+
+Nếu database mới chưa có bảng chat, đặt `CREATE_TABLES=true` trước lần khởi động đầu tiên để SQLAlchemy tạo các bảng từ [be/app/models.py](be/app/models.py). Sau khi tạo xong, đổi lại `CREATE_TABLES=false` và khởi động lại. Cơ chế này chỉ tạo bảng còn thiếu, không thay thế migration cho bảng đã tồn tại.
+
+Backend kết nối trực tiếp database; FE không cần Supabase URL/key để sử dụng luồng hiện tại. Database này chỉ chứa hội thoại, không chứa đồ thị nghiệp vụ. Nếu sử dụng Supabase Data API, cấu hình quyền truy cập/RLS riêng; `CREATE_TABLES` không tự thiết lập các policy đó.
+
+Chạy backend:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir chatbot/be --host 127.0.0.1 --port 8000 --reload
+```
+
+- Kiểm tra trạng thái: http://127.0.0.1:8000/health
+- Swagger API: http://127.0.0.1:8000/docs
+
+Để thử UI/lưu trữ mà không gọi LLM hoặc Neo4j, đặt `CHAT_MODE=mock`. Chế độ này trả dữ liệu minh họa có nhãn mock và bỏ qua pipeline guard/GraphRAG thực.
+
+### Cài và chạy frontend
+
+Mở terminal thứ hai từ gốc repository:
+
+```powershell
+cd chatbot/ui
+npm ci
+if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
+npm run dev
+```
+
+[ui/.env.local](ui/.env.local) chỉ cần:
+
+```env
+CHAT_BACKEND_URL=http://127.0.0.1:8000
+```
+
+Mở http://localhost:3000. Trình duyệt gọi `/api/backend/...`; Next.js chuyển tiếp request và stream sang FastAPI. Không có mã gọi LLM hay truy vấn database trực tiếp trong FE. Đổi `CHAT_BACKEND_URL` thì khởi động lại Next.js.
+
+Chạy frontend bằng bản build, từ `chatbot/ui`:
+
+```powershell
+npm run build
+npm run start
+```
+
+Backend vẫn cần chạy riêng. Cấu hình `CORS_ORIGINS` ở BE được dùng nếu client gọi FastAPI trực tiếp; UI hiện tại sử dụng proxy cùng origin.
+
+## 2. Kiến trúc và cách xây dựng
+
+```mermaid
+flowchart LR
+    UI[Next.js + assistant-ui] --> Proxy[Next.js API proxy]
+    Proxy --> API[FastAPI routes]
+    API --> Guards[Safety guard → Domain guard]
+    Guards -->|Được phép| Plan[Lập plan → Chuẩn hóa Anh–Việt]
+    Plan --> Graph[Neo4j: liên kết thực thể → Duyệt multi-hop]
+    Graph --> LLM[LLM tổng hợp từ dữ liệu truy xuất]
+    Guards -->|Bị chặn| Reply[Phản hồi từ chối]
+    LLM --> Store[(PostgreSQL / SQLite)]
+    Reply --> Store
+    Store -->|SSE / lịch sử và graph| UI
+```
+
+Frontend giữ bố cục và thành phần assistant-ui đã tùy chỉnh, dùng runtime adapter để gọi FastAPI. Backend dùng Pydantic xác thực dữ liệu, SQLAlchemy quản lý hội thoại, Neo4j Python driver đọc đồ thị và httpx nhận stream LLM. Không thêm framework agent; luồng xử lý được viết trực tiếp để dễ đọc và điều chỉnh.
+
+### Pipeline một câu hỏi
+
+1. Backend lưu câu hỏi và tạo câu trả lời ở trạng thái `pending` trước khi xử lý. Nếu request là gửi lại câu đã hoàn tất, đọc lại kết quả đã lưu thay vì chạy pipeline lần nữa.
+2. **Safety guard:** kiểm tra một số cụm nguy hiểm rõ ràng, sau đó dùng LLM phân loại an toàn theo ngữ cảnh. Phân tích kinh tế hợp pháp về chủ đề nhạy cảm vẫn được cho phép.
+3. **Domain guard:** một lần phân loại riêng giới hạn nội dung vào kinh tế và đầu tư quốc tế; xét các câu hỏi gần đây để hiểu câu nối tiếp. Bị một trong hai guard chặn thì lưu phản hồi từ chối, trả graph rỗng và không lập plan, truy vấn Neo4j hay gọi LLM sinh câu trả lời. JSON phân loại không hợp lệ/lỗi provider trở thành lỗi có thể thử lại, không tự cho qua guard.
+4. **Lập plan:** LLM trả JSON gồm `entities`, `terms`, `relations`, tùy chọn `entity_variants`. Plan chỉ là dữ liệu tìm kiếm; LLM không sinh Cypher để thực thi.
+5. **Chuẩn hóa:** bỏ dấu, chuẩn hóa chữ hoa/thường và khoảng trắng của từ tìm kiếm; mở rộng tên quốc gia/tổ chức qua từ điển Anh–Việt và tên tương đương trong plan; gộp các thực thể trùng. Ví dụ `Mỹ` ↔ `United States`, `Nhật Bản` ↔ `Japan`. Cypher bỏ dấu trên tên node bằng hàm gốc, không cần APOC hoặc sửa schema. Ưu tiên khớp chính xác; alias quốc gia/tổ chức chỉ khớp toàn bộ tên để tránh nhầm tên người. Chỉ dùng `terms` dự phòng khi không tìm được seed từ `entities`.
+6. **Truy xuất multi-hop:** liên kết tên với node `Entity`, rồi duyệt breadth-first từ nhiều seed. Frontier của hop tiếp theo chỉ lấy từ láng giềng thực tế của hop trước. Ưu tiên loại quan hệ trong plan, bỏ chu trình và giới hạn lượng dữ liệu. Có thể duyệt hai chiều để tìm liên hệ, nhưng kết quả vẫn giữ đúng chiều `source → target`, thời điểm và trạng thái khẳng định/kiểm duyệt của cạnh.
+7. **Tổng hợp:** LLM nhận graph đã truy xuất và ngữ cảnh hội thoại, trả lời dựa trên các dữ kiện đó và giải thích ngắn đường đi liên quan. Liên hệ gián tiếp không chứng minh đầu tư trực tiếp hoặc quan hệ nhân quả. Nếu không tìm thấy cạnh, trả thông báo thiếu dữ liệu ngay; không tự chuyển sang web hay trả lời bằng kiến thức ngoài đồ thị.
+8. **Lưu và hiển thị:** lưu câu trả lời cùng graph, plan, biến thể chuẩn hóa, truy vấn/tham số và đường đi. FE nhận stream rồi hiển thị graph tương ứng.
+
+Cách truy xuất tham khảo module đồ thị của HMUMEDU `api-advisor`, phát triển từ tra cứu quan hệ theo từ khóa thành duyệt frontier qua nhiều hop thực sự. Các câu Cypher đều cố định và truyền tham số.
+
+Giới hạn có thể chỉnh trong backend `.env`:
+
+| Biến | Mặc định | Ý nghĩa |
+| --- | --- | --- |
+| `GRAPH_MAX_HOPS` | `3` | Số hop tối đa, cho phép 1–4 |
+| `GRAPH_MAX_SEEDS` | `4` | Số thực thể bắt đầu tối đa |
+| `GRAPH_NEIGHBORS_PER_NODE` | `8` | Số láng giềng lấy cho mỗi node |
+| `GRAPH_MAX_NODES` | `60` | Số node tối đa trong graph kết quả |
+| `GRAPH_MAX_EDGES` | `100` | Số cạnh tối đa trong graph kết quả |
+
+Transaction truy xuất có timeout 20 giây; mỗi lần phân loại/lập plan có timeout 40 giây; toàn bộ stream xử lý có giới hạn 240 giây. Khi đạt giới hạn node/cạnh/láng giềng, metadata có `truncated=true`. Kết quả là tập con phục vụ câu hỏi, không phải phép tìm kiếm toàn bộ đồ thị hay thống kê đầy đủ.
+
+### Lưu trữ và giao tiếp FE–BE
+
+- `threads`: thông tin hội thoại, tiêu đề, trạng thái archive và thời gian cập nhật.
+- `messages`: nội dung, vai trò, trạng thái và `details` dạng JSONB trên PostgreSQL hoặc JSON trên SQLite.
+- `messages.details.graph`: `nodes`, `edges`, `evidence`. Evidence của luồng GraphRAG hiện để rỗng.
+- `messages.details.metadata`: plan, `normalization`, `queries` (Cypher và tham số), `paths`, `seed_ids`, số hop, giới hạn truy xuất và model; phản hồi bị chặn có `blocked_by=safety|domain`.
+
+Graph được lưu **riêng cho từng câu trả lời**. Hỏi câu mới không ghi đè graph cũ; xóa thread mới xóa các message và snapshot liên quan. Neo4j vẫn là nguồn dữ liệu nghiệp vụ, không sao chép toàn bộ đồ thị vào database hội thoại.
+
+Xem cấu trúc payload tại [ui/docs/query-graph.example.json](ui/docs/query-graph.example.json). File này chỉ dùng làm tài liệu, không nạp vào UI thực tế. FE kiểm tra node/cạnh hợp lệ và bỏ qua đường dẫn evidence không an toàn.
+
+Stream dùng SSE với các event `start`, `token`, `details`, `done`, `error`. Chỉ phát `done` sau khi lưu câu trả lời hoàn tất. Dừng, mất kết nối hoặc lỗi sẽ lưu phần nội dung đã có với trạng thái `failed` để thử lại. Pending do tiến trình bị tắt có thể thử lại sau năm phút.
+
+Mỗi thread chỉ cho một câu trả lời đang xử lý; request đồng thời trả HTTP 409. Cùng ID/nội dung sẽ phát lại kết quả hoàn tất hoặc thử lại câu thất bại, tránh nhân đôi câu hỏi. Các thread khác nhau có thể chạy độc lập.
+
+### Các module chính
+
+| Đường dẫn | Vai trò |
+| --- | --- |
+| `be/app/main.py` | Tạo app, middleware, lifecycle database và đăng ký router |
+| `be/app/routes.py` | API với hai tag `threads`, `message`, điều phối stream |
+| `be/app/guards.py` | Hai lớp guard và xác thực JSON từ LLM |
+| `be/app/graph_rag.py` | Lập plan, liên kết seed, truy xuất multi-hop và dựng context |
+| `be/app/query_normalization.py` | Chuẩn hóa và alias Anh–Việt |
+| `be/app/llm.py` | Gọi API LLM tương thích Chat Completions/Responses |
+| `be/app/store.py`, `models.py`, `schemas.py` | Lưu trữ, mô hình database và schema API |
+| `be/app/config.py` | Đọc và kiểm tra cấu hình backend |
+| `be/app/graph_example.py` | Query AuraDB mẫu, độc lập với pipeline trả lời |
+| `ui/app/assistant.tsx` | Bố cục chat và chọn graph đang hiển thị |
+| `ui/hooks/use-backend-runtime.ts` | Adapter assistant-ui, lịch sử và nhận stream |
+| `ui/app/api/backend/[...path]/route.ts` | Proxy HTTP/stream sang FastAPI |
+| `ui/components/thread.aui.tsx` | Tin nhắn, composer và link xem graph từng câu trả lời |
+| `ui/components/graph-panel.tsx`, `graph-canvas.tsx` | Panel graph, evidence và tương tác viewport |
+| `ui/components/resizable-detail-panel.tsx` | Kéo thay đổi kích thước panel |
+| `ui/components/settings-menu.tsx`, `theme-provider.tsx` | Chọn theme và lưu tùy chọn cục bộ |
+
+## 3. Chức năng hiện tại
+
+### Chat và giao diện
+
+- Giao diện chat chính phong cách ChatGPT, sidebar Weconomy và danh sách thread; tạo mới, đổi tên, archive, xóa hội thoại. Tiêu đề ban đầu được backend rút gọn từ câu hỏi đầu tiên.
+- Chat dạng văn bản, stream câu trả lời, hiển thị Markdown, sao chép/xuất Markdown, dừng và thử lại câu trả lời bị gián đoạn. Lịch sử được tải lại từ backend.
+- Menu Setting gọn với theme sáng/tối/theo hệ thống, lưu trên trình duyệt.
+- Panel đồ thị thu hẹp vùng chat trên desktop, có thể kéo thanh chia để đổi kích thước; bàn phím hỗ trợ mũi tên, Home/End và nhấp đúp để đặt lại. Trên mobile, panel phủ vùng chat.
+- Zoom bằng cuộn chuột/nút, kéo viewport, kéo node và đặt lại góc nhìn. Renderer SVG dành cho graph truy vấn nhỏ.
+- Link **Xem đồ thị đã truy vấn** dưới câu trả lời có graph mở lại snapshot của câu đó. Toggle trên cùng chuyển về graph của message mới nhất; những lần bấm tiếp theo đóng/mở panel bình thường.
+- Evidence mở dạng drawer đè bên phải graph, không làm mờ, không chia lại layout; phần graph còn thấy vẫn tương tác được. Drawer chỉ đóng bằng toggle/nút đóng của nó, không đóng khi chạm bên ngoài hoặc nhấn Escape. Hiện chưa nối dữ liệu evidence thật.
+
+### Thử graph AuraDB
+
+Nút **Thử graph AuraDB** gọi API mẫu để lấy tối đa sáu đường đi 1–2 hop quanh `TDK Ventures`. Đây là query cố định, chỉ đọc, dùng kiểm tra giao diện; không thay thế pipeline GraphRAG theo câu hỏi. **Đóng ví dụ** quay lại graph của câu trả lời đang xem.
+
+### API hiện có
+
+| Method | Đường dẫn FastAPI | Chức năng |
+| --- | --- | --- |
+| GET | `/health` | Trạng thái và chế độ chat |
+| POST | `/api/threads` | Tạo thread |
+| GET | `/api/threads?limit=100&offset=0` | Danh sách thread, gồm cả archive |
+| GET | `/api/threads/{id}` | Thông tin thread |
+| PATCH | `/api/threads/{id}` | Đổi tiêu đề hoặc trạng thái archive |
+| DELETE | `/api/threads/{id}` | Xóa thread cùng message |
+| POST | `/api/threads/{id}/title` | Tạo tiêu đề ban đầu từ nội dung câu hỏi |
+| GET | `/api/threads/{id}/messages` | Lịch sử, trạng thái và graph snapshot |
+| POST | `/api/threads/{id}/messages` | Gửi câu hỏi, nhận SSE |
+| POST | `/api/graph/example` | Graph AuraDB mẫu |
+
+Body gửi message: `{"id":"client-message-id","content":"Câu hỏi","parent_id":null}`. Ở lượt tiếp theo, `parent_id` là ID câu trả lời assistant đã lưu trước đó. Trong FE, các đường dẫn `/api/...` của FastAPI được truy cập thông qua `/api/backend/...`.
+
+### Giới hạn hiện tại
+
+Chưa có đăng nhập và phân quyền theo chủ hội thoại; hệ thống hiện phục vụ phát triển cục bộ/một người dùng. Chưa hỗ trợ upload, chỉnh sửa tin nhắn, phân nhánh hoặc sinh lại câu trả lời đã hoàn tất. Chưa có trích dẫn/evidence thật, vector search, sửa lỗi chính tả tổng quát hoặc công cụ web. Chuẩn hóa Anh–Việt dựa trên từ điển nhỏ và biến thể do planner đưa ra, không bảo đảm nhận diện mọi cách dịch. Guard là kết hợp quy tắc và LLM, vẫn có thể phân loại nhầm. Suy luận dựa trên graph đã truy xuất, phụ thuộc chất lượng dữ liệu và giới hạn duyệt.
+
+## 4. Kiểm tra khi phát triển
+
+Backend, từ gốc repository; cài pytest nếu môi trường chưa có:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install pytest
+.\.venv\Scripts\python.exe -m pytest chatbot/be/tests -q
+```
+
+Test tự động dùng SQLite tạm và các mô phỏng provider/graph, không ghi dữ liệu vào Supabase/AuraDB và không gọi LLM trả phí. Bao phủ lưu lịch sử, replay/retry, CRUD/archive, stream/lỗi provider, guard chặn sớm, chuẩn hóa Anh–Việt, duyệt multi-hop và giới hạn graph.
+
+Frontend, từ `chatbot/ui`:
+
+```powershell
+npx tsc --noEmit
+npm run build
+```
+
+Không chạy lại lệnh ghi đè preset assistant-ui nếu chưa xem xét các tùy chỉnh chat/graph hiện có.
