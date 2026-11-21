@@ -93,6 +93,6 @@ Các trường kiểm định thân bài và raw_bytes/schema 1.1 được mô t
                           rule_ids, document_ids, collection_ids}]->(Entity)
 ```
 
-Neo4j chỉ lưu node Entity và cạnh quan hệ trực tiếp. Mỗi bộ ba đã chuẩn hóa là một cạnh trong từng collection; predicate đối xứng có thứ tự endpoint chuẩn. Các event và claim nguồn được giữ trong `event_ids`, `event_count`, `claim_count` và `event_details_json`; cạnh cũng lưu trigger, rule và `document_ids` để tra bài trong kho Hugging Face. Khóa cạnh gồm `relation_id` và `collection_id`, nên import lặp cùng collection là idempotent và các snapshot khác nhau vẫn tách biệt. Không tạo node Document, Sentence, Event, Claim hay Collection; không lưu câu evidence, raw HTML hay toàn văn trong graph.
+Neo4j chỉ lưu node Entity và cạnh quan hệ trực tiếp. Mỗi bộ ba đã chuẩn hóa là một cạnh trong từng collection; predicate đối xứng có thứ tự endpoint chuẩn. Các event và claim nguồn được giữ trong `event_ids`, `event_count`, `claim_count` và `event_details_json`; mỗi claim lưu câu evidence, mã câu/claim, trạng thái duyệt, nguồn, tiêu đề và URL bài báo để giao diện truy vết cạnh về bài gốc. Không lưu raw HTML hay toàn văn trong graph. Khóa cạnh gồm `relation_id` và `collection_id`, nên import lặp cùng collection là idempotent và các snapshot khác nhau vẫn tách biệt.
 Analytics mặc định giữ isolate, loại cạnh lặp/hướng/trọng số bằng undirected simple projection;
 đường đi toàn cặp chỉ báo trên LCC, cùng số cặp reachable và tỷ lệ bao phủ.

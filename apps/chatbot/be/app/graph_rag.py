@@ -56,9 +56,33 @@ def edge_data(edge):
     }
 
 
+def edge_evidence(edge):
+    try:
+        events = json.loads(edge.get("event_details_json") or "[]")
+    except (TypeError, json.JSONDecodeError):
+        return []
+    claims = [claim for event in events if isinstance(event, dict)
+              for claim in event.get("claims", []) if isinstance(claim, dict) and claim.get("evidence")]
+    claims.sort(key=lambda claim: claim.get("review_status") != "manually_verified")
+    # Keep prompt and stream payloads bounded for high-evidence edges.
+    return [{
+        "id": f"{edge.element_id}:{claim['claim_id']}",
+        "targetType": "edge",
+        "targetId": edge.element_id,
+        "claimId": claim["claim_id"],
+        "quote": claim["evidence"],
+        "title": claim.get("title", ""),
+        "url": claim.get("url", ""),
+        "source": claim.get("source_id", ""),
+        "reviewStatus": claim.get("review_status", "unreviewed"),
+        "assertionStatus": claim.get("assertion_status", "reported"),
+        "trigger": claim.get("trigger", ""),
+    } for claim in claims[:3]]
+
+
 def traverse(tx, settings, plan):
     """Actual BFS: next-hop frontier comes only from neighbors of current frontier."""
-    nodes, edges, seeds, queries = {}, {}, [], []
+    nodes, edges, evidence, seeds, queries = {}, {}, {}, [], []
     normalization = normalize_plan(plan)
     groups = [group["variants"] for group in normalization["entities"]]
     # Fall back to bilingual search terms only when named entities found no seeds.
@@ -109,6 +133,7 @@ def traverse(tx, settings, plan):
                     truncated = True
                     continue
                 nodes[node["id"]], edges[edge["id"]] = node, edge
+                evidence[edge["id"]] = edge_evidence(row["r"])
                 hops = depth
                 path = {"nodes": node_path + [node["id"]], "edges": edge_path + [edge["id"]]}
                 paths.append(path)
@@ -118,7 +143,8 @@ def traverse(tx, settings, plan):
         if not frontier:
             break
     return {
-        "graph": {"nodes": list(nodes.values()), "edges": list(edges.values()), "evidence": []},
+        "graph": {"nodes": list(nodes.values()), "edges": list(edges.values()),
+                  "evidence": [item for items in evidence.values() for item in items]},
         "metadata": {
             "retrieval_type": "graphrag",
             "hop_count": hops,
@@ -184,7 +210,7 @@ async def prepare(settings, question, history):
         Plan,
     )
     details = await run_in_threadpool(retrieve, settings, plan)
-    details["metadata"]["model"] = settings.openai_model
+    details["metadata"]["model"] = settings.model_name
     if not details["graph"]["edges"]:
         return (
             "Chưa tìm thấy quan hệ phù hợp trong đồ thị hiện có để trả lời câu hỏi này. Bạn có thể nêu rõ tên doanh nghiệp, quỹ hoặc quốc gia cần tìm.",

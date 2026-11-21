@@ -28,6 +28,44 @@ def test_relation_edge_keeps_trigger_and_rule_provenance():
     assert edge["rule_ids"] == ["gliner-en-relex-v1", "vi-investment-v1"]
 
 
+def test_relation_edge_keeps_claim_evidence_and_article_source():
+    import json
+
+    claim = {"claim_id": "c1", "event_id": "e", "subject_id": "a", "predicate": "INVESTED_IN",
+             "object_id": "b", "document_id": "d1", "sentence_id": "s1", "evidence": "Fund invested.",
+             "review_status": "manually_verified", "source_id": "example"}
+    edge, = _aggregate_relations([claim], articles=[{"document_id": "d1", "title": "Article",
+                                                    "canonical_url": "https://example.com/story"}])
+    evidence = json.loads(edge["event_details_json"])[0]["claims"][0]
+    assert (evidence["evidence"], evidence["title"], evidence["url"]) == (
+        "Fund invested.", "Article", "https://example.com/story")
+
+
+def test_export_allows_isolated_entities_outside_manifest_graph_node_count(tmp_path):
+    import json
+
+    from weconomy.graph import _read_export
+
+    rows = {
+        "articles": [{"document_id": "d", "title": "Article", "canonical_url": "https://example.com"}],
+        "entities": [{"entity_id": "a", "name": "A"}, {"entity_id": "b", "name": "B"},
+                     {"entity_id": "isolate", "name": "Unconnected"}],
+        "relations": [{"subject_id": "a", "object_id": "b", "predicate": "INVESTED_IN",
+                       "event_id": "e", "document_id": "d", "claim_id": "c", "evidence": "A invested."}],
+        "claims": [{"subject_id": "a", "object_id": "b", "predicate": "INVESTED_IN", "event_id": "e",
+                    "document_id": "d", "claim_id": "c", "evidence": "A invested."}],
+    }
+    for name, items in rows.items():
+        (tmp_path / f"{name}.jsonl").write_text("".join(json.dumps(item) + "\n" for item in items), "utf-8")
+    (tmp_path / "manifest.json").write_text(json.dumps({"counts": {
+        "articles": 1, "nodes": 2, "relations": 1, "claims": 1,
+    }}), "utf-8")
+
+    loaded = _read_export(tmp_path)
+    assert len(loaded["entities"]) == 3
+    assert json.loads(loaded["events"][0]["event_details_json"])[0]["claims"][0]["evidence"] == "A invested."
+
+
 def test_import_writes_only_entity_nodes_and_relation_edges(tmp_path, monkeypatch):
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]

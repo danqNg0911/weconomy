@@ -160,6 +160,11 @@ export function GraphPanel({
               </Button>
             </div>
             <div className="min-h-0 overflow-y-auto px-4 pb-4">
+              <p className="text-muted-foreground mb-4 text-xs">
+                Evidence lấy từ claim gắn với cạnh: câu trích trong bài → bài
+                báo và URL nguồn. Hiện tối đa 3 claim mỗi cạnh, ưu tiên claim đã
+                duyệt; trạng thái thể hiện tình trạng kiểm định claim.
+              </p>
               {!graph?.evidence.length ? (
                 <p className="text-muted-foreground text-sm">
                   {showingSample
@@ -188,6 +193,11 @@ export function GraphPanel({
                         <blockquote className="border-l-2 pl-3 text-sm leading-relaxed whitespace-pre-wrap">
                           {item.quote}
                         </blockquote>
+                        <p className="text-muted-foreground text-xs">
+                          {item.source && `${item.source} · `}
+                          {item.reviewStatus || "unreviewed"} · {item.assertionStatus || "reported"}
+                          {item.claimId && <span className="font-mono"> · claim {item.claimId}</span>}
+                        </p>
                         {url && (
                           <a
                             href={url}

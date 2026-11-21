@@ -19,6 +19,18 @@ class Edge(dict):
         self.type = "INVESTED_IN"
 
 
+def test_edge_evidence_resolves_claim_quote_and_prefers_reviewed():
+    edge = Edge("r", Node("A"), Node("B"))
+    edge["event_details_json"] = '[{"claims":[' \
+        '{"claim_id":"auto","evidence":"auto quote","review_status":"unreviewed"},' \
+        '{"claim_id":"checked","evidence":"checked quote","review_status":"manually_verified",' \
+        '"url":"https://example.com","title":"Source"}]}]'
+    evidence = graph_rag.edge_evidence(edge)
+    assert evidence[0]["claimId"] == "checked"
+    assert evidence[0]["quote"] == "checked quote"
+    assert evidence[0]["url"] == "https://example.com"
+
+
 def test_real_frontier_multi_hop_direction_and_caps():
     a, b, c, d = [Node(i) for i in "ABCD"]
     ab, cb, cd = Edge("ab", a, b), Edge("cb", c, b), Edge("cd", c, d)

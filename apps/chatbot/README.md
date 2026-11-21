@@ -136,13 +136,13 @@ Cách truy xuất tham khảo module đồ thị của HMUMEDU `api-advisor`, ph
 
 Giới hạn có thể chỉnh trong backend `.env`:
 
-| Biến | Mặc định | Ý nghĩa |
-| --- | --- | --- |
-| `GRAPH_MAX_HOPS` | `3` | Số hop tối đa, cho phép 1–4 |
-| `GRAPH_MAX_SEEDS` | `4` | Số thực thể bắt đầu tối đa |
-| `GRAPH_NEIGHBORS_PER_NODE` | `8` | Số láng giềng lấy cho mỗi node |
-| `GRAPH_MAX_NODES` | `60` | Số node tối đa trong graph kết quả |
-| `GRAPH_MAX_EDGES` | `100` | Số cạnh tối đa trong graph kết quả |
+| Biến                       | Mặc định | Ý nghĩa                            |
+| -------------------------- | -------- | ---------------------------------- |
+| `GRAPH_MAX_HOPS`           | `3`      | Số hop tối đa, cho phép 1–4        |
+| `GRAPH_MAX_SEEDS`          | `4`      | Số thực thể bắt đầu tối đa         |
+| `GRAPH_NEIGHBORS_PER_NODE` | `8`      | Số láng giềng lấy cho mỗi node     |
+| `GRAPH_MAX_NODES`          | `60`     | Số node tối đa trong graph kết quả |
+| `GRAPH_MAX_EDGES`          | `100`    | Số cạnh tối đa trong graph kết quả |
 
 Transaction truy xuất có timeout 20 giây; mỗi lần phân loại/lập plan có timeout 40 giây; toàn bộ stream xử lý có giới hạn 240 giây. Khi đạt giới hạn node/cạnh/láng giềng, metadata có `truncated=true`. Kết quả là tập con phục vụ câu hỏi, không phải phép tìm kiếm toàn bộ đồ thị hay thống kê đầy đủ.
 
@@ -163,24 +163,24 @@ Mỗi thread chỉ cho một câu trả lời đang xử lý; request đồng th
 
 ### Các module chính
 
-| Đường dẫn | Vai trò |
-| --- | --- |
-| `be/app/main.py` | Tạo app, middleware, lifecycle database và đăng ký router |
-| `be/app/routes.py` | API với hai tag `threads`, `message`, điều phối stream |
-| `be/app/guards.py` | Hai lớp guard và xác thực JSON từ LLM |
-| `be/app/graph_rag.py` | Lập plan, liên kết seed, truy xuất multi-hop và dựng context |
-| `be/app/query_normalization.py` | Chuẩn hóa và alias Anh–Việt |
-| `be/app/llm.py` | Gọi API LLM tương thích Chat Completions/Responses |
-| `be/app/store.py`, `models.py`, `schemas.py` | Lưu trữ, mô hình database và schema API |
-| `be/app/config.py` | Đọc và kiểm tra cấu hình backend |
-| `be/app/graph_example.py` | Query AuraDB mẫu, độc lập với pipeline trả lời |
-| `ui/app/assistant.tsx` | Bố cục chat và chọn graph đang hiển thị |
-| `ui/hooks/use-backend-runtime.ts` | Adapter assistant-ui, lịch sử và nhận stream |
-| `ui/app/api/backend/[...path]/route.ts` | Proxy HTTP/stream sang FastAPI |
-| `ui/components/thread.aui.tsx` | Tin nhắn, composer và link xem graph từng câu trả lời |
-| `ui/components/graph-panel.tsx`, `graph-canvas.tsx` | Panel graph, evidence và tương tác viewport |
-| `ui/components/resizable-detail-panel.tsx` | Kéo thay đổi kích thước panel |
-| `ui/components/settings-menu.tsx`, `theme-provider.tsx` | Chọn theme và lưu tùy chọn cục bộ |
+| Đường dẫn                                               | Vai trò                                                      |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| `be/app/main.py`                                        | Tạo app, middleware, lifecycle database và đăng ký router    |
+| `be/app/routes.py`                                      | API với hai tag `threads`, `message`, điều phối stream       |
+| `be/app/guards.py`                                      | Hai lớp guard và xác thực JSON từ LLM                        |
+| `be/app/graph_rag.py`                                   | Lập plan, liên kết seed, truy xuất multi-hop và dựng context |
+| `be/app/query_normalization.py`                         | Chuẩn hóa và alias Anh–Việt                                  |
+| `be/app/llm.py`                                         | Gọi API LLM tương thích Chat Completions/Responses           |
+| `be/app/store.py`, `models.py`, `schemas.py`            | Lưu trữ, mô hình database và schema API                      |
+| `be/app/config.py`                                      | Đọc và kiểm tra cấu hình backend                             |
+| `be/app/graph_example.py`                               | Query AuraDB mẫu, độc lập với pipeline trả lời               |
+| `ui/app/assistant.tsx`                                  | Bố cục chat và chọn graph đang hiển thị                      |
+| `ui/hooks/use-backend-runtime.ts`                       | Adapter assistant-ui, lịch sử và nhận stream                 |
+| `ui/app/api/backend/[...path]/route.ts`                 | Proxy HTTP/stream sang FastAPI                               |
+| `ui/components/thread.aui.tsx`                          | Tin nhắn, composer và link xem graph từng câu trả lời        |
+| `ui/components/graph-panel.tsx`, `graph-canvas.tsx`     | Panel graph, evidence và tương tác viewport                  |
+| `ui/components/resizable-detail-panel.tsx`              | Kéo thay đổi kích thước panel                                |
+| `ui/components/settings-menu.tsx`, `theme-provider.tsx` | Chọn theme và lưu tùy chọn cục bộ                            |
 
 ## 3. Chức năng hiện tại
 
@@ -200,18 +200,18 @@ Nút **Thử graph AuraDB** gọi API mẫu để lấy tối đa sáu đường
 
 ### API hiện có
 
-| Method | Đường dẫn FastAPI | Chức năng |
-| --- | --- | --- |
-| GET | `/health` | Trạng thái và chế độ chat |
-| POST | `/api/threads` | Tạo thread |
-| GET | `/api/threads?limit=100&offset=0` | Danh sách thread, gồm cả archive |
-| GET | `/api/threads/{id}` | Thông tin thread |
-| PATCH | `/api/threads/{id}` | Đổi tiêu đề hoặc trạng thái archive |
-| DELETE | `/api/threads/{id}` | Xóa thread cùng message |
-| POST | `/api/threads/{id}/title` | Tạo tiêu đề ban đầu từ nội dung câu hỏi |
-| GET | `/api/threads/{id}/messages` | Lịch sử, trạng thái và graph snapshot |
-| POST | `/api/threads/{id}/messages` | Gửi câu hỏi, nhận SSE |
-| POST | `/api/graph/example` | Graph AuraDB mẫu |
+| Method | Đường dẫn FastAPI                 | Chức năng                               |
+| ------ | --------------------------------- | --------------------------------------- |
+| GET    | `/health`                         | Trạng thái và chế độ chat               |
+| POST   | `/api/threads`                    | Tạo thread                              |
+| GET    | `/api/threads?limit=100&offset=0` | Danh sách thread, gồm cả archive        |
+| GET    | `/api/threads/{id}`               | Thông tin thread                        |
+| PATCH  | `/api/threads/{id}`               | Đổi tiêu đề hoặc trạng thái archive     |
+| DELETE | `/api/threads/{id}`               | Xóa thread cùng message                 |
+| POST   | `/api/threads/{id}/title`         | Tạo tiêu đề ban đầu từ nội dung câu hỏi |
+| GET    | `/api/threads/{id}/messages`      | Lịch sử, trạng thái và graph snapshot   |
+| POST   | `/api/threads/{id}/messages`      | Gửi câu hỏi, nhận SSE                   |
+| POST   | `/api/graph/example`              | Graph AuraDB mẫu                        |
 
 Body gửi message: `{"id":"client-message-id","content":"Câu hỏi","parent_id":null}`. Ở lượt tiếp theo, `parent_id` là ID câu trả lời assistant đã lưu trước đó. Trong FE, các đường dẫn `/api/...` của FastAPI được truy cập thông qua `/api/backend/...`.
 

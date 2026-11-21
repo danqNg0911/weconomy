@@ -34,8 +34,9 @@ def event_edge_query(predicate):
             edge.collection_ids=[$collection_id]"""
 
 
-def _aggregate_relations(claims, events=()):
+def _aggregate_relations(claims, events=(), articles=()):
     grouped = {}
+    article_by_id = {article["document_id"]: article for article in articles}
 
     def get_group(row):
         subject, predicate, object_ = row["subject_id"], row["predicate"], row["object_id"]
@@ -87,6 +88,19 @@ def _aggregate_relations(claims, events=()):
             event["document_ids"].add(claim["document_id"])
         if claim.get("claim_id"):
             event["claim_ids"].add(claim["claim_id"])
+            article = article_by_id.get(claim.get("document_id"), {})
+            event.setdefault("claims", []).append({
+                "claim_id": claim["claim_id"],
+                "document_id": claim.get("document_id", ""),
+                "sentence_id": claim.get("sentence_id", ""),
+                "evidence": claim.get("evidence", ""),
+                "trigger": claim.get("trigger", ""),
+                "review_status": claim.get("review_status", "unreviewed"),
+                "assertion_status": claim.get("assertion_status", "reported"),
+                "source_id": claim.get("source_id", ""),
+                "title": article.get("title", ""),
+                "url": article.get("canonical_url", ""),
+            })
 
     result = []
     for group in grouped.values():
@@ -121,17 +135,21 @@ def _read_export(folder):
             for name, path in files.items()}
     counts = manifest.get("counts", {})
     if (len(rows["articles"]) != counts.get("articles")
-            or len(rows["entities"]) != counts.get("nodes")
             or len(rows["relations"]) != counts.get("relations")
             or len(rows["claims"]) != counts.get("claims")):
         raise ValueError("Dataset export counts do not match manifest")
 
+    entity_ids = {row["entity_id"] for row in rows["entities"]}
+    endpoint_ids = {endpoint for row in rows["relations"]
+                    for endpoint in (row["subject_id"], row["object_id"])}
+    if len(endpoint_ids) != counts.get("nodes") or not endpoint_ids <= entity_ids:
+        raise ValueError("Dataset graph node count or relation endpoints do not match manifest")
     article_ids = {row["document_id"] for row in rows["articles"]}
     events = []
     for claim in rows["claims"]:
         if claim["document_id"] not in article_ids:
             raise ValueError(f"Claim references an unexported document: {claim['document_id']}")
-    events = _aggregate_relations(rows["claims"])
+    events = _aggregate_relations(rows["claims"], articles=rows["articles"])
     entities = [{key: entity[key] for key in ENTITY_PROPERTIES if key in entity}
                 for entity in rows["entities"]]
     return {"entities": entities, "events": events}
@@ -148,7 +166,8 @@ def import_graph(run, batch_size=500):
             raise ValueError(f"Invalid graph dataset: {validation['failures']}")
         tables = {"entities": [{key: entity[key] for key in ENTITY_PROPERTIES if key in entity}
                                 for entity in read_table(run, "entities")],
-                  "events": _aggregate_relations(read_table(run, "relations"), read_table(run, "events"))}
+                  "events": _aggregate_relations(read_table(run, "relations"), read_table(run, "events"),
+                                                  read_table(run, "articles"))}
     collection_id = run.name
     password = os.environ.get("NEO4J_PASSWORD")
     if not password:

@@ -13,6 +13,11 @@ export type GraphEvidence = {
   quote: string;
   url?: string;
   title?: string;
+  claimId?: string;
+  source?: string;
+  reviewStatus?: string;
+  assertionStatus?: string;
+  trigger?: string;
 };
 export type QueryGraph = {
   nodes: GraphNode[];
@@ -58,7 +63,12 @@ export function parseQueryGraph(value: unknown): QueryGraph | null {
             ? ids.has(e.targetId)
             : e.targetType === "edge" && edgeIds.has(e.targetId)) &&
           (e.url === undefined || string(e.url)) &&
-          (e.title === undefined || string(e.title)),
+          (e.title === undefined || string(e.title)) &&
+          (e.claimId === undefined || string(e.claimId)) &&
+          (e.source === undefined || string(e.source)) &&
+          (e.reviewStatus === undefined || string(e.reviewStatus)) &&
+          (e.assertionStatus === undefined || string(e.assertionStatus)) &&
+          (e.trigger === undefined || string(e.trigger)),
       )
     : [];
   return {
