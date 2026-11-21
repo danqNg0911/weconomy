@@ -15,13 +15,13 @@ Bộ tệp được thiết kế theo báo cáo Codex của dự án Weconomy, *
 
 ## A. Chuẩn bị trên Windows PowerShell
 
-Nên chạy bằng môi trường Python riêng. Các lệnh bên dưới chạy tại thư mục `F:\Project\ptmxh\weconomy_report_queries`:
+Nên chạy bằng môi trường Python riêng. Các lệnh bên dưới chạy tại thư mục `tools/weconomy-reports`:
 
 ```powershell
 python -m pip install neo4j networkx scipy huggingface_hub pyarrow duckdb
 ```
 
-Tạo hoặc cập nhật file `.env` tại thư mục gốc dự án (`F:\Project\ptmxh\.env`). Ví dụ dưới đây dùng thông tin giả; thay bằng thông tin kết nối của bạn:
+Tạo hoặc cập nhật file `.env` tại thư mục gốc repository. Ví dụ dưới đây dùng thông tin giả; thay bằng thông tin kết nối của bạn:
 
 ```dotenv
 NEO4J_URI="neo4j+s://example-instance.databases.neo4j.io"
@@ -74,7 +74,7 @@ python analyze_networkx.py --advanced --output pagerank-reports
 
 Kết quả: `pagerank-reports/networkx_metrics.json` và `pagerank-reports/networkx_metrics.md`. Chọn một trong hai lệnh trên; chạy `--advanced` vào cùng thư mục sẽ ghi lại kết quả cơ bản và bổ sung các chỉ số nâng cao.
 
-Các thư mục kết quả hiện tại (đường dẫn tính từ `weconomy_report_queries/`):
+Các thư mục kết quả hiện tại (đường dẫn tính từ `tools/weconomy-reports/`):
 
 | Thư mục | Nội dung |
 |---|---|

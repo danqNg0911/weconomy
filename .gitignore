@@ -6,8 +6,8 @@ __pycache__/
 data/
 .env
 !/.env.example
-/weconomy_report_queries/extended-reports/
-/weconomy_report_queries/pagerank-reports/
-/weconomy_report_queries/reports/
+/tools/weconomy-reports/extended-reports/
+/tools/weconomy-reports/pagerank-reports/
+/tools/weconomy-reports/reports/
 /reports/
 /outputs/

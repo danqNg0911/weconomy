@@ -12,15 +12,15 @@
 - LLM có API tương thích OpenAI, ví dụ 9router.
 - Supabase PostgreSQL để lưu hội thoại; có thể dùng SQLite khi phát triển cục bộ.
 
-Các lệnh PowerShell dưới đây bắt đầu từ **thư mục gốc repository**, nơi chứa `chatbot/`.
+Các lệnh PowerShell dưới đây bắt đầu từ **thư mục gốc repository**, nơi chứa `apps/chatbot/`.
 
 ### Cài backend
 
 ```powershell
 if (!(Test-Path .venv)) { python -m venv .venv }
-.\.venv\Scripts\python.exe -m pip install -r chatbot/be/requirements.txt
-if (!(Test-Path chatbot/be/.env)) {
-    Copy-Item chatbot/be/.env.example chatbot/be/.env
+.\.venv\Scripts\python.exe -m pip install -r apps/chatbot/be/requirements.txt
+if (!(Test-Path apps/chatbot/be/.env)) {
+    Copy-Item apps/chatbot/be/.env.example apps/chatbot/be/.env
 }
 ```
 
@@ -46,10 +46,10 @@ CREATE_TABLES=false
 - `OPENAI_API_MODE=responses` dùng endpoint `/responses`; đặt `chat` nếu provider/model dùng `/chat/completions`.
 - `OPENAI_BASE_URL` là URL gốc API, thường kết thúc bằng `/v1`, không bao gồm endpoint phía trên.
 - `OPENAI_REASONING_EFFORT`, `OPENAI_REASONING_SUMMARY` là tùy chọn phụ thuộc model; summary chỉ gửi với Responses. `LLM_SYSTEM_PROMPT` cho phép điều chỉnh chỉ dẫn trả lời.
-- Backend đọc cấu hình theo thứ tự ưu tiên tăng dần: `.env` tại gốc repository → `chatbot/be/.env` → biến môi trường của tiến trình. Neo4j đã cấu hình ở `.env` gốc thì không cần chép lại. `NEO4J_USER` được hỗ trợ khi không có `NEO4J_USERNAME`.
+- Backend đọc cấu hình theo thứ tự ưu tiên tăng dần: `.env` tại gốc repository → `apps/chatbot/be/.env` → biến môi trường của tiến trình. Neo4j đã cấu hình ở `.env` gốc thì không cần chép lại. `NEO4J_USER` được hỗ trợ khi không có `NEO4J_USERNAME`.
 - Backend không đọc `.env.local` của UI. Khởi động lại backend sau khi đổi cấu hình.
 
-Nếu để trống `DATABASE_URL`, backend tự tạo SQLite ở `chatbot/be/.data/chat.db`. Thư mục này được bỏ qua bởi Git.
+Nếu để trống `DATABASE_URL`, backend tự tạo SQLite ở `apps/chatbot/be/.data/chat.db`. Thư mục này được bỏ qua bởi Git.
 
 **Dùng Supabase:** đặt kết nối PostgreSQL trong backend `.env`:
 
@@ -67,7 +67,7 @@ Backend kết nối trực tiếp database; FE không cần Supabase URL/key đ�
 Chạy backend:
 
 ```powershell
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir chatbot/be --host 127.0.0.1 --port 8000 --reload
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir apps/chatbot/be --host 127.0.0.1 --port 8000 --reload
 ```
 
 - Kiểm tra trạng thái: http://127.0.0.1:8000/health
@@ -80,7 +80,7 @@ Chạy backend:
 Mở terminal thứ hai từ gốc repository:
 
 ```powershell
-cd chatbot/ui
+cd apps/chatbot/ui
 npm ci
 if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 npm run dev
@@ -94,7 +94,7 @@ CHAT_BACKEND_URL=http://127.0.0.1:8000
 
 Mở http://localhost:3000. Trình duyệt gọi `/api/backend/...`; Next.js chuyển tiếp request và stream sang FastAPI. Không có mã gọi LLM hay truy vấn database trực tiếp trong FE. Đổi `CHAT_BACKEND_URL` thì khởi động lại Next.js.
 
-Chạy frontend bằng bản build, từ `chatbot/ui`:
+Chạy frontend bằng bản build, từ `apps/chatbot/ui`:
 
 ```powershell
 npm run build
@@ -225,12 +225,12 @@ Backend, từ gốc repository; cài pytest nếu môi trường chưa có:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install pytest
-.\.venv\Scripts\python.exe -m pytest chatbot/be/tests -q
+.\.venv\Scripts\python.exe -m pytest apps/chatbot/be/tests -q
 ```
 
 Test tự động dùng SQLite tạm và các mô phỏng provider/graph, không ghi dữ liệu vào Supabase/AuraDB và không gọi LLM trả phí. Bao phủ lưu lịch sử, replay/retry, CRUD/archive, stream/lỗi provider, guard chặn sớm, chuẩn hóa Anh–Việt, duyệt multi-hop và giới hạn graph.
 
-Frontend, từ `chatbot/ui`:
+Frontend, từ `apps/chatbot/ui`:
 
 ```powershell
 npx tsc --noEmit
