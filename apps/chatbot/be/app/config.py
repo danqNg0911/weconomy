@@ -5,11 +5,12 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = ROOT.parents[2]
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(ROOT.parents[1] / ".env", ROOT / ".env"),
+        env_file=(REPO_ROOT / ".env", ROOT / ".env"),
         extra="ignore",
     )
     database_url: str = ""

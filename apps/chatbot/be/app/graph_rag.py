@@ -210,7 +210,7 @@ async def prepare(settings, question, history):
         Plan,
     )
     details = await run_in_threadpool(retrieve, settings, plan)
-    details["metadata"]["model"] = settings.model_name
+    details["metadata"]["model"] = settings.openai_model
     if not details["graph"]["edges"]:
         return (
             "Chưa tìm thấy quan hệ phù hợp trong đồ thị hiện có để trả lời câu hỏi này. Bạn có thể nêu rõ tên doanh nghiệp, quỹ hoặc quốc gia cần tìm.",
