@@ -4,6 +4,8 @@ from fastapi import HTTPException
 from neo4j import GraphDatabase, unit_of_work
 
 from .config import Settings
+from .evidence import enrich
+from .graph_rag import edge_data, edge_evidence
 
 QUERY = """
 MATCH p=(seed:Entity {name: $name})-[*1..2]-(other:Entity)
@@ -19,7 +21,7 @@ def load_example(settings: Settings):
 
     @unit_of_work(timeout=10)
     def read(tx):
-        nodes, edges = {}, {}
+        nodes, edges, evidence = {}, {}, {}
         for record in tx.run(QUERY, name="TDK Ventures"):
             path = record["p"]
             for node in path.nodes:
@@ -29,13 +31,13 @@ def load_example(settings: Settings):
                     "type": str(node.get("entity_type") or "Entity"),
                 }
             for edge in path.relationships:
-                edges[edge.element_id] = {
-                    "id": edge.element_id,
-                    "source": edge.start_node.element_id,
-                    "target": edge.end_node.element_id,
-                    "label": edge.type,
-                }
-        return {"nodes": list(nodes.values()), "edges": list(edges.values()), "evidence": []}
+                edges[edge.element_id] = edge_data(edge)
+                evidence[edge.element_id] = edge_evidence(edge)
+        return {
+            "nodes": list(nodes.values()),
+            "edges": list(edges.values()),
+            "evidence": [item for items in evidence.values() for item in items],
+        }
 
     try:
         with GraphDatabase.driver(
@@ -46,6 +48,7 @@ def load_example(settings: Settings):
             max_transaction_retry_time=0,
         ) as driver:
             with driver.session(database=settings.neo4j_database, default_access_mode="READ") as session:
-                return {"graph": session.execute_read(read), "name": "TDK Ventures", "query": QUERY}
+                details = enrich(settings, {"graph": session.execute_read(read), "metadata": {}})
+                return {**details, "name": "TDK Ventures", "query": QUERY}
     except Exception as exc:
         raise HTTPException(502, "Không tải được graph AuraDB. Kiểm tra kết nối Neo4j phía backend.") from exc

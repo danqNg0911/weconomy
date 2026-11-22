@@ -37,6 +37,11 @@ export function GraphPanel({
   const answerGraph = useMemo(() => parseQueryGraph(raw), [raw]);
   const showingSample = sample?.context === context;
   const graph = showingSample ? sample.graph : answerGraph;
+  const metadata = message?.metadata.custom?.metadata;
+  const evidenceStatus =
+    metadata && typeof metadata === "object" && "evidence_status" in metadata
+      ? metadata.evidence_status
+      : undefined;
   const loadSample = async () => {
     setLoading(true);
     setError("");
@@ -168,8 +173,13 @@ export function GraphPanel({
               {!graph?.evidence.length ? (
                 <p className="text-muted-foreground text-sm">
                   {showingSample
-                    ? "Ví dụ này chỉ lấy node/edge; chưa nối dữ liệu trích dẫn."
-                    : "Chưa có trích dẫn cho đồ thị này."}
+                    ? "Chưa tìm thấy trích dẫn nguồn cho dữ liệu ví dụ này."
+                    : evidenceStatus === "missing_index"
+                      ? "Chưa có chỉ mục dữ liệu nguồn để tra cứu claim. Cần nhập bộ Parquet/export vào backend."
+                      : evidenceStatus === "partial" ||
+                          evidenceStatus === "missing_source"
+                        ? "Chưa tìm được đoạn trích gốc cho các cạnh này trong dữ liệu nguồn hiện có."
+                        : "Chưa có trích dẫn cho đồ thị này."}
                 </p>
               ) : (
                 <ol className="space-y-4">
@@ -195,8 +205,14 @@ export function GraphPanel({
                         </blockquote>
                         <p className="text-muted-foreground text-xs">
                           {item.source && `${item.source} · `}
-                          {item.reviewStatus || "unreviewed"} · {item.assertionStatus || "reported"}
-                          {item.claimId && <span className="font-mono"> · claim {item.claimId}</span>}
+                          {item.reviewStatus || "unreviewed"} ·{" "}
+                          {item.assertionStatus || "reported"}
+                          {item.claimId && (
+                            <span className="font-mono">
+                              {" "}
+                              · claim {item.claimId}
+                            </span>
+                          )}
                         </p>
                         {url && (
                           <a

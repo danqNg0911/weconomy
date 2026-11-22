@@ -21,10 +21,12 @@ class Edge(dict):
 
 def test_edge_evidence_resolves_claim_quote_and_prefers_reviewed():
     edge = Edge("r", Node("A"), Node("B"))
-    edge["event_details_json"] = '[{"claims":[' \
-        '{"claim_id":"auto","evidence":"auto quote","review_status":"unreviewed"},' \
-        '{"claim_id":"checked","evidence":"checked quote","review_status":"manually_verified",' \
+    edge["event_details_json"] = (
+        '[{"claims":['
+        '{"claim_id":"auto","evidence":"auto quote","review_status":"unreviewed"},'
+        '{"claim_id":"checked","evidence":"checked quote","review_status":"manually_verified",'
         '"url":"https://example.com","title":"Source"}]}]'
+    )
     evidence = graph_rag.edge_evidence(edge)
     assert evidence[0]["claimId"] == "checked"
     assert evidence[0]["quote"] == "checked quote"
@@ -67,17 +69,17 @@ async def test_guards_short_circuit(monkeypatch):
     monkeypatch.setattr(guards, "structured", classify)
     assert (await guards.check(None, "cách rửa tiền", []))[0] == "safety"
     assert calls == []
-    assert (await guards.check(None, "another harmful request", []))[0] == "safety"
+    assert (await guards.check(None, "outside topic", []))[0] == "domain"
     assert len(calls) == 1
     calls.clear()
 
     async def classify_domain(settings, instruction, data, schema):
         calls.append(instruction)
-        return guards.Verdict(allowed=len(calls) == 1)
+        return guards.Verdict(allowed=False)
 
     monkeypatch.setattr(guards, "structured", classify_domain)
     assert (await guards.check(None, "write a game", []))[0] == "domain"
-    assert len(calls) == 2
+    assert len(calls) == 1
 
 
 @pytest.fixture
@@ -146,7 +148,7 @@ async def test_invalid_guard_output_fails_closed(monkeypatch):
 
     monkeypatch.setattr(guards, "stream_text", stream)
     with pytest.raises(LLMError):
-        await guards.structured(None, "guard", {}, guards.Verdict)
+        await guards.structured(Settings(_env_file=None), "guard", {}, guards.Verdict)
 
 
 @pytest.mark.anyio
