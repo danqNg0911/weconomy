@@ -1,0 +1,5 @@
+# Intermediate snapshots while a full-population review is in progress.
+results/*-progress-*.json
+
+# Temporary runtime link used to build review workbooks.
+node_modules/

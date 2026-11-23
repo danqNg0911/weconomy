@@ -1,0 +1,104 @@
+{
+  "export": "D:\\Project\\weconomy\\data\\normalized\\international-business-quality-enrichment-20261122-round1-batch20-domain-20261122T140722-57c333",
+  "counts": {
+    "articles": 561,
+    "entity_rows": 1126,
+    "connected_nodes": 1126,
+    "relations": 911,
+    "claims": 1049,
+    "relation_types": 16
+  },
+  "structural_checks": {
+    "duplicate_article_ids": 0,
+    "duplicate_entity_ids": 0,
+    "duplicate_relation_claim_ids": 0,
+    "duplicate_claim_ids": 0,
+    "duplicate_triples": 0,
+    "missing_endpoints": 0,
+    "missing_claim_endpoints": 0,
+    "bad_or_missing_evidence": 0,
+    "bad_evidence_offsets": 0,
+    "bad_or_missing_claim_evidence": 0,
+    "bad_claim_evidence_offsets": 0,
+    "self_edges": 0,
+    "unevidenced_triples": 0,
+    "unconnected_entities": 0,
+    "vinpearl_entity_matches": 0,
+    "vietnam_airlines_entity_matches": 0,
+    "manifest_counts_match": true
+  },
+  "structural_checks_passed": true,
+  "failed_checks": [],
+  "precision": null,
+  "precision_note": "Requires completed independent human labels; structural validation is not precision.",
+  "input_sha256": {
+    "articles": "1f26f567d812a94effd16f668195a1f6d50ba719d6a5ed4ea74520564f7c052e",
+    "entities": "f26718631a2d9aa99bcf6353b89e82014d256d483435e8d1c4f718a76e86706a",
+    "relations": "0b42c491ea00f4ae07a1926f3e3de31fcb23983962b0b62c538578f330341d6f",
+    "claims": "d8a499adc25fda65d8e58d22726323028aeb5c5a4f31106a8ddc66e0fc2b777f"
+  },
+  "full_profile": {
+    "review_status_counts": {
+      "unreviewed": 911
+    },
+    "assertion_status_counts": {
+      "reported": 906,
+      "agreement_reported": 4,
+      "historical_reported": 1
+    },
+    "relation_counts_by_predicate": {
+      "ACQUIRED": 74,
+      "AGREED_TO_ACQUIRE": 6,
+      "BOARD_MEMBER_OF": 2,
+      "CEO_OF": 145,
+      "CLOSED_INVESTIGATION_INTO": 2,
+      "FOUNDED": 246,
+      "INVESTED_IN": 383,
+      "INVESTIGATES": 2,
+      "LICENSED_TECH_FROM": 1,
+      "MERGED_WITH": 7,
+      "OWNS_STAKE_IN": 1,
+      "PARTNERED_WITH": 27,
+      "SPUN_OFF_FROM": 6,
+      "SUBSIDIARY_OF": 6,
+      "SUED": 2,
+      "SUPPLIES_TO": 1
+    },
+    "relation_counts_by_article_language": {
+      "en": 851,
+      "vi": 60
+    },
+    "relation_counts_by_source_host": {
+      "techcrunch.com": 851,
+      "vnexpress.net": 27,
+      "vneconomy.vn": 32,
+      "www.24h.com.vn": 1
+    },
+    "entity_rows_by_type": {
+      "PERSON": 305,
+      "ORG": 819,
+      "GOV": 2
+    },
+    "connected_nodes_by_type": {
+      "PERSON": 305,
+      "ORG": 819,
+      "GOV": 2
+    },
+    "entity_rows_outside_schema": 0,
+    "connected_nodes_outside_schema": 0,
+    "edges_with_endpoint_outside_schema": 0,
+    "mapped_relation_endpoint_violations": 0,
+    "unique_edges_with_any_graph_contract_violation": 0,
+    "contract_filter_projection": {
+      "retained_edges": 911,
+      "retained_connected_nodes": 1126,
+      "retained_relation_types": 16,
+      "removed_edges": 0,
+      "meets_2000_node_5000_edge_10_type_targets": false,
+      "note": "Projection only; no source export or graph data is modified."
+    },
+    "violations_by_predicate": {},
+    "graph_contract_passed": true,
+    "note": "Review status is provenance, not independent gold accuracy; schema violations are exhaustive counts."
+  }
+}

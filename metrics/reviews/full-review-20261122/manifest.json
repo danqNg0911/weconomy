@@ -1,0 +1,429 @@
+{
+  "export": "D:\\Project\\weconomy\\data\\normalized\\international-business-v15-manual-20261112-global-business-only",
+  "created": "2026-11-22",
+  "coverage": "full_population_deterministic_order",
+  "counts": {
+    "relations": 5046,
+    "entity_rows": 2817,
+    "connected_nodes": 2664,
+    "claims": 5362
+  },
+  "input_sha256": {
+    "articles.jsonl": "ff19b440512815eb54ebfa7f766fb81913cd4ae1551f774952d5fbabf1e55dcc",
+    "entities.jsonl": "feebaa87092358908581c3e0785ed25099ed831f17ea9ced7498bb16b288eb65",
+    "relations.jsonl": "b97e428eaf216e322e7ab1a78347d81a04dd424713e183799a3075fcdbeaaa40",
+    "claims.jsonl": "f64c8610f94fe612a25e3a2397e81c4f417bf19d9b2646cb2e51101de147f05f",
+    "manifest.json": "6e69d2cf80e9a93835538e4cfdc0b9af82850e555fa3312edaf820eaef1158f7"
+  },
+  "shard_size": 100,
+  "edges": [
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0001-0100.jsonl",
+      "count": 100,
+      "sha256": "9e0ddc96ca69afc402133843a93afeb6a865901f9afcf9daae0802b5314253dc"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0101-0200.jsonl",
+      "count": 100,
+      "sha256": "c65f86b0704fbf8ea0330d1f61e514d28de29ba402542883dd24795f05de01ac"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0201-0300.jsonl",
+      "count": 100,
+      "sha256": "4148cb78d2ed8754c93592766b439173b2d3bb9cd7cf24f6460dcc8e4472fee7"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0301-0400.jsonl",
+      "count": 100,
+      "sha256": "47c85110f4dba2fad64d8375b9d838a94acd3c21dd9757d6da4911c42b42f967"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0401-0500.jsonl",
+      "count": 100,
+      "sha256": "c69d26e54a2b176033526db6b4a33c79c94e7ee1139f6f1ee069990d7cc0d1c8"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0501-0600.jsonl",
+      "count": 100,
+      "sha256": "b438dcbe437af5a1df37c4660c0c8adf03f654ceae29a413e9e7d569aad2315d"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0601-0700.jsonl",
+      "count": 100,
+      "sha256": "184aacc2c8c0a9cf97c0bba063120d8daaa68315c7ef37dd30223ce0cf363475"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0701-0800.jsonl",
+      "count": 100,
+      "sha256": "d9f9f31349ab593302c934a2b6993b35f0a92a764efe714d491ded0b29641106"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0801-0900.jsonl",
+      "count": 100,
+      "sha256": "d64376b4d75fab87ed21aff8edbdf526330c52c6fc838a1a88a2ffd8cd3c94b9"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-0901-1000.jsonl",
+      "count": 100,
+      "sha256": "b87dd147c804c64d1495d15faef6157293f08ba809834477d3cba4ef6e4ef57c"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1001-1100.jsonl",
+      "count": 100,
+      "sha256": "4b6a93d2e0df75f4d40545c894163c50d23350956e45155c0e416302613baa64"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1101-1200.jsonl",
+      "count": 100,
+      "sha256": "4643c7b766f762670d37a2ddf452ded5f1d138ec66c390fc54f518eda09f64c3"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1201-1300.jsonl",
+      "count": 100,
+      "sha256": "5a3a982f108aad31878c4d56b75c710a93449b6d15eaf5ce093e6bc208ded0c3"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1301-1400.jsonl",
+      "count": 100,
+      "sha256": "4db991e21179c63b0f425abf8a2f36c9490b78fa7bd2a4cd165135aeb38fea4c"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1401-1500.jsonl",
+      "count": 100,
+      "sha256": "6e4dd2a383c87b3006d9c93c292544c23dc14f3f8d30422adf0b94cd3a82ba6e"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1501-1600.jsonl",
+      "count": 100,
+      "sha256": "1b20776c989d73f86005fed033578c2684cda50bfdde1bd0faed37678de026ee"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1601-1700.jsonl",
+      "count": 100,
+      "sha256": "b8e7803e90fb0296506ebf87a877efe59c04c2cc251e00974601eca18cf0c98f"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1701-1800.jsonl",
+      "count": 100,
+      "sha256": "0b87f4ce8618f03862a554bbf8c312622c754a97cebc84fbfb6334bf612ebceb"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1801-1900.jsonl",
+      "count": 100,
+      "sha256": "46a87c2dd215b848668e632bf9789ef48fe87aa4ae9e34cb4fd32d47b69974db"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-1901-2000.jsonl",
+      "count": 100,
+      "sha256": "a457819e2e8f179ad07bbe0f241b65f039a8fcad834da243eef4ab182e841fdb"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2001-2100.jsonl",
+      "count": 100,
+      "sha256": "66861027dc3029f3e4d8d1c2a5cd1769c5d211537ab8640c170653dae1725d25"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2101-2200.jsonl",
+      "count": 100,
+      "sha256": "be2c0cb1aa5bc6668614513a51c84642378589ef295cedf30179bb7a53974f39"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2201-2300.jsonl",
+      "count": 100,
+      "sha256": "e7c308f5db5640100ebe10e6bef9c597cc37e5c26d6e22b53d3f05fa5541d888"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2301-2400.jsonl",
+      "count": 100,
+      "sha256": "96d6e19fe618cb8f2f0e125cd552a0e66b0033a2ff4fdba04c9da72db9db0da4"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2401-2500.jsonl",
+      "count": 100,
+      "sha256": "5252105b7c43a766622960a9245bbfaee275cbd7954e6942b833246cd2799219"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2501-2600.jsonl",
+      "count": 100,
+      "sha256": "3b6a0e09c6de30abedefaf584b20d3639af9e3aeebe09febaaed690d05d8491a"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2601-2700.jsonl",
+      "count": 100,
+      "sha256": "1421b39fd09cc17a3458b6c7cac477fabfc30fdf5320df35d16ee0cdb3ae680a"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2701-2800.jsonl",
+      "count": 100,
+      "sha256": "178c5a54912d77b4e90ca009e8206b430e40e8b16ba8e7ed18a9c2cd1ab9cf6d"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2801-2900.jsonl",
+      "count": 100,
+      "sha256": "90105e2c75068f4112fdc919f2e6dfcc3afa195a46c097258d9f25745d64f1d9"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-2901-3000.jsonl",
+      "count": 100,
+      "sha256": "8cebdf54f4e8df1c675edb663d8ab749ffb93b9e1382eefd470836cf0238f5fe"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3001-3100.jsonl",
+      "count": 100,
+      "sha256": "996c1c8604d6404559ab51fc09f168156c73e4b4871f086f3adcdb7ebd0ac871"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3101-3200.jsonl",
+      "count": 100,
+      "sha256": "704101a5407eb702bb8bc2a5539bb50a803802dadf422f3d767dde4a0ede26d4"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3201-3300.jsonl",
+      "count": 100,
+      "sha256": "439fe3958fa0d37036f95b2d8e41153173baf640b9a89dfca3414e1aec8b7329"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3301-3400.jsonl",
+      "count": 100,
+      "sha256": "00fd4b91ec027f73ac9e59494695a01d09e0cf2848cc131e4a0bb66cd416d3e2"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3401-3500.jsonl",
+      "count": 100,
+      "sha256": "56399fb72de6dec9c1b1186612648ac821dad824f303016156a105f995da09ef"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3501-3600.jsonl",
+      "count": 100,
+      "sha256": "008d9d6328d5570bbb3de87dff98e052302e4aff790507773ee01773d2647934"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3601-3700.jsonl",
+      "count": 100,
+      "sha256": "63929b1e1e1bc14d1fe34cc80388047a013b9ac44c7a1e8d709cb0ba8f2df103"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3701-3800.jsonl",
+      "count": 100,
+      "sha256": "f391d837db9f5267111d5ff93ba9d3be14441e1d94b6026e21deae982832859a"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3801-3900.jsonl",
+      "count": 100,
+      "sha256": "da7c422f2782df99ac81627aae3539ab7b75127c1ba65439fcda8dfe5bff4a60"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-3901-4000.jsonl",
+      "count": 100,
+      "sha256": "f4d4cf6beb98ce55615ed7c363746dbb4eb9152fafa2bcc6839434699a2a41f2"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4001-4100.jsonl",
+      "count": 100,
+      "sha256": "dd1eab07b987466c4dfd38a63c37c27118105d460e0e211101772927c34ce0f7"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4101-4200.jsonl",
+      "count": 100,
+      "sha256": "f58b57a989389fdf7ff1cdf823119fb698de34615bc52c779b129dc251c396b5"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4201-4300.jsonl",
+      "count": 100,
+      "sha256": "66a85d7c696ee52a228e5bd81f2429bc56f9103869e81f6c86947525f1dbc5a4"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4301-4400.jsonl",
+      "count": 100,
+      "sha256": "63728386a42cfd0a3bbf59f4927ec4fa964a04b49e8ce5029041542fa84f6bf9"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4401-4500.jsonl",
+      "count": 100,
+      "sha256": "3f2504d541f1786519ce502cb676fa333a645b6b6267d05059387bc3ed26a0da"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4501-4600.jsonl",
+      "count": 100,
+      "sha256": "c108da4d2653eea3c821625c4613a241207f9484b16578e2589479e86fe7cbb0"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4601-4700.jsonl",
+      "count": 100,
+      "sha256": "07b81e6568e00c76bada1d9c00424fd0e91f22fb21acba6a1a377b155c896ddd"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4701-4800.jsonl",
+      "count": 100,
+      "sha256": "c9bc923fe0342603572c823f14bad1293f11afd08ce6b51f9744a9ace2c252f6"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4801-4900.jsonl",
+      "count": 100,
+      "sha256": "8da00f886a0197fb26f027f8459df664fbdf59c56571c36a5c566c8e38490390"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-4901-5000.jsonl",
+      "count": 100,
+      "sha256": "90003ed3bca5762d1cbfde26c9fe64b0b19bbd31938020327daa0d0a6d94c933"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\edges\\edges-5001-5046.jsonl",
+      "count": 46,
+      "sha256": "f92922af1f360cfb825fcc021c1924f96f88667ba5481d10415d75655678c473"
+    }
+  ],
+  "nodes": [
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0001-0100.jsonl",
+      "count": 100,
+      "sha256": "44318c09b82a35b80023f9702921c05eee4ade273c53b5741477319a23dc6258"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0101-0200.jsonl",
+      "count": 100,
+      "sha256": "0f5302049406db2ecbae86fdac9e3904817956e4bc4e08ddce51d762d38a26f9"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0201-0300.jsonl",
+      "count": 100,
+      "sha256": "12fd04920bd4ba856720de257b2e8e7dea7cd2f092449da5312ab3588ba418d8"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0301-0400.jsonl",
+      "count": 100,
+      "sha256": "1ddb7a8ac81b4b8e4e9aef509bff5bc123123c19d253392f9c42e22adea81ecd"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0401-0500.jsonl",
+      "count": 100,
+      "sha256": "d36092f95c9c24a2629d36cb481cc525b87c784b54b78b753d6b7b632c1b99cc"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0501-0600.jsonl",
+      "count": 100,
+      "sha256": "5102368e804abd8ba1987e920da50ad83ed4fc1a934f8543fbcd02cc31ce6f2e"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0601-0700.jsonl",
+      "count": 100,
+      "sha256": "3e0a96bd983d9d69d2bfdcce273526667d0eb400e192556f49dda21b72818d5f"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0701-0800.jsonl",
+      "count": 100,
+      "sha256": "64782591d905731a612667f72f5b823f784826f4df01be1d56ef9d2f9c521d66"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0801-0900.jsonl",
+      "count": 100,
+      "sha256": "5af5936f820331b2130be41e2e800596d470613db4c83c5578107f6f09cda371"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-0901-1000.jsonl",
+      "count": 100,
+      "sha256": "c14c05b43ca8499a6533a94e9e44a1f72f15656ca0d735303397c225f9af3cd7"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1001-1100.jsonl",
+      "count": 100,
+      "sha256": "af85d45a4e6a4b5d0203bd53045a291deb8c7063960f792d104dbf2217ede870"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1101-1200.jsonl",
+      "count": 100,
+      "sha256": "b0f4c57fe7a3518240be767f44d21a4b2a0b24cb9f2a044a8aa81b15cce5a175"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1201-1300.jsonl",
+      "count": 100,
+      "sha256": "940377f3cd3fd47ea358a2923be177a73a18349f056fa8ed39714b4025771c05"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1301-1400.jsonl",
+      "count": 100,
+      "sha256": "d3ed1be92daff25aa4f5ca635841d71bf39c75389973e8aa3be8e78a4c401ec1"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1401-1500.jsonl",
+      "count": 100,
+      "sha256": "4b91d3fb3477959dc3d71f44f7dd8b0e0a718a6df22d8572cd672a3d26d26822"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1501-1600.jsonl",
+      "count": 100,
+      "sha256": "cabb50c41210a79c01f45943ed4cf0270e0560eb201a4b2f3036e78b9ef1d90b"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1601-1700.jsonl",
+      "count": 100,
+      "sha256": "11b40c251fb8e673ac53616ddd672bc402260c8e68df1b8052a5cf766f3c78f5"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1701-1800.jsonl",
+      "count": 100,
+      "sha256": "beb3a9737913a805460542d83bdcf2c2b87f73442e079f5f229c89925488a840"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1801-1900.jsonl",
+      "count": 100,
+      "sha256": "0b1403b19bccff22504600eb191fbe2c08a35671fe1d0497bafd8ed019a035e1"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-1901-2000.jsonl",
+      "count": 100,
+      "sha256": "4bbe6dae28a7e016cc9d9effc70714e2c71b3b03eefa5769b8870bff9c3351a4"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2001-2100.jsonl",
+      "count": 100,
+      "sha256": "9de958e66b7c8eddcdbcb55c14525cd9762fea68be4f010b2f27ac151a071dad"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2101-2200.jsonl",
+      "count": 100,
+      "sha256": "98ae2cb3f50296e06d82ddc60d6f0632fa130f0825dfd073fc496b4e30b26f97"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2201-2300.jsonl",
+      "count": 100,
+      "sha256": "f9e774e4beb740d618b762d0d0a7b5a5be7eadf882b29c0a6e470960ffda87af"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2301-2400.jsonl",
+      "count": 100,
+      "sha256": "8a54d6106d143905af35aca7f74cff7ea0fa15434ce62cbd71a3f2397c948db8"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2401-2500.jsonl",
+      "count": 100,
+      "sha256": "5e0110014ee02386b37e47dd5a19f421d84db1e59e7e8767a9459612702b5179"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2501-2600.jsonl",
+      "count": 100,
+      "sha256": "b1e3cf4456d908dee2abb76d208d099bca695a67860adf3e9bbcff1b6603b0c7"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2601-2700.jsonl",
+      "count": 100,
+      "sha256": "fcaadd9674f671cf43e16f2ded1505c65e21585c0ea6dd752132953777c84f0d"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2701-2800.jsonl",
+      "count": 100,
+      "sha256": "fda73bf5613700a832a3d2e01778e51f3725ccf4b52c278feb2832b28bce67b3"
+    },
+    {
+      "path": "D:\\Project\\weconomy\\metrics\\reviews\\full-review-20261122\\nodes\\nodes-2801-2817.jsonl",
+      "count": 17,
+      "sha256": "cf98bf072188a084868d6a0c3c2164be3d209a18e9f4d585336ed1631d3d5a7d"
+    }
+  ],
+  "label_schema": [
+    "correct",
+    "incorrect",
+    "uncertain"
+  ],
+  "note": "Review every row. AI labels are not human gold. Do not overwrite or edit the source export."
+}

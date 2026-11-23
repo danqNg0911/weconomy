@@ -1,0 +1,55 @@
+{
+  "catalog": "data/datasets/international-business-quality-enrichment-20261122/catalog.sqlite3",
+  "full_export": "data/analysis/exports/international-business-quality-enrichment-20261122-round1-batch20-full-20261122T140722-14f1a3",
+  "domain_export": "data\\normalized\\international-business-quality-enrichment-20261122-round1-batch20-domain-20261122T140722-57c333",
+  "baseline_strict_export": "data\\normalized\\international-business-v15-manual-20261112-global-business-only-strict-candidate-20261122-v2",
+  "previous_checkpoint_domain_export": "data\\normalized\\international-business-quality-enrichment-20261122-checkpoint-domain-current",
+  "domain_counts": {
+    "articles": 561,
+    "nodes": 1126,
+    "relations": 911,
+    "relation_types": 16
+  },
+  "strict_valid_unique_relations": 911,
+  "strict_invalid_relations": {},
+  "baseline_overlap": 899,
+  "new_vs_baseline": 12,
+  "incremental_new_vs_previous_checkpoint": 1,
+  "new_vs_baseline_predicates": {
+    "FOUNDED": 7,
+    "INVESTED_IN": 4,
+    "CEO_OF": 1
+  },
+  "incremental_predicates": {
+    "FOUNDED": 1
+  },
+  "incremental_article_count": 1,
+  "incremental_sources": {
+    "vnexpress.net": 1
+  },
+  "batch_observed_raw_relation_count": 10,
+  "attempted_candidate_urls_in_this_round": 400,
+  "candidate_urls_processed_in_this_batch": 20,
+  "batch_status": {
+    "allocated_attempts": 3063,
+    "articles": 2424,
+    "raw_nodes": 16221,
+    "raw_relations": 33898,
+    "raw_relation_types": 18
+  },
+  "incremental_edge_details": {
+    "subject_name": "Jensen Huang đồng",
+    "subject_type": "PERSON",
+    "predicate": "FOUNDED",
+    "object_name": "Nvidia",
+    "object_type": "ORG",
+    "url": "https://vnexpress.net/elon-musk-tuyen-bo-san-sang-tuyen-dung-jensen-huang-5143719.html",
+    "title": "Elon Musk tuyên bố sẵn sàng tuyển dụng Jensen Huang",
+    "evidence": "Jensen Huang đồng sáng lập Nvidia năm 1993 và trở thành một trong những nhân vật có ảnh hưởng nhất trong ngành công nghệ, do chip bán dẫn của Nvidia đang đóng vai trò quan trọng trong làn sóng phát triển AI.",
+    "evidence_offsets_valid": true
+  },
+  "quality_assessment": {
+    "status": "requires_manual_entity_correction",
+    "reason": "Extracted subject is \"Jensen Huang đồng\" (verb fragment included); evidence supports Jensen Huang founded Nvidia, but current subject node identity is malformed. Do not count as precision-qualified until corrected and reviewed."
+  }
+}

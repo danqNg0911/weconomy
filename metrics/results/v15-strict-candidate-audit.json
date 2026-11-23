@@ -1,0 +1,138 @@
+{
+  "export": "D:\\Project\\weconomy\\data\\normalized\\international-business-v15-manual-20261112-global-business-only-strict-candidate-20261122-v2",
+  "counts": {
+    "articles": 852,
+    "entity_rows": 2501,
+    "connected_nodes": 2501,
+    "relations": 4886,
+    "claims": 5193,
+    "relation_types": 40
+  },
+  "structural_checks": {
+    "duplicate_article_ids": 0,
+    "duplicate_entity_ids": 0,
+    "duplicate_relation_claim_ids": 0,
+    "duplicate_claim_ids": 0,
+    "duplicate_triples": 0,
+    "missing_endpoints": 0,
+    "missing_claim_endpoints": 0,
+    "bad_or_missing_evidence": 0,
+    "bad_evidence_offsets": 0,
+    "bad_or_missing_claim_evidence": 0,
+    "bad_claim_evidence_offsets": 0,
+    "self_edges": 0,
+    "unevidenced_triples": 0,
+    "unconnected_entities": 0,
+    "vinpearl_entity_matches": 0,
+    "vietnam_airlines_entity_matches": 0,
+    "manifest_counts_match": true
+  },
+  "structural_checks_passed": true,
+  "failed_checks": [],
+  "precision": null,
+  "precision_note": "Requires completed independent human labels; structural validation is not precision.",
+  "input_sha256": {
+    "articles": "e2b3efbc3daa9db0155e3444daa01c91b4bf103241fc05095d45b2c94a7c1003",
+    "entities": "10aa1346cfdc52cf014e7e4458f73246683258eff6696df1900b04af551de999",
+    "relations": "233baacd9fd8d8dffb4b53c4803ff02b7f2ecdcd63125f667e22ed8b51b43fba",
+    "claims": "6d8b25986e0914045031132e10652a1d1606284990b9c5d60b78bdff857f18d6"
+  },
+  "full_profile": {
+    "review_status_counts": {
+      "manually_verified": 3835,
+      "unreviewed": 1051
+    },
+    "assertion_status_counts": {
+      "reported": 4075,
+      "agreement_reported": 266,
+      "planned": 34,
+      "historical_reported": 498,
+      "proposed": 2,
+      "completed": 7,
+      "agreement_conditional": 4
+    },
+    "relation_counts_by_predicate": {
+      "ACQUIRED": 142,
+      "AGREED_TO_ACQUIRE": 26,
+      "AGREED_TO_MERGE_WITH": 1,
+      "ANTITRUST_ACTION_AGAINST": 2,
+      "APPROVED": 1,
+      "AWARDED_CONTRACT_TO": 1,
+      "BOARD_MEMBER_OF": 14,
+      "CEO_OF": 211,
+      "CLOSED_INVESTIGATION_INTO": 2,
+      "COMPETES_WITH": 8,
+      "CONTRACTED_WITH": 15,
+      "COOPERATES_WITH": 85,
+      "CO_FINANCED_WITH": 243,
+      "CO_INVESTED_WITH": 2165,
+      "DEVELOPS": 1,
+      "EXECUTIVE_OF": 12,
+      "FINANCED": 2,
+      "FOUNDED": 359,
+      "INVESTED_IN": 1275,
+      "INVESTIGATES": 2,
+      "JOINT_VENTURE_OF": 11,
+      "LENT_TO": 10,
+      "LICENSED_TECH_FROM": 2,
+      "LISTED_ON": 1,
+      "MEMBER_OF": 31,
+      "MERGED_WITH": 10,
+      "OPERATES": 3,
+      "OWNS_STAKE_IN": 18,
+      "PARTNERED_WITH": 127,
+      "PART_OF": 6,
+      "PLANS_TO_INVEST_IN": 1,
+      "PLANS_TO_LIST_ON": 2,
+      "PROPOSED_TO_ACQUIRE": 3,
+      "PROVIDES_SERVICE_TO": 6,
+      "REGULATES": 13,
+      "SETS_TRADE_TARGET_WITH": 1,
+      "SPUN_OFF_FROM": 13,
+      "SUBSIDIARY_OF": 33,
+      "SUED": 5,
+      "SUPPLIES_TO": 23
+    },
+    "relation_counts_by_article_language": {
+      "en": 4568,
+      "vi": 318
+    },
+    "relation_counts_by_source_host": {
+      "techcrunch.com": 4262,
+      "vietnamnews.vn": 315,
+      "tuoitre.vn": 6,
+      "e.vnexpress.net": 13,
+      "vnexpress.net": 208,
+      "vneconomy.vn": 59,
+      "thanhnien.vn": 21,
+      "www.24h.com.vn": 1,
+      "en.vneconomy.vn": 1
+    },
+    "entity_rows_by_type": {
+      "PERSON": 521,
+      "ORG": 1901,
+      "GOV": 79
+    },
+    "connected_nodes_by_type": {
+      "ORG": 1901,
+      "PERSON": 521,
+      "GOV": 79
+    },
+    "entity_rows_outside_schema": 0,
+    "connected_nodes_outside_schema": 0,
+    "edges_with_endpoint_outside_schema": 0,
+    "mapped_relation_endpoint_violations": 0,
+    "unique_edges_with_any_graph_contract_violation": 0,
+    "contract_filter_projection": {
+      "retained_edges": 4886,
+      "retained_connected_nodes": 2501,
+      "retained_relation_types": 40,
+      "removed_edges": 0,
+      "meets_2000_node_5000_edge_10_type_targets": false,
+      "note": "Projection only; no source export or graph data is modified."
+    },
+    "violations_by_predicate": {},
+    "graph_contract_passed": true,
+    "note": "Review status is provenance, not independent gold accuracy; schema violations are exhaustive counts."
+  }
+}

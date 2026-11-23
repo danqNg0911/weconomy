@@ -1,0 +1,37 @@
+{
+  "created": "2026-11-22",
+  "export": "D:\\Project\\weconomy\\data\\normalized\\international-business-v15-manual-20261112-global-business-only",
+  "seed": 20261122,
+  "edge_population": 5046,
+  "node_population": 2664,
+  "edge_sample_size": 400,
+  "node_sample_size": 300,
+  "sampling": "simple random sample without replacement; fixed seed",
+  "input_sha256": {
+    "articles": "ff19b440512815eb54ebfa7f766fb81913cd4ae1551f774952d5fbabf1e55dcc",
+    "entities": "feebaa87092358908581c3e0785ed25099ed831f17ea9ced7498bb16b288eb65",
+    "relations": "b97e428eaf216e322e7ab1a78347d81a04dd424713e183799a3075fcdbeaaa40",
+    "claims": "f64c8610f94fe612a25e3a2397e81c4f417bf19d9b2646cb2e51101de147f05f"
+  },
+  "samples": {
+    "edges": {
+      "path": "D:\\Project\\weconomy\\metrics\\samples\\v15-global-business-only\\edges-review.jsonl",
+      "sha256": "5e049ea8ebddbc59c9ae1f6d6ee1712265bfa0f7cb2a27e4e4506121c1dd270b"
+    },
+    "nodes": {
+      "path": "D:\\Project\\weconomy\\metrics\\samples\\v15-global-business-only\\nodes-review.jsonl",
+      "sha256": "8fbebceab6c7ba8bedd104cb60506ad08c5d1ae50963f1762a2905bc8b2fd24e"
+    },
+    "edges_double_review": {
+      "path": "D:\\Project\\weconomy\\metrics\\samples\\v15-global-business-only\\edges-double-review.jsonl",
+      "sha256": "9e618c3274669e3016000b61938fa7a8f730ac85bb22fb1d3fa4752f83124624",
+      "size": 80
+    },
+    "nodes_double_review": {
+      "path": "D:\\Project\\weconomy\\metrics\\samples\\v15-global-business-only\\nodes-double-review.jsonl",
+      "sha256": "d3202096e7952fdc0fe354a5260a1e5a7632ca3d40c254da72a347ceae38d955",
+      "size": 60
+    }
+  },
+  "note": "Do not train/tune on these review tasks. Keep reviewer copies separate; adjudicate disagreements."
+}

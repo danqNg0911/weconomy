@@ -1,0 +1,8 @@
+{
+  "n_double_reviewed": 60,
+  "raw_agreement": 0.9,
+  "cohen_kappa": 0.45945945945945943,
+  "first_review": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\nodes-agent-labeled.jsonl",
+  "second_review": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\nodes-double-review-labels.jsonl",
+  "note": "Adjudicate disagreements before scoring the primary review sample."
+}

@@ -1,0 +1,75 @@
+{"task_id": "node-0226", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies OSB Group as Thales partner for satellite technology training."}
+{"task_id": "node-0227", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "GM is explicitly named as the corporate buyer through its Cruise unit; node itself is a valid company."}
+{"task_id": "node-0228", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Vsquared Ventures is explicitly named as a seed-round investor."}
+{"task_id": "node-0229", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The Vietnamese sentence explicitly describes Jazwares as a subsidiary of Berkshire Hathaway."}
+{"task_id": "node-0230", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence says Resnick founded Brinc; Brinc is the named business."}
+{"task_id": "node-0231", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Outmarket as a startup raising a Series B."}
+{"task_id": "node-0232", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Zeno as the startup raising seed funding."}
+{"task_id": "node-0233", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Moore Capital is explicitly listed among the funding-round participants."}
+{"task_id": "node-0234", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "British International Investment is explicitly named among the development finance institutions backing the loan."}
+{"task_id": "node-0235", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The quote identifies Jake Guglin as Foundation Alloy co-founder and CEO."}
+{"task_id": "node-0236", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Triomics as a startup raising Series B funding."}
+{"task_id": "node-0237", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The sentence identifies T&T Energy as a T&T Group subsidiary signing an LNG development agreement."}
+{"task_id": "node-0238", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Zoom Apps Fund is explicitly listed as one of Fathom’s investors."}
+{"task_id": "node-0239", "verdict": "uncertain", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence names EGYM Genius as a capability but does not establish that the candidate EGYM is the organization behind it."}
+{"task_id": "node-0240", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Thomvest Ventures is explicitly listed as a seed-round participant."}
+{"task_id": "node-0241", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Sriram Viswanathan as a Celesta Capital partner and IDTA founding council member."}
+{"task_id": "node-0242", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Nguyễn Văn Thắng as Deputy Prime Minister, a government actor relevant to the domain."}
+{"task_id": "node-0243", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Smith Point Capital is explicitly named as the lead in Gather AI’s funding round."}
+{"task_id": "node-0244", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Firstminute Capital is explicitly listed among Mistral’s seed-round investors."}
+{"task_id": "node-0245", "verdict": "incorrect", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The candidate is a university, outside the specified actor scope of firms, investors, business leaders, and governments."}
+{"task_id": "node-0246", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Promus Ventures is explicitly listed as a participant in Whoop’s funding round."}
+{"task_id": "node-0247", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The source names Granite Oak as a co-investor with MEF III."}
+{"task_id": "node-0248", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "AIC is named as a joint-venture participant implementing a large data-centre investment."}
+{"task_id": "node-0249", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Ulook as a startup and gives its seed-funding history."}
+{"task_id": "node-0250", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence names Manulife as the buyer of MVI Life in 2021."}
+{"task_id": "node-0251", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence calls Fundamental an AI research company and describes its Series A."}
+{"task_id": "node-0252", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The full candidate fund name is explicitly identified as a co-lead of Snabbit’s Series D."}
+{"task_id": "node-0253", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Thales is explicitly the company describing its international partnerships."}
+{"task_id": "node-0254", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Lakestar is explicitly listed among Neko Health’s investors."}
+{"task_id": "node-0255", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence names Chaotic Moon as a technology company later acquired by Trive Capital."}
+{"task_id": "node-0256", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Feedburner as a founded business acquired by Google."}
+{"task_id": "node-0257", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence explicitly calls Reid Hoffman a LinkedIn co-founder."}
+{"task_id": "node-0258", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "8VC is explicitly named as one of Cognition’s funding-round leads."}
+{"task_id": "node-0259", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Fiddler AI as software being integrated into CrowdStrike’s platform."}
+{"task_id": "node-0260", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Gold House Ventures is explicitly listed as a participant in Clouted’s seed round."}
+{"task_id": "node-0261", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "IBM is explicitly listed among the companies investing in Mistral."}
+{"task_id": "node-0262", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The article context identifies AIRO as the Kido joint venture; the evidence describes its commercial partnerships."}
+{"task_id": "node-0263", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Georgian Partners is explicitly named as Replit’s lead investor."}
+{"task_id": "node-0264", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Superhuman as a productivity platform that acquired GPTZero."}
+{"task_id": "node-0265", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Sofina is explicitly listed among Mistral’s investors."}
+{"task_id": "node-0266", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Female Founders Fund is explicitly named as a lead investor in Taya."}
+{"task_id": "node-0267", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Lachy Groom as a tech investor who led Alt Carbon’s seed round."}
+{"task_id": "node-0268", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence names Ford as a party to a planned joint venture with Geely."}
+{"task_id": "node-0269", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Chandra Asri Pacific as the Indonesian corporate acquirer."}
+{"task_id": "node-0270", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Nguyễn Mạnh Quân as Sun Phu Quoc Airways’ general director."}
+{"task_id": "node-0271", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Midas Capital is named as an investor in an international submarine-cable project."}
+{"task_id": "node-0272", "verdict": "uncertain", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Tomo is only listed as a text-based assistant; the excerpt does not establish whether it is a company or product."}
+{"task_id": "node-0273", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies InfiniMind as the startup raising seed funding."}
+{"task_id": "node-0274", "verdict": "incorrect", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The candidate is explicitly a PROJECT, not a supported organization/person/government actor for the graph."}
+{"task_id": "node-0275", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Fagioli Group as an Italian project-logistics company and acquisition target."}
+{"task_id": "node-0276", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Emerald Technology Ventures is explicitly listed among Thea Energy’s investors."}
+{"task_id": "node-0277", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The sentence identifies Satair as the company whose general director is Richard Stoddart."}
+{"task_id": "node-0278", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Portage Ventures is explicitly named as a participant in Angle Health’s funding round."}
+{"task_id": "node-0279", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence names the People’s Administration of Guangxi as a government party to an international border-gate MOU."}
+{"task_id": "node-0280", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "TCV is explicitly named as the lead investor in Corgi."}
+{"task_id": "node-0281", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies geCKo Materials as a startup and its founder/CEO."}
+{"task_id": "node-0282", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Inertia Enterprises as a fusion startup raising Series A funding."}
+{"task_id": "node-0283", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Modal Labs as a company with a co-founder and CEO."}
+{"task_id": "node-0284", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Trần Lệ Nguyên as Kido’s general director and AIRO chair."}
+{"task_id": "node-0285", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence explicitly calls Chris Larsen a Ripple co-founder."}
+{"task_id": "node-0286", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "NextView Ventures is explicitly listed among Fuse’s Series A leads."}
+{"task_id": "node-0287", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies ThaiBev as the buyer of a controlling stake in Sabeco."}
+{"task_id": "node-0288", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Abstract Ventures is explicitly named as a source of Cluely’s seed funding."}
+{"task_id": "node-0289", "verdict": "uncertain", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The excerpt says two finance ministries cooperated but does not name Vietnam’s Ministry of Finance specifically."}
+{"task_id": "node-0290", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Gudea as a startup raising seed funding."}
+{"task_id": "node-0291", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Drover Ventures is explicitly listed as an investor in Poseidon Aerospace."}
+{"task_id": "node-0292", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Dolev Bluvstein as Oratomic co-founder and CEO."}
+{"task_id": "node-0293", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence describes BuildForever as backed by seed funding, supporting it as an in-scope business."}
+{"task_id": "node-0294", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Isaiah Taylor as Valar Atomics’ founder and CEO."}
+{"task_id": "node-0295", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence explicitly calls Vercept an AI startup acquired by Anthropic."}
+{"task_id": "node-0296", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Hauler Hero as a company co-founded by Mark Hoadley."}
+{"task_id": "node-0297", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "CMA CGM is explicitly listed as a participant in Mistral’s funding round."}
+{"task_id": "node-0298", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Prysm Capital is explicitly listed among Replit’s funding-round participants."}
+{"task_id": "node-0299", "verdict": "incorrect", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "The candidate is a substation project, not an organization or other intended graph actor."}
+{"task_id": "node-0300", "verdict": "correct", "reviewer": "ai-node-reviewer-03", "complete": true, "review_note": "Evidence identifies Schneider Electric as a company collaborating with Apple on smart-home products."}

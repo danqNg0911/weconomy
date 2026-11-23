@@ -1,0 +1,382 @@
+{
+  "review_file": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\edges-agent-labeled.jsonl",
+  "n": 400,
+  "tp": 378,
+  "fp_including_uncertain": 22,
+  "uncertain": 11,
+  "precision_conservative": 0.945,
+  "wilson_95": [
+    0.9181319717303434,
+    0.9634017781359406
+  ],
+  "minimum_precision": 0.9,
+  "passes_90_percent": true,
+  "group_metrics": {
+    "predicate": {
+      "ACQUIRED": {
+        "n": 11,
+        "correct": 9,
+        "uncertain": 0,
+        "precision": 0.8181818181818182,
+        "wilson_95": [
+          0.5230138624217553,
+          0.9486333993289994
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "AGREED_TO_INVEST_IN": {
+        "n": 1,
+        "correct": 0,
+        "uncertain": 0,
+        "precision": 0.0,
+        "wilson_95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "ANTITRUST_ACTION_AGAINST": {
+        "n": 2,
+        "correct": 1,
+        "uncertain": 1,
+        "precision": 0.5,
+        "wilson_95": [
+          0.09452865480086611,
+          0.905471345199134
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "APPROVED": {
+        "n": 2,
+        "correct": 1,
+        "uncertain": 1,
+        "precision": 0.5,
+        "wilson_95": [
+          0.09452865480086611,
+          0.905471345199134
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "BOARD_MEMBER_OF": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "CEO_OF": {
+        "n": 18,
+        "correct": 17,
+        "uncertain": 0,
+        "precision": 0.9444444444444444,
+        "wilson_95": [
+          0.7424220019799247,
+          0.9901250641690756
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "CLOSED_INVESTIGATION_INTO": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "CONTRACTED_WITH": {
+        "n": 2,
+        "correct": 2,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.3423719528896193,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "COOPERATES_WITH": {
+        "n": 9,
+        "correct": 9,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.7008472464490406,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "CO_FINANCED_WITH": {
+        "n": 19,
+        "correct": 18,
+        "uncertain": 1,
+        "precision": 0.9473684210526315,
+        "wilson_95": [
+          0.7536078466345479,
+          0.99064824750947
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "CO_INVESTED_WITH": {
+        "n": 182,
+        "correct": 182,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.9793286325558971,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "DEVELOPS": {
+        "n": 3,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 0.3333333333333333,
+        "wilson_95": [
+          0.061490315276160515,
+          0.7923450448735121
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "EXECUTIVE_OF": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "FINANCED": {
+        "n": 1,
+        "correct": 0,
+        "uncertain": 0,
+        "precision": 0.0,
+        "wilson_95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "FOUNDED": {
+        "n": 25,
+        "correct": 23,
+        "uncertain": 1,
+        "precision": 0.92,
+        "wilson_95": [
+          0.7503348787704218,
+          0.977780066308908
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "INTEGRATES_WITH": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "INVESTED_IN": {
+        "n": 96,
+        "correct": 90,
+        "uncertain": 3,
+        "precision": 0.9375,
+        "wilson_95": [
+          0.8702889506383905,
+          0.9710437203123956
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "JOINT_VENTURE_OF": {
+        "n": 2,
+        "correct": 2,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.3423719528896193,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "MEMBER_OF": {
+        "n": 3,
+        "correct": 2,
+        "uncertain": 1,
+        "precision": 0.6666666666666666,
+        "wilson_95": [
+          0.20765495512648788,
+          0.9385096847238393
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "PARTNERED_WITH": {
+        "n": 14,
+        "correct": 12,
+        "uncertain": 2,
+        "precision": 0.8571428571428571,
+        "wilson_95": [
+          0.600580922361363,
+          0.9599069262620787
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "PLANS_TO_INVEST_IN": {
+        "n": 1,
+        "correct": 0,
+        "uncertain": 1,
+        "precision": 0.0,
+        "wilson_95": [
+          0.0,
+          0.7934567085261071
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "SPUN_OFF_FROM": {
+        "n": 2,
+        "correct": 2,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.3423719528896193,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "SUBSIDIARY_OF": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "SUPPLIES_TO": {
+        "n": 2,
+        "correct": 2,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.3423719528896193,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    },
+    "language": {
+      "en": {
+        "n": 370,
+        "correct": 355,
+        "uncertain": 9,
+        "precision": 0.9594594594594594,
+        "wilson_95": [
+          0.9341954663069925,
+          0.9752806326611265
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vi": {
+        "n": 30,
+        "correct": 23,
+        "uncertain": 2,
+        "precision": 0.7666666666666667,
+        "wilson_95": [
+          0.5907132766967573,
+          0.8820776078949878
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    },
+    "source": {
+      "e.vnexpress.net": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "techcrunch.com": {
+        "n": 340,
+        "correct": 332,
+        "uncertain": 5,
+        "precision": 0.9764705882352941,
+        "wilson_95": [
+          0.9542641241767164,
+          0.9880302346210555
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "thanhnien.vn": {
+        "n": 4,
+        "correct": 2,
+        "uncertain": 1,
+        "precision": 0.5,
+        "wilson_95": [
+          0.15003570882017145,
+          0.8499642911798285
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vietnamnews.vn": {
+        "n": 33,
+        "correct": 26,
+        "uncertain": 4,
+        "precision": 0.7878787878787878,
+        "wilson_95": [
+          0.6224802241287064,
+          0.8932411343356382
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vneconomy.vn": {
+        "n": 5,
+        "correct": 4,
+        "uncertain": 0,
+        "precision": 0.8,
+        "wilson_95": [
+          0.37552826411853885,
+          0.9637768390302125
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vnexpress.net": {
+        "n": 17,
+        "correct": 13,
+        "uncertain": 1,
+        "precision": 0.7647058823529411,
+        "wilson_95": [
+          0.5273775411082839,
+          0.9044511092832406
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    }
+  },
+  "note": "Uncertain is counted as incorrect; Wilson interval assumes independent sampled items.",
+  "review_mode": "AI review only; not independent human gold",
+  "shards": [
+    "metrics\\reviews\\agent-review-20261122\\edges-0001-0100.jsonl",
+    "metrics\\reviews\\agent-review-20261122\\edges-0101-0200.jsonl",
+    "metrics\\reviews\\agent-review-20261122\\edges-0201-0300.jsonl",
+    "metrics\\reviews\\agent-review-20261122\\edges-0301-0400.jsonl"
+  ]
+}

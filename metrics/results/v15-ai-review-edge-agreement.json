@@ -1,0 +1,8 @@
+{
+  "n_double_reviewed": 40,
+  "raw_agreement": 0.925,
+  "cohen_kappa": 0.0,
+  "first_review": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\edges-agent-labeled.jsonl",
+  "second_review": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\edges-double-disjoint-reviewer04-labels.jsonl",
+  "note": "Adjudicate disagreements before scoring the primary review sample."
+}

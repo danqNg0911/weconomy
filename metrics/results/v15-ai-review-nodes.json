@@ -1,0 +1,194 @@
+{
+  "review_file": "D:\\Project\\weconomy\\metrics\\reviews\\agent-review-20261122\\nodes-agent-labeled.jsonl",
+  "n": 300,
+  "tp": 271,
+  "fp_including_uncertain": 29,
+  "uncertain": 6,
+  "precision_conservative": 0.9033333333333333,
+  "wilson_95": [
+    0.864617489059097,
+    0.9318501440760628
+  ],
+  "minimum_precision": 0.9,
+  "passes_90_percent": false,
+  "group_metrics": {
+    "candidate_type": {
+      "ASSET": {
+        "n": 2,
+        "correct": 0,
+        "uncertain": 0,
+        "precision": 0.0,
+        "wilson_95": [
+          0.0,
+          0.6576280471103807
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "GOV": {
+        "n": 13,
+        "correct": 11,
+        "uncertain": 2,
+        "precision": 0.8461538461538461,
+        "wilson_95": [
+          0.5776482949136899,
+          0.9567427368172621
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "ORG": {
+        "n": 218,
+        "correct": 204,
+        "uncertain": 4,
+        "precision": 0.9357798165137615,
+        "wilson_95": [
+          0.8951031233598469,
+          0.9613638332434234
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "PERSON": {
+        "n": 57,
+        "correct": 56,
+        "uncertain": 0,
+        "precision": 0.9824561403508771,
+        "wilson_95": [
+          0.9070903306173727,
+          0.99689641529332
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "PROJECT": {
+        "n": 10,
+        "correct": 0,
+        "uncertain": 0,
+        "precision": 0.0,
+        "wilson_95": [
+          0.0,
+          0.2775401687666165
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    },
+    "language": {
+      "en": {
+        "n": 257,
+        "correct": 239,
+        "uncertain": 6,
+        "precision": 0.9299610894941635,
+        "wilson_95": [
+          0.8920160045665565,
+          0.9552414881033244
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vi": {
+        "n": 43,
+        "correct": 32,
+        "uncertain": 0,
+        "precision": 0.7441860465116279,
+        "wilson_95": [
+          0.5976131013174514,
+          0.8507063412293445
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    },
+    "source": {
+      "e.vnexpress.net": {
+        "n": 3,
+        "correct": 3,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.4384939195509822,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "techcrunch.com": {
+        "n": 223,
+        "correct": 214,
+        "uncertain": 3,
+        "precision": 0.9596412556053812,
+        "wilson_95": [
+          0.9250898286678508,
+          0.9786244812294519
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "thanhnien.vn": {
+        "n": 2,
+        "correct": 2,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.3423719528896193,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "tuoitre.vn": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vietnamnews.vn": {
+        "n": 33,
+        "correct": 24,
+        "uncertain": 3,
+        "precision": 0.7272727272727273,
+        "wilson_95": [
+          0.5578211674561319,
+          0.8493272734367718
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vneconomy.vn": {
+        "n": 7,
+        "correct": 5,
+        "uncertain": 0,
+        "precision": 0.7142857142857143,
+        "wilson_95": [
+          0.35892909014821267,
+          0.9177828342909845
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "vnexpress.net": {
+        "n": 30,
+        "correct": 21,
+        "uncertain": 0,
+        "precision": 0.7,
+        "wilson_95": [
+          0.5212387898833981,
+          0.8333543735604106
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      },
+      "www.24h.com.vn": {
+        "n": 1,
+        "correct": 1,
+        "uncertain": 0,
+        "precision": 1.0,
+        "wilson_95": [
+          0.20654329147389294,
+          1.0
+        ],
+        "interpretation": "descriptive; subgroup sample may be too small"
+      }
+    }
+  },
+  "note": "Uncertain is counted as incorrect; Wilson interval assumes independent sampled items.",
+  "review_mode": "AI review only; not independent human gold",
+  "shards": [
+    "metrics\\reviews\\agent-review-20261122\\nodes-0001-0150.jsonl",
+    "metrics\\reviews\\agent-review-20261122\\nodes-0151-0225.jsonl",
+    "metrics\\reviews\\agent-review-20261122\\nodes-0226-0300.jsonl"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "items": 11,
+  "decisions": {
+    "ai_consensus_quarantine": 2,
+    "provisional_ai_consensus_keep": 8,
+    "human_adjudication_required": 1
+  },
+  "precision_claim": null,
+  "reason": "AI review consensus is screening only; requires independent human gold labels."
+}\n

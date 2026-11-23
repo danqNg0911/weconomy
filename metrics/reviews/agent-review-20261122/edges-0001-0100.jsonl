@@ -1,0 +1,100 @@
+{"task_id": "edge-0001", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0002", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0003", "verdict": "uncertain", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Evidence says AEON received a project licence but does not explicitly state AEON invested in that project."}
+{"task_id": "edge-0004", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0005", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0006", "verdict": "incorrect", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "The cited sentence names OpenAI co-founder Sam but does not resolve the first name to this node; it discusses Lattice founder status, not Sam founding OpenAI."}
+{"task_id": "edge-0007", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0008", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0009", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0010", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0011", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0012", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0013", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source states the regulator approved the bond offering registration."}
+{"task_id": "edge-0014", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0015", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0016", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0017", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0018", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0019", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0020", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0021", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0022", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0023", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source reports the named buyer acquired the stated organization."}
+{"task_id": "edge-0024", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0025", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0026", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0027", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0028", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0029", "verdict": "incorrect", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "The source says Cognition acquired Poke; it lists Fambot separately and does not say Cognition acquired Fambot."}
+{"task_id": "edge-0030", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source explicitly identifies the subject as a joint venture of the named organization."}
+{"task_id": "edge-0031", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0032", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0033", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0034", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0035", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0036", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0037", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0038", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0039", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0040", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source reports the named buyer acquired the stated organization."}
+{"task_id": "edge-0041", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source identifies the person as founder/co-founder of the named organization."}
+{"task_id": "edge-0042", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0043", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0044", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0045", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0046", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0047", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0048", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0049", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0050", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0051", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0052", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0053", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0054", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0055", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0056", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0057", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0058", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0059", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0060", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0061", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0062", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0063", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0064", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source reports the named buyer acquired the stated organization."}
+{"task_id": "edge-0065", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0066", "verdict": "uncertain", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "The passage says Brookfield helped DFJ make investments into SpaceX, not that Brookfield itself invested in SpaceX."}
+{"task_id": "edge-0067", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0068", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0069", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0070", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0071", "verdict": "incorrect", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "The source reports sale of a real-estate project, not acquisition of an organization; the object is a project and the predicate is ACQUIRED."}
+{"task_id": "edge-0072", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0073", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0074", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0075", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0076", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0077", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source identifies the person as founder/co-founder of the named organization."}
+{"task_id": "edge-0078", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0079", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0080", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0081", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source reports KCCI signed an MOU with the named university."}
+{"task_id": "edge-0082", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0083", "verdict": "uncertain", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "HSBC is listed among facility lenders, while Arab Bank is mentioned as providing market support/commitments; the evidence does not clearly establish both co-financed the same facility."}
+{"task_id": "edge-0084", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0085", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source reports the subject signed a platform partnership with the named organization."}
+{"task_id": "edge-0086", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0087", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0088", "verdict": "uncertain", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "The passage describes a BYD plant expansion valued at about $891 million, but does not explicitly state the named Vietnam entity made an investment in a project node."}
+{"task_id": "edge-0089", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0090", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0091", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0092", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both institutions in the same syndicated financing transaction."}
+{"task_id": "edge-0093", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0094", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0095", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0096", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0097", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source identifies the person as founder/co-founder of the named organization."}
+{"task_id": "edge-0098", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}
+{"task_id": "edge-0099", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names both as participants in the same financing round or investment event."}
+{"task_id": "edge-0100", "verdict": "correct", "reviewer": "ai-reviewer-01", "complete": true, "review_note": "Source names the subject as investor/backer in the stated company or project."}

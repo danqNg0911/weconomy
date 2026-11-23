@@ -1,0 +1,30 @@
+{
+  "checkpoint_catalog": "data/datasets/international-business-quality-enrichment-20261122/catalog.sqlite3",
+  "checkpoint_full_export": "data/analysis/exports/international-business-quality-enrichment-20261122-checkpoint-full-20261122T133920-24ecb5",
+  "checkpoint_domain_export": "data\\normalized\\international-business-quality-enrichment-20261122-checkpoint-domain-current",
+  "baseline_strict_export": "data\\normalized\\international-business-v15-manual-20261112-global-business-only-strict-candidate-20261122-v2",
+  "checkpoint_counts": {
+    "articles": 560,
+    "entities": 1125,
+    "relations": 910,
+    "relation_types": 16
+  },
+  "valid_strict_relations": 910,
+  "overlap_with_baseline": 899,
+  "new_unique_strict_relations": 11,
+  "new_predicate_counts": {
+    "FOUNDED": 6,
+    "INVESTED_IN": 4,
+    "CEO_OF": 1
+  },
+  "new_endpoint_type_pairs": {
+    "PERSON -> ORG": 7,
+    "ORG -> ORG": 4
+  },
+  "new_source_counts": {
+    "vnexpress.net": 3,
+    "techcrunch.com": 8
+  },
+  "new_article_count": 7,
+  "rejected": {}
+}

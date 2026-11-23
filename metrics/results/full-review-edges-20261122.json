@@ -1,0 +1,449 @@
+{
+  "kind": "edges",
+  "reviewer_kind": "ai",
+  "export": "D:\\Project\\weconomy\\data\\normalized\\international-business-v15-manual-20261112-global-business-only",
+  "input_sha256": {
+    "articles.jsonl": "ff19b440512815eb54ebfa7f766fb81913cd4ae1551f774952d5fbabf1e55dcc",
+    "entities.jsonl": "feebaa87092358908581c3e0785ed25099ed831f17ea9ced7498bb16b288eb65",
+    "relations.jsonl": "b97e428eaf216e322e7ab1a78347d81a04dd424713e183799a3075fcdbeaaa40",
+    "claims.jsonl": "f64c8610f94fe612a25e3a2397e81c4f417bf19d9b2646cb2e51101de147f05f",
+    "manifest.json": "6e69d2cf80e9a93835538e4cfdc0b9af82850e555fa3312edaf820eaef1158f7"
+  },
+  "population": 5046,
+  "valid_labels": 5046,
+  "coverage": 1.0,
+  "full_population_complete": true,
+  "verdicts": {
+    "correct": 4913,
+    "uncertain": 39,
+    "incorrect": 94
+  },
+  "missing_task_count": 0,
+  "incomplete_task_count": 0,
+  "duplicate_task_ids": [],
+  "unknown_task_ids": [],
+  "precision": null,
+  "ai_screen_correct_share": 0.9736424891002774,
+  "interpretation": "Full AI-screen verdict share; not verified precision.",
+  "group_breakdowns": {
+    "predicate": {
+      "CO_INVESTED_WITH": {
+        "total": 2165,
+        "correct": 2163,
+        "uncertain": 1,
+        "incorrect": 1
+      },
+      "INVESTED_IN": {
+        "total": 1334,
+        "correct": 1281,
+        "incorrect": 42,
+        "uncertain": 11
+      },
+      "FOUNDED": {
+        "total": 359,
+        "correct": 343,
+        "uncertain": 6,
+        "incorrect": 10
+      },
+      "CO_FINANCED_WITH": {
+        "total": 243,
+        "correct": 243
+      },
+      "CEO_OF": {
+        "total": 211,
+        "correct": 203,
+        "uncertain": 2,
+        "incorrect": 6
+      },
+      "ACQUIRED": {
+        "total": 148,
+        "correct": 129,
+        "incorrect": 19
+      },
+      "PARTNERED_WITH": {
+        "total": 129,
+        "correct": 124,
+        "uncertain": 2,
+        "incorrect": 3
+      },
+      "COOPERATES_WITH": {
+        "total": 85,
+        "correct": 81,
+        "uncertain": 4
+      },
+      "SUBSIDIARY_OF": {
+        "total": 33,
+        "correct": 29,
+        "uncertain": 3,
+        "incorrect": 1
+      },
+      "MEMBER_OF": {
+        "total": 31,
+        "correct": 31
+      },
+      "DEVELOPS": {
+        "total": 30,
+        "uncertain": 1,
+        "incorrect": 2,
+        "correct": 27
+      },
+      "PART_OF": {
+        "total": 30,
+        "correct": 29,
+        "uncertain": 1
+      },
+      "AGREED_TO_ACQUIRE": {
+        "total": 26,
+        "uncertain": 1,
+        "correct": 25
+      },
+      "SUPPLIES_TO": {
+        "total": 24,
+        "correct": 21,
+        "uncertain": 2,
+        "incorrect": 1
+      },
+      "OWNS_STAKE_IN": {
+        "total": 18,
+        "correct": 17,
+        "incorrect": 1
+      },
+      "CONTRACTED_WITH": {
+        "total": 16,
+        "correct": 15,
+        "incorrect": 1
+      },
+      "JOINT_VENTURE_OF": {
+        "total": 15,
+        "correct": 15
+      },
+      "BOARD_MEMBER_OF": {
+        "total": 14,
+        "correct": 13,
+        "incorrect": 1
+      },
+      "REGULATES": {
+        "total": 13,
+        "correct": 8,
+        "uncertain": 3,
+        "incorrect": 2
+      },
+      "SPUN_OFF_FROM": {
+        "total": 13,
+        "correct": 13
+      },
+      "EXECUTIVE_OF": {
+        "total": 12,
+        "correct": 12
+      },
+      "APPROVED": {
+        "total": 10,
+        "correct": 10
+      },
+      "LENT_TO": {
+        "total": 10,
+        "uncertain": 1,
+        "correct": 9
+      },
+      "MERGED_WITH": {
+        "total": 10,
+        "uncertain": 1,
+        "correct": 7,
+        "incorrect": 2
+      },
+      "COMPETES_WITH": {
+        "total": 8,
+        "correct": 8
+      },
+      "PROVIDES_SERVICE_TO": {
+        "total": 6,
+        "correct": 6
+      },
+      "FINANCED": {
+        "total": 5,
+        "correct": 5
+      },
+      "INTEGRATES_WITH": {
+        "total": 5,
+        "correct": 5
+      },
+      "PLANS_TO_INVEST_IN": {
+        "total": 5,
+        "correct": 5
+      },
+      "SUED": {
+        "total": 5,
+        "correct": 5
+      },
+      "OPERATES": {
+        "total": 4,
+        "correct": 4
+      },
+      "PROPOSED_TO_ACQUIRE": {
+        "total": 4,
+        "correct": 4
+      },
+      "AGREED_TO_INVEST_IN": {
+        "total": 2,
+        "correct": 2
+      },
+      "ANTITRUST_ACTION_AGAINST": {
+        "total": 2,
+        "correct": 2
+      },
+      "CLOSED_INVESTIGATION_INTO": {
+        "total": 2,
+        "correct": 2
+      },
+      "CUSTOMER_OF": {
+        "total": 2,
+        "correct": 2
+      },
+      "INVESTIGATES": {
+        "total": 2,
+        "correct": 2
+      },
+      "LICENSED_TECH_FROM": {
+        "total": 2,
+        "correct": 2
+      },
+      "LISTED_ON": {
+        "total": 2,
+        "incorrect": 1,
+        "correct": 1
+      },
+      "PLANS_TO_ISSUE": {
+        "total": 2,
+        "correct": 2
+      },
+      "PLANS_TO_LIST_ON": {
+        "total": 2,
+        "correct": 2
+      },
+      "SOLD": {
+        "total": 2,
+        "correct": 1,
+        "incorrect": 1
+      },
+      "AGREED_TO_MERGE_WITH": {
+        "total": 1,
+        "correct": 1
+      },
+      "AWARDED_CONTRACT_TO": {
+        "total": 1,
+        "correct": 1
+      },
+      "GUARANTEED_BY": {
+        "total": 1,
+        "correct": 1
+      },
+      "RATED_BY": {
+        "total": 1,
+        "correct": 1
+      },
+      "SETS_TRADE_TARGET_WITH": {
+        "total": 1,
+        "correct": 1
+      }
+    },
+    "source": {
+      "techcrunch.com": {
+        "total": 4291,
+        "correct": 4207,
+        "uncertain": 21,
+        "incorrect": 63
+      },
+      "vietnamnews.vn": {
+        "total": 387,
+        "correct": 374,
+        "uncertain": 7,
+        "incorrect": 6
+      },
+      "vnexpress.net": {
+        "total": 245,
+        "uncertain": 8,
+        "correct": 231,
+        "incorrect": 6
+      },
+      "vneconomy.vn": {
+        "total": 71,
+        "correct": 59,
+        "incorrect": 11,
+        "uncertain": 1
+      },
+      "thanhnien.vn": {
+        "total": 29,
+        "correct": 23,
+        "incorrect": 6
+      },
+      "e.vnexpress.net": {
+        "total": 13,
+        "correct": 10,
+        "incorrect": 2,
+        "uncertain": 1
+      },
+      "tuoitre.vn": {
+        "total": 7,
+        "uncertain": 1,
+        "correct": 6
+      },
+      "en.vneconomy.vn": {
+        "total": 2,
+        "correct": 2
+      },
+      "www.24h.com.vn": {
+        "total": 1,
+        "correct": 1
+      }
+    },
+    "language": {
+      "en": {
+        "total": 4660,
+        "correct": 4561,
+        "uncertain": 29,
+        "incorrect": 70
+      },
+      "vi": {
+        "total": 386,
+        "uncertain": 10,
+        "correct": 352,
+        "incorrect": 24
+      }
+    }
+  },
+  "noncorrect_task_ids": [
+    "edge-00006",
+    "edge-00015",
+    "edge-00081",
+    "edge-00119",
+    "edge-00121",
+    "edge-00127",
+    "edge-00153",
+    "edge-00164",
+    "edge-00166",
+    "edge-00172",
+    "edge-00191",
+    "edge-00192",
+    "edge-00195",
+    "edge-00214",
+    "edge-00229",
+    "edge-00239",
+    "edge-00275",
+    "edge-00281",
+    "edge-00302",
+    "edge-00303",
+    "edge-00311",
+    "edge-00321",
+    "edge-00330",
+    "edge-00331",
+    "edge-00375",
+    "edge-00393",
+    "edge-00401",
+    "edge-00411",
+    "edge-00414",
+    "edge-00418",
+    "edge-00440",
+    "edge-00471",
+    "edge-00473",
+    "edge-00478",
+    "edge-00499",
+    "edge-00512",
+    "edge-00534",
+    "edge-00535",
+    "edge-00549",
+    "edge-00571",
+    "edge-00574",
+    "edge-00584",
+    "edge-00622",
+    "edge-00680",
+    "edge-00695",
+    "edge-00761",
+    "edge-00775",
+    "edge-00782",
+    "edge-00791",
+    "edge-00803",
+    "edge-00817",
+    "edge-00828",
+    "edge-00842",
+    "edge-00849",
+    "edge-00870",
+    "edge-00894",
+    "edge-00900",
+    "edge-00934",
+    "edge-00936",
+    "edge-00947",
+    "edge-01037",
+    "edge-01089",
+    "edge-01107",
+    "edge-01135",
+    "edge-01174",
+    "edge-01188",
+    "edge-01201",
+    "edge-01203",
+    "edge-01223",
+    "edge-01553",
+    "edge-01554",
+    "edge-01555",
+    "edge-01556",
+    "edge-01559",
+    "edge-01566",
+    "edge-01575",
+    "edge-01582",
+    "edge-01791",
+    "edge-01792",
+    "edge-01837",
+    "edge-01882",
+    "edge-01883",
+    "edge-01884",
+    "edge-01885",
+    "edge-01886",
+    "edge-01887",
+    "edge-01974",
+    "edge-02061",
+    "edge-04832",
+    "edge-04864",
+    "edge-04865",
+    "edge-04866",
+    "edge-04867",
+    "edge-04872",
+    "edge-04887",
+    "edge-04894",
+    "edge-04898",
+    "edge-04899",
+    "edge-04900",
+    "edge-04902",
+    "edge-04903",
+    "edge-04908",
+    "edge-04909",
+    "edge-04920",
+    "edge-04922",
+    "edge-04935",
+    "edge-04938",
+    "edge-04942",
+    "edge-04946",
+    "edge-04948",
+    "edge-04950",
+    "edge-04954",
+    "edge-04960",
+    "edge-04962",
+    "edge-04966",
+    "edge-04974",
+    "edge-04978",
+    "edge-04979",
+    "edge-04980",
+    "edge-04981",
+    "edge-04983",
+    "edge-04984",
+    "edge-04985",
+    "edge-04986",
+    "edge-04991",
+    "edge-04994",
+    "edge-04995",
+    "edge-04997",
+    "edge-05000",
+    "edge-05006",
+    "edge-05011",
+    "edge-05016",
+    "edge-05023"
+  ]
+}
