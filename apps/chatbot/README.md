@@ -89,9 +89,27 @@ Chạy backend:
 
 Để thử UI/lưu trữ mà không gọi LLM hoặc Neo4j, đặt `CHAT_MODE=mock`. Chế độ này trả dữ liệu minh họa có nhãn mock và bỏ qua pipeline guard/GraphRAG thực.
 
-### Nguồn evidence trên Hugging Face
+### Dùng graph public với Neo4j local
 
-AuraDB lưu `claim_ids`/`document_ids` trong sự kiện của cạnh, không chứa toàn bộ đoạn trích và bài báo. Export tương ứng với collection hiện tại nằm trong bucket đã cấu hình ở [HUGGINGFACE.md](../../docs/HUGGINGFACE.md):
+Repo có graph projection đã lược toàn văn và evidence text tại
+[`public-data/v15-global-business-only-20261112`](../../public-data/v15-global-business-only-20261112/README.md).
+Từ gốc repo, cấu hình `NEO4J_PASSWORD` trong `.env` (file này không commit), khởi động Neo4j local và nhập graph:
+
+```powershell
+docker compose up -d neo4j
+$env:NEO4J_URI = 'bolt://localhost:7687'
+$env:NEO4J_USERNAME = 'neo4j'
+$env:NEO4J_DATABASE = 'neo4j'
+uv run --no-sync weconomy import-neo4j public-data/v15-global-business-only-20261112
+```
+
+### Evidence source riêng cho chatbot
+
+Graph public không có câu evidence. Để chatbot trả evidence quote, tiếp tục tải `claims.jsonl` và `articles.jsonl`
+từ bucket riêng bên dưới; người dùng cần được cấp quyền đọc bucket. Sau khi dựng index, điền cùng cấu hình Neo4j
+local vào backend `.env` và cấu hình API key/model của riêng mình.
+
+Neo4j lưu `claim_ids`/`document_ids` trong sự kiện của cạnh, không chứa toàn bộ đoạn trích và bài báo. Export tương ứng với collection hiện tại nằm trong bucket đã cấu hình ở [HUGGINGFACE.md](../../docs/HUGGINGFACE.md):
 
 ```text
 hf://buckets/weconomy235/weconomy/exports/v15-manual-global-business-only-20261112

@@ -1,0 +1,88 @@
+{
+  "release": "v15-global-business-only-20261112",
+  "source_export": "international-business-v15-manual-20261112-global-business-only",
+  "counts": {
+    "articles": 923,
+    "entities": 2817,
+    "nodes": 2664,
+    "isolated_entities": 153,
+    "relations": 5046,
+    "claims": 5362,
+    "relation_types": 47
+  },
+  "source_export_manifest_sha256": "6e69d2cf80e9a93835538e4cfdc0b9af82850e555fa3312edaf820eaef1158f7",
+  "source_input_sha256": {
+    "articles": "7c9d46310ec579431bdb61a13ba8be88cad9dd61bd515a2cfd39c579f2526dd4",
+    "claims": "f2121aadcbb2704f28d804f9ff9efc1dac8b6f9a48fe3253685446dc1e25e46b",
+    "entities": "3ec259468d8961b57e13c3cc9374c1def3d93b303723a09e381aca2d2403e17f",
+    "mentions": "d1156e7f183bb370645c2912ebf19f0bff1ac9411923e187a02e69b099382625",
+    "relations": "a7389f21b5fdb4f7dbfb28745c639d4c1e3182625d2075ebac225ae085ec11fa"
+  },
+  "file_sha256": {
+    "articles.jsonl": "2d9cae6ba2f6889c2774015b34a69cbeed7d2c2f9abb46d04a8f57c1ef51ab8b",
+    "entities.jsonl": "67010fc5b940e864f9f1ac370bdcb79ea7c31f0b7477761c1be3f6afee58b779",
+    "relations.jsonl": "66b07cfc39c06cc15dac3933b9125e00508bca2d0ea81f9317bc14b971738d4c",
+    "claims.jsonl": "c8f727960a2eee2a08f062399596a02833ae31fa3739db5454d23d4ec7de739f"
+  },
+  "public_projection": {
+    "omitted_fields": {
+      "articles.jsonl": [
+        "archive_raw_path",
+        "archive_raw_sha256",
+        "archive_source_document_id",
+        "archive_source_run",
+        "authors",
+        "body_checked",
+        "body_paragraphs",
+        "domain_reasons",
+        "extraction_method",
+        "extractor_version",
+        "manual_body_additions",
+        "manual_source_review_status",
+        "nlp_eligible",
+        "normalized_body_paragraphs",
+        "normalized_word_count",
+        "paragraph_coverage",
+        "quality_flags",
+        "routing_method",
+        "source_id",
+        "source_run",
+        "source_url",
+        "text",
+        "trafilatura_coverage"
+      ],
+      "entities.jsonl": [
+        "domain_evidence",
+        "reused_from_entity_id"
+      ],
+      "relations.jsonl": [
+        "evidence",
+        "evidence_end",
+        "evidence_start",
+        "normalization_source_claim_id",
+        "normalized_claim_id",
+        "recovery_method",
+        "source_claim_id",
+        "source_run",
+        "supplement_kind",
+        "supporting_claim_ids",
+        "trigger"
+      ],
+      "claims.jsonl": [
+        "evidence",
+        "evidence_end",
+        "evidence_start",
+        "normalization_source_claim_id",
+        "normalized_claim_id",
+        "recovery_method",
+        "source_claim_id",
+        "source_run",
+        "supplement_kind",
+        "supporting_claim_ids",
+        "trigger"
+      ]
+    },
+    "evidence_status": "text and quote evidence omitted; use the group's access-controlled evidence bundle",
+    "quality_status": "candidate graph; independent human-gold precision has not been measured"
+  }
+}

@@ -102,6 +102,8 @@ Có thể đổi đường dẫn bằng `DATASET=...` và `OUTPUT=...`. Xem [to�
 
 Schema và ý nghĩa các trường nằm trong [SCHEMA.md](docs/SCHEMA.md), quy trình thân bài trong [FULLTEXT.md](docs/FULLTEXT.md), và kiến trúc trong [ARCHITECTURE.md](docs/ARCHITECTURE.md). `import-neo4j` nhận immutable run Parquet hoặc thư mục export JSONL của dataset; `hf-push` chỉ nhận immutable run Parquet. Hugging Face Bucket có thể đồng bộ thư mục `data` theo hướng dẫn tại [HUGGINGFACE.md](docs/HUGGINGFACE.md).
 
+Graph projection public v15 để import Neo4j local nằm tại [public-data/v15-global-business-only-20261112](public-data/v15-global-business-only-20261112/README.md). Bản này giữ triple, ID và URL nguồn; evidence quote/toàn văn vẫn cần bộ dữ liệu riêng có quyền truy cập.
+
 Để tạo bản graph chỉ gồm entity đã được gán subtype theo `initial.md`, dùng `weconomy filter-domain`; lệnh chi tiết và cách đọc bằng chứng nằm trong [docs/commands.md](docs/commands.md). Bản export gốc không bị thay đổi.
 
 Để phân tích lại các run cũ, crawl bổ sung nếu graph sau lọc domain còn thiếu, rồi import Neo4j/AuraDB khi đạt chỉ tiêu, chạy một lệnh:
