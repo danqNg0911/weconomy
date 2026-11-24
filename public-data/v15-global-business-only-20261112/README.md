@@ -1,25 +1,21 @@
-# Global business graph export v15
+# AuraDB global business graph snapshot
 
-This is the text-free public projection of the normalized export pinned in `manifest.json`.
-It contains graph entities, relations, claim/document IDs, source URLs, and attribution metadata.
-Original article text, raw HTML, quoted evidence, local source-run paths, and entity domain-evidence
-snippets are omitted. The source export and its AI review are research candidates; independent
-human-gold precision has not been measured.
+`entities.jsonl` and `relations.jsonl` are direct exports of the current Neo4j AuraDB graph. The
+snapshot includes the stored node and relationship properties, not a graph rebuilt from local
+normalized data. AuraDB currently has only `Entity` nodes; claims and articles are not graph nodes.
+`claims.jsonl` and `articles.jsonl` remain text-free supporting sidecars from the v15 normalized
+release so chatbot clients can resolve claim and document IDs. They are not part of the AuraDB graph.
 
 ## Contents
 
-- `entities.jsonl`: 2,664 entities that occur as endpoints in at least one graph relation.
-- `relations.jsonl`: 5,046 normalized graph relations.
+- `entities.jsonl`: 2,664 AuraDB `Entity` nodes with their stored properties.
+- `relations.jsonl`: 5,046 AuraDB relationships with their stored properties and endpoints.
 - `claims.jsonl`: 5,362 claim records with IDs, predicates, provenance IDs, and review status; no quote text.
 - `articles.jsonl`: 923 document records with title, URL, date, language, and content hash; no article body.
-- `manifest.json`: counts, source-input hashes, public-file hashes, and omitted-field list.
+- `manifest.json`: AuraDB snapshot time, graph fingerprint, counts, and file hashes.
 
-The public graph projection is reconciled with the read-only AuraDB snapshot: all 2,664 node IDs and all
-5,046 normalized relation triples match. The original normalized export has 153 additional isolated entity
-rows; none is referenced by the retained claim records, so they are excluded from this graph projection.
-The full article/evidence bundle remains access-controlled for group members and is required to build the
-chatbot's evidence index. This public projection alone supports graph import and traversal, but does not
-supply evidence quotes.
+The claims and articles sidecars have no article body or evidence quote. The full article/evidence bundle
+remains access-controlled for group members and is required to build the chatbot's evidence index.
 
 ## Import into local Neo4j
 
@@ -41,13 +37,15 @@ To run the evidence-grounded chatbot, members need read access to the group's ev
 follow the private evidence download steps in the chatbot README. Do not commit `.env`, the evidence cache,
 raw HTML, or full article text.
 
-## Rebuild and integrity
+## Refresh from AuraDB and integrity
 
-Regenerate this projection from the pinned local export with:
+After the graph is loaded into AuraDB, refresh the node and relationship files directly from AuraDB with:
 
 ```powershell
-uv run --no-sync python scripts/build_public_graph_export.py
+.\scripts\export_public_graph_from_aura.ps1
 ```
 
-Verify file hashes against `manifest.json` before importing. The repository MIT license applies to code;
-this dataset projection has no separate reuse license. Source URLs and publisher attribution are retained.
+This uses the read-only AuraDB connection in the repository root `.env`; it does not write to AuraDB.
+The full evidence package and `.env` must not be committed. Verify the exported file hashes against
+`manifest.json` before using the snapshot. The repository MIT license applies to code; this data snapshot
+has no separate reuse license. Source URLs and publisher attribution remain in the supporting sidecars.
