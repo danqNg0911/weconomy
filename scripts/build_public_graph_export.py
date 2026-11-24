@@ -50,20 +50,32 @@ def build(source=SOURCE, destination=DESTINATION):
     source, destination = Path(source).resolve(), Path(destination).resolve()
     source_manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
     destination.mkdir(parents=True, exist_ok=True)
+    source_relations = read_jsonl(source / "relations.jsonl")
+    source_entities = read_jsonl(source / "entities.jsonl")
+    connected_ids = {
+        endpoint
+        for relation in source_relations
+        for endpoint in (relation["subject_id"], relation["object_id"])
+    }
+    source_isolates = {row["entity_id"] for row in source_entities} - connected_ids
+    claim_endpoints = {
+        endpoint
+        for claim in read_jsonl(source / "claims.jsonl")
+        for endpoint in (claim["subject_id"], claim["object_id"])
+    }
+    if source_isolates & claim_endpoints:
+        raise ValueError("Cannot omit isolated entities referenced by retained claims")
     counts = {}
     source_fields = {}
     for kind, allowed in PUBLIC_FIELDS.items():
-        rows = read_jsonl(source / f"{kind}.jsonl")
+        rows = source_relations if kind == "relations" else read_jsonl(source / f"{kind}.jsonl")
         source_fields[kind] = set().union(*(row.keys() for row in rows))
+        if kind == "entities":
+            rows = [row for row in rows if row["entity_id"] in connected_ids]
         public_rows = [{key: value for key, value in row.items() if key in allowed} for row in rows]
         write_jsonl(destination / f"{kind}.jsonl", public_rows)
         counts[kind] = len(public_rows)
 
-    connected_ids = {
-        endpoint
-        for relation in read_jsonl(destination / "relations.jsonl")
-        for endpoint in (relation["subject_id"], relation["object_id"])
-    }
     entity_rows = read_jsonl(destination / "entities.jsonl")
     manifest = {
         "release": "v15-global-business-only-20261112",
@@ -72,10 +84,14 @@ def build(source=SOURCE, destination=DESTINATION):
             "articles": counts["articles"],
             "entities": len(entity_rows),
             "nodes": len(connected_ids),
-            "isolated_entities": len(entity_rows) - len(connected_ids),
+            "isolated_entities": 0,
             "relations": counts["relations"],
             "claims": counts["claims"],
             "relation_types": source_manifest.get("counts", {}).get("relation_types"),
+        },
+        "source_counts": {
+            "entity_rows": len(source_entities),
+            "isolated_entities_omitted": len(source_isolates),
         },
         "source_export_manifest_sha256": sha256(source / "manifest.json"),
         "source_input_sha256": source_manifest.get("lineage", {}).get("input_sha256", {}),
@@ -83,6 +99,7 @@ def build(source=SOURCE, destination=DESTINATION):
             f"{kind}.jsonl": sha256(destination / f"{kind}.jsonl") for kind in PUBLIC_FIELDS
         },
         "public_projection": {
+            "entity_scope": "only entities that are endpoints of at least one relation, matching the AuraDB graph projection",
             "omitted_fields": {
                 f"{kind}.jsonl": sorted(source_fields[kind] - allowed)
                 for kind, allowed in PUBLIC_FIELDS.items()

@@ -8,16 +8,18 @@ human-gold precision has not been measured.
 
 ## Contents
 
-- `entities.jsonl`: 2,817 entity rows, including 153 isolates.
+- `entities.jsonl`: 2,664 entities that occur as endpoints in at least one graph relation.
 - `relations.jsonl`: 5,046 normalized graph relations.
 - `claims.jsonl`: 5,362 claim records with IDs, predicates, provenance IDs, and review status; no quote text.
 - `articles.jsonl`: 923 document records with title, URL, date, language, and content hash; no article body.
 - `manifest.json`: counts, source-input hashes, public-file hashes, and omitted-field list.
 
-The graph has 2,664 connected nodes. Neo4j import loads all 2,817 entity rows, preserving the 153 isolated
-entities. The full article/evidence bundle remains access-controlled for group members and is required to
-build the chatbot's evidence index. This public projection alone supports graph import and traversal, but
-does not supply evidence quotes.
+The public graph projection is reconciled with the read-only AuraDB snapshot: all 2,664 node IDs and all
+5,046 normalized relation triples match. The original normalized export has 153 additional isolated entity
+rows; none is referenced by the retained claim records, so they are excluded from this graph projection.
+The full article/evidence bundle remains access-controlled for group members and is required to build the
+chatbot's evidence index. This public projection alone supports graph import and traversal, but does not
+supply evidence quotes.
 
 ## Import into local Neo4j
 

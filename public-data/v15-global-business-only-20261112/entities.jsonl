@@ -1,13 +1,10 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "0012b529e15c455c543c96b9", "entity_type": "PERSON", "name": "Mina Fahmi", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "002e815495b7d345f0f7497e", "entity_type": "ORG", "name": "TDK Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "0072b14dce9f7f3ac042c7b8", "entity_type": "ORG", "name": "FUN & SUN", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "007a8e1bd0f92f6eb3270db6", "entity_type": "ORG", "name": "OTECH", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "009e5aa954cc4f8e91c768f6", "entity_type": "GOV", "name": "Ministry of Agriculture, Forestry and Fisheries of Japan", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY", "TECH_COMPANY", "STARTUP"], "entity_id": "00a3fc110c9d471113887d71", "entity_type": "ORG", "name": "Northwood Space", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "00deaaa31c524218e5f8d5c1", "entity_type": "PERSON", "name": "Garry Tan", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "011418eefba80b87642eda67", "entity_type": "ORG", "name": "Siemens Mobility", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON", "TECH_FINANCE_CEO"], "entity_id": "0115b8698d008ce44bda187a", "entity_type": "PERSON", "name": "Phoebe Tan", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "014700ca7484061d93d46b4f", "entity_type": "ORG", "name": "BeMyGuest", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0167053814fd396bed5185d6", "entity_type": "ORG", "name": "Promus Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "01a0e4c0ab309f8fa11bc419", "entity_type": "ORG", "name": "AVP", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "01b9e8cd2500cbb6ea4a8592", "entity_type": "PERSON", "name": "Sinclair Schuller", "resolution_method": "exact_surface_type"}
@@ -22,7 +19,6 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "031f8efb5a0e729e1713b986", "entity_type": "PROJECT", "name": "Dự án Thuận An 1", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "03331cb3511920cb4ba26b5a", "entity_type": "ORG", "name": "Washington Harbour Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0340e2c37d0129aada693fa4", "entity_type": "ORG", "name": "FlexNinja", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "03700ea1d6ae7b959fa4777a", "entity_type": "ORG", "name": "Frasers Property", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "03a0fe172147e7bd5705f981", "entity_type": "PERSON", "name": "Michael Truell", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "03a576e0f8dbce645607b80d", "entity_type": "ORG", "name": "Gold House Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "03ab465293c59fec85739343", "entity_type": "PERSON", "name": "Antonio Espinosa de los Monteros", "resolution_method": "exact_surface_type"}
@@ -34,7 +30,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "04a7fdbc6afb7bfcfdfe601b", "entity_type": "ORG", "name": "Parallel Systems", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "04af8fb98a22bd8a34582582", "entity_type": "GOV", "name": "Ministry of Justice of China", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "04b69dac3b7511f38b91b1fc", "entity_type": "ORG", "name": "Borusan Lojistik", "resolution_method": "manual_reviewed_article_context"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "04c6586c83c7d6a4260c65c8", "entity_type": "ORG", "name": "APT Freight & Logistics Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "04e42c779a6eccda836141e3", "entity_type": "ORG", "name": "Stoke", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "04e8a5a66266e4ccc3303252", "entity_type": "ORG", "name": "Lucra", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0544d554493cb1186ca7509a", "entity_type": "ORG", "name": "Trive Capital", "resolution_method": "exact_surface_type"}
@@ -50,7 +45,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "071f73e2c253cab8f7e449f8", "entity_type": "ORG", "name": "Samsung Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "074a997d633ec5bbd67f7f6c", "entity_type": "PERSON", "name": "Danny Yeung", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "075081927368659475170149", "entity_type": "PERSON", "name": "George Kalligeros", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "0786f8516491b24903ab5d56", "entity_type": "ORG", "name": "Citi", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "080723529ce34e043b9f87f0", "entity_type": "ORG", "name": "Bonfire Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0828236bef2948ee892e32b7", "entity_type": "ORG", "name": "Carpenter Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "084bb0e172a754e238d7a819", "entity_type": "ORG", "name": "Together Fund", "resolution_method": "exact_surface_type"}
@@ -75,7 +69,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "0aa1a74e84a0083f71babea3", "entity_type": "PERSON", "name": "Garrett Langley", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "0ab9e27caf1c9407018283f3", "entity_type": "PERSON", "name": "Michael Kim", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "0b0a2e7d28525f8626447759", "entity_type": "ORG", "name": "Haier Group", "resolution_method": "manual_evidence_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0b0a5d83b75673f8650cb51c", "entity_type": "ORG", "name": "Narita International Airport", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0b30e2338b0a66a3b6bd3ecd", "entity_type": "ORG", "name": "WestCap", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "0b680611fbdf60dec432e4eb", "entity_type": "ORG", "name": "Arizona", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "0baac99ade2e845704d86295", "entity_type": "ORG", "name": "Basis", "resolution_method": "exact_surface_type"}
@@ -110,7 +103,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "11b941956ae951fd6b1c0ff3", "entity_type": "ORG", "name": "Enigma", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "12310ad3646b86321ff88c48", "entity_type": "ORG", "name": "Industry Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "1245734d4e352c452ce42870", "entity_type": "ORG", "name": "Lio", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "12c390baed55f80b72ae55ca", "entity_type": "ORG", "name": "Planter Products Inc.", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "131bde4e2301bfdd2e448286", "entity_type": "PERSON", "name": "Juichi Hirasawa", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "133cca4f884a83da940fe075", "entity_type": "ORG", "name": "Meiko Electronics", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "135fa40060e172af915e6f24", "entity_type": "ORG", "name": "Collaborative Fund and includes participation from Mubadala Investment Company", "resolution_method": "exact_surface_type"}
@@ -129,7 +121,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1571ac32bb567b0890715c8d", "entity_type": "ORG", "name": "Omantel Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1587c8c57bef923bfa291279", "entity_type": "ORG", "name": "Initialized Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "15888bd2be8efcbf75dbd816", "entity_type": "ORG", "name": "Gamuda Land", "resolution_method": "manual_reviewed_article_context"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "159e44b85c9943cc8afa9b35", "entity_type": "ORG", "name": "Topsoe", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "15b9c0ee8bc3cf64e9d648f6", "entity_type": "ORG", "name": "Lotte Properties", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "TECH_COMPANY"], "entity_id": "162fd91f31980024b8234b30", "entity_type": "ORG", "name": "TSMC", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1658911a81d7e55a1ae0614a", "entity_type": "ORG", "name": "OurCrowd", "resolution_method": "exact_surface_type"}
@@ -150,7 +141,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "19332c3d4061543b1f5fd1ce", "entity_type": "ORG", "name": "RCM Private Markets Fund", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "1936e675cbe4385b19629a8a", "entity_type": "ORG", "name": "Thrive Holdings", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "197688921ffdc2ac00ea188c", "entity_type": "ORG", "name": "Wischoff Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["GOVERNMENT"], "entity_id": "199e8bbb0d3aa0e6cf0e9fae", "entity_type": "GOV", "name": "Shimane Prefectural Government", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "19f0cf75b3732057b06923b3", "entity_type": "ORG", "name": "Yanfeng", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "1a00971a7e0928a8c2396c4a", "entity_type": "ORG", "name": "Daytona Platforms", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "1a18d09f12a5914e1f8fecaa", "entity_type": "PERSON", "name": "Sundar Pichai", "resolution_method": "exact_surface_type"}
@@ -173,7 +163,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1c44d38f6f5527f4090d619d", "entity_type": "ORG", "name": "CirrusDx", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1c542aabf8ca8d73bdb81b49", "entity_type": "ORG", "name": "Abstract", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "1c7f067259d7247c418c1bce", "entity_type": "PERSON", "name": "Sharad Sanghi", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "1c997f2d684dc3627e55c6ac", "entity_type": "ORG", "name": "Sun Prince TBA Corporation", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "1ccac1c55fcd3b5bd30f0e04", "entity_type": "ORG", "name": "Gamma", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "1d001fcc8fe5b1add81975a7", "entity_type": "PROJECT", "name": "Dự án The EverRich 2", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "1d296edfcde59fc8de5a0142", "entity_type": "ORG", "name": "Open Campus", "resolution_method": "manual_article_review"}
@@ -194,7 +183,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "20152e3936c1c7a7d1fe8a7b", "entity_type": "ORG", "name": "Menlo Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "201e2215130130212abf060a", "entity_type": "PERSON", "name": "Aditya Jayaprakash", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "TECH_COMPANY"], "entity_id": "2020382c67f0b8d95b85b3ce", "entity_type": "ORG", "name": "ByteDance", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "209e6cf9d3a4e60f2e180267", "entity_type": "ORG", "name": "Gaw Capital Partners", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "20aa4c7e2d371ffb7d534ad1", "entity_type": "ORG", "name": "Cloudflare", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2163d3469b3b696063ca454d", "entity_type": "PERSON", "name": "Dan Keene", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "216ffbe27beae27888f0f161", "entity_type": "ORG", "name": "Mixhalo", "resolution_method": "exact_surface_type"}
@@ -219,7 +207,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "24189acb26de008c246982dc", "entity_type": "ORG", "name": "Menlo Ventures and the Scaleup Europe Fund", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2434716d9e45b271274f20a3", "entity_type": "PERSON", "name": "Phoebe Gates", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BILLIONAIRE", "BUSINESS_PERSON"], "entity_id": "2434909504e2be2196ceffa8", "entity_type": "PERSON", "name": "Elon Musk", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2436f4d418747a54460799da", "entity_type": "ORG", "name": "Amata Township Long Thành", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "24375ae6617cd1f386baab85", "entity_type": "ORG", "name": "SolarCity", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "245d383f57d66dcd331aef9f", "entity_type": "PERSON", "name": "Alex Pall", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "24a1e45e79eec557425ef261", "entity_type": "PERSON", "name": "Carina Hong", "resolution_method": "exact_surface_type"}
@@ -229,20 +216,16 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "252f0cfa932d4d67b9c6df69", "entity_type": "ORG", "name": "Pruven Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "253d0f7c3d848283fac3c0ed", "entity_type": "ORG", "name": "Sailthru", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "254c909256a7edae111c05a2", "entity_type": "ORG", "name": "Punjab National Bank", "resolution_method": "manual_source_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "2570fe3369e1a7151662f9c4", "entity_type": "ORG", "name": "The Norwegian Investment Fund for developing countries", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "25927cd6c2710bcf1dbd41c2", "entity_type": "ORG", "name": "Pratt & Whitney", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "25b4df2f1331ca11b47eb163", "entity_type": "ORG", "name": "EY", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "25e04f2459945fb10b921be5", "entity_type": "ORG", "name": "Symphony Communication Public Company Limited", "resolution_method": "manual_evidence_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2626e37279c34e7a2dd84a24", "entity_type": "PERSON", "name": "Sheel Mohnot", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "26357e71b70ceb629e0929fd", "entity_type": "ORG", "name": "Mixer Labs", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "26e02578d1ab19e8067434db", "entity_type": "ORG", "name": "MosaicML", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "26e5f8945293ef9b9e2f0e7b", "entity_type": "ORG", "name": "Riddhi Enterprises", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "26ecce1edee2de88f58282e4", "entity_type": "ORG", "name": "Dell", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "270da7a4b997cfd794c77deb", "entity_type": "PERSON", "name": "Anton Osika", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "27295a70d158dcd2f4edbec2", "entity_type": "ORG", "name": "WAYCEN Company Limited", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "27370290a8bafd19daa6d18b", "entity_type": "ORG", "name": "Felicis", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "276d2126552a2dcc75c54f4a", "entity_type": "ORG", "name": "MacroCycle", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "277c6ccaa970467bc3137eac", "entity_type": "ORG", "name": "VIAExpo", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "VC_FUND"], "entity_id": "2796fa3da4321cade1030413", "entity_type": "ORG", "name": "VC", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "27b576ffe6e8eaae848d3e58", "entity_type": "ORG", "name": "SeventySix Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "27ee32df3376c549c65b8439", "entity_type": "ORG", "name": "Matrix", "resolution_method": "exact_surface_type"}
@@ -250,8 +233,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "282868625f9db619e6198810", "entity_type": "ORG", "name": "Instacart", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "28701cbec2adbb1f4841fddc", "entity_type": "ORG", "name": "Rune Technologies", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "287c99f3fa2d1557e5ecbbc4", "entity_type": "ORG", "name": "The Export-Import Bank of Korea", "resolution_method": "manual_source_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "289c5682e77cda684df2f005", "entity_type": "ORG", "name": "Zarubezhneft Asia", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "28cc9fc3946b90179477119b", "entity_type": "ORG", "name": "Vietnam Medical Tourism Alliance", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "28f8d0a8a1325e0c93ed88b6", "entity_type": "ORG", "name": "Pronto", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "2905140b04deeba73eb735b6", "entity_type": "ORG", "name": "Console", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2968dced95969b3ea1c3d96b", "entity_type": "PERSON", "name": "Jay Graber", "resolution_method": "exact_surface_type"}
@@ -264,7 +245,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2ae5334bac01800cf689556b", "entity_type": "ORG", "name": "Hongkong Caterers Limited", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "2b0b5f0ae139027810aaeaee", "entity_type": "ORG", "name": "Commercial Bank of Ceylon", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2b2cbde5b64d3745b4499979", "entity_type": "PERSON", "name": "Edward Tian", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2b2ec434f2b3d0be06ccc283", "entity_type": "ORG", "name": "V-G", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "2b2fd427c00e8e1ab4aec0d6", "entity_type": "ORG", "name": "Highlander Health", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2b8ce20e2278660316478939", "entity_type": "ORG", "name": "Crane Venture Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "2b9cbfb3ceab903fd0c3084c", "entity_type": "ORG", "name": "Inertia Enterprises", "resolution_method": "exact_surface_type"}
@@ -289,7 +269,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2f40806532d093f0ce32690f", "entity_type": "ORG", "name": "EOS Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "2f7b17140c19b712f4ed3289", "entity_type": "ORG", "name": "Sequoia Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "2f8266ad0ee64bc2766591dd", "entity_type": "PERSON", "name": "Azamat Karamatov", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "2fdb8dd1378e80ae8267ba3c", "entity_type": "PERSON", "name": "Nguyễn Thu Hằng", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "2ffcd7d8cd3c61cdebad4c37", "entity_type": "ORG", "name": "Sarah Guo of Conviction Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "30b0818a21383e6b655dfb40", "entity_type": "ORG", "name": "Fidelity Management & Research Company", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "30c3d61c5182a7c2a12d27e2", "entity_type": "ORG", "name": "TimeBeat", "resolution_method": "exact_surface_type"}
@@ -303,7 +282,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "3270e7f5aa289f1986bfdead", "entity_type": "PERSON", "name": "Andrei Serban", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "3297866d553f8c6ebade7c17", "entity_type": "ORG", "name": "Decart", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "32bc6bb4ef3fad3b540102e7", "entity_type": "ORG", "name": "Laskie", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "33064235841b87b7b0c7634d", "entity_type": "ORG", "name": "Hyosung Heavy Industries", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "33081b4a3ae74bfc54a75588", "entity_type": "PERSON", "name": "Kareem Amin", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "TECH_COMPANY"], "entity_id": "330fcc9a47af3ac7c2583513", "entity_type": "ORG", "name": "Flipkart", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "3354912aaedcc524d3fcb3c8", "entity_type": "PERSON", "name": "Sebastian Siemiatkowski", "resolution_method": "exact_surface_type"}
@@ -325,7 +303,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "34c55ac3838dbd174b0ac02f", "entity_type": "ORG", "name": "Sailun", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "35047328a7b04930d036395b", "entity_type": "ORG", "name": "Remini", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "353d6904572bc17d6d4627ee", "entity_type": "GOV", "name": "Ministry of Science and Technology of Vietnam", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "354d23f4c27beaa60b0d5ba5", "entity_type": "ORG", "name": "CAITO", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "355ea6162f5652f385e0e649", "entity_type": "ORG", "name": "KN Holdings", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "357559bd69860a580d18c125", "entity_type": "ORG", "name": "Vietnam International Financial Center - HCMC", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "3582f5a86a66cc920287fac9", "entity_type": "ORG", "name": "Lowercarbon Ventures", "resolution_method": "exact_surface_type"}
@@ -349,16 +326,13 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "3817a73c03927402459fe73b", "entity_type": "ORG", "name": "AnPR", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "3834593b5926944703a4d7e8", "entity_type": "ORG", "name": "Prudence Venture Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "383e36065934829fed812658", "entity_type": "ORG", "name": "DEG", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "383f62529a7813bd85022151", "entity_type": "ORG", "name": "Copenhagen Infrastructure Partners", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "3889020295eae2238dc7821c", "entity_type": "PERSON", "name": "Nicholas Charriere", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "38c083f978710e11eec4d6cb", "entity_type": "PERSON", "name": "Chase Lochmiller", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "38ea7297b676d6f56153f2d4", "entity_type": "ORG", "name": "Menlo", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "390de551ee290a4841cd3bd0", "entity_type": "ORG", "name": "Quỹ Hỗ trợ Phát triển Du lịch", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "391b05d3f1e9d32ccd61d71c", "entity_type": "ORG", "name": "Alex", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "394e241265ade467aa702f2e", "entity_type": "ORG", "name": "Eragon", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "396cc0eed0253d686127e334", "entity_type": "ORG", "name": "Curious", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "39a61660958507b08003cf57", "entity_type": "ORG", "name": "Caterpillar", "resolution_method": "manual_evidence_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "39c65260dc2669bedbd3be1e", "entity_type": "ORG", "name": "Tradelinks Logistics", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "39c7295ef5448714a766d141", "entity_type": "ORG", "name": "AI Hugging Face", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "39c7ff17964c6f09dac1ff24", "entity_type": "ORG", "name": "Anthropic", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "39d02bf344019695fb8597ab", "entity_type": "PERSON", "name": "Shai Morag", "resolution_method": "exact_surface_type"}
@@ -372,7 +346,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "3b5bc2bdf53331a2ad124f39", "entity_type": "PERSON", "name": "CEO Dylan Field", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "3b7ff5f7dae50da8413ff862", "entity_type": "ORG", "name": "Halogen Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "3ba2dd8e3d75a4834c403b5d", "entity_type": "PROJECT", "name": "II-VI thermoelectric materials and cooling devices production", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "3bbc212aef6ebe49bb2ebae6", "entity_type": "ORG", "name": "Supchaleun Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BILLIONAIRE", "BUSINESS_PERSON"], "entity_id": "3bc692590455618dad7cfc19", "entity_type": "PERSON", "name": "Michael Dell", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND", "VC_FUND"], "entity_id": "3c220f472467c4997e28128f", "entity_type": "ORG", "name": "Insight Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY", "FUNDED_ORGANIZATION", "TECH_COMPANY"], "entity_id": "3c46abde373910bf2d4b24d1", "entity_type": "ORG", "name": "Ramp", "resolution_method": "exact_surface_type"}
@@ -428,7 +401,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "45715e3bc8fecb8e32924fbe", "entity_type": "ORG", "name": "Duna", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "45bf7d81cb2ebb9e7b9a81a0", "entity_type": "PERSON", "name": "Lee Yeow Seng", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "4608960bb4ca0cb03a74c078", "entity_type": "PERSON", "name": "Lê Nữ Thùy Dương", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "460ae7a2e483e4dcba60fa7b", "entity_type": "ORG", "name": "MM Mega Market", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "461bf814fc70d085e978be13", "entity_type": "ORG", "name": "Inertia", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "46298f2b0aac7768787d5ccf", "entity_type": "PERSON", "name": "Noah Kotlove", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "46b594802375c8568efd06c3", "entity_type": "ORG", "name": "Preply", "resolution_method": "exact_surface_type"}
@@ -447,7 +419,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "4934d8dfe08a90bf44d1751a", "entity_type": "ORG", "name": "VITL", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "49486fdc39afcd9e050ae17e", "entity_type": "ORG", "name": "Antimatter", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "494d0baaa8e2629820963c84", "entity_type": "ORG", "name": "Satair", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "496d9ad26c617e2bfb3a40ba", "entity_type": "ORG", "name": "Griffin Global Asset Management", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "49733ea218d79bc1ef6d0cf8", "entity_type": "ORG", "name": "True Anomaly", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4976f699c97622ad11cf261f", "entity_type": "ORG", "name": "Eclipse", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "4992c265f4ade2d542a307a9", "entity_type": "ORG", "name": "Asahi Life", "resolution_method": "manual_reviewed_article_context"}
@@ -464,7 +435,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4b4e447de3daeabd351c8afe", "entity_type": "ORG", "name": "TBS Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "4b4f6a534c006095d6573fb4", "entity_type": "ORG", "name": "Vivodyne", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4b568f90359aa8e0eba4f527", "entity_type": "ORG", "name": "Polari Labs", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "4b6e345624f8946a82661391", "entity_type": "PROJECT", "name": "Savan 2 wind power project", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4b9e703f73d0a62bd7924e7d", "entity_type": "ORG", "name": "Starhill Holdings", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4be852452efd1ffee82d026c", "entity_type": "ORG", "name": "Avenir Growth", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4c01fa2adf7e291d9abaff91", "entity_type": "ORG", "name": "Khosla Ventures", "resolution_method": "exact_surface_type"}
@@ -477,7 +447,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4dd5d45510cd864471b8f0c1", "entity_type": "ORG", "name": "eBay", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "4dda486bccabe90a0995a465", "entity_type": "ORG", "name": "Cursor", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4de226d2d3d6bea91d55c2dc", "entity_type": "ORG", "name": "TensorWave", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4e267c358c6c665e80fd6f86", "entity_type": "ORG", "name": "Ngoc Hoi Real Estate Investment Joint Stock Company", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "4f16509493d41dfac6416b83", "entity_type": "ORG", "name": "Sacombank Laos", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "4f2b9741343960f76b111aca", "entity_type": "ORG", "name": "Lotus", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "4f36aa1c4dc3a1e32cf77a05", "entity_type": "ORG", "name": "Mellanox", "resolution_method": "exact_surface_type"}
@@ -491,8 +460,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY", "INVESTMENT_FUND", "VC_FUND"], "entity_id": "503da392679337f76186694f", "entity_type": "ORG", "name": "Tribe Capital", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "50826dfa0125d240323a3716", "entity_type": "ORG", "name": "Spark Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "50926c833d420860e5037344", "entity_type": "ORG", "name": "Tokgistic Pte. Ltd.", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "50c2f453f7ed5ac4a873ac7b", "entity_type": "PROJECT", "name": "VinFast factory in Thoothukudi, India", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "50e4cd334a61f20993e9745c", "entity_type": "ORG", "name": "Rogers Asia", "resolution_method": "manual_article_review"}
 {"domain_types": ["MULTINATIONAL_CORPORATION", "BUSINESS_ORGANIZATION"], "entity_id": "51092d410dc96f16f2ea84bb", "entity_type": "ORG", "name": "Roche", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5109a823fba18697a2d4e78f", "entity_type": "ORG", "name": "Monzo Bank", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "51165b550c86b98380fd6fe2", "entity_type": "ORG", "name": "GL events", "resolution_method": "manual_article_review"}
@@ -512,7 +479,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "53688effe1fc46388aeabf34", "entity_type": "ORG", "name": "Constellation Energy", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "53a93113e3ce41e2d952f65e", "entity_type": "ORG", "name": "Harlo Equity Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "53ac62d57465d98b1da5345d", "entity_type": "ORG", "name": "Ares Acquisition Corporation II", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "53d369085b7fafe50cae83d4", "entity_type": "ORG", "name": "AEL Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "544c2ebc2ce33551c8c4c232", "entity_type": "ORG", "name": "Lux", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "54f1cf9809c0dcdba097ff9b", "entity_type": "ORG", "name": "World Fund", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "54fdafec1bf1645ed9508b33", "entity_type": "ORG", "name": "Apptronik", "resolution_method": "exact_surface_type"}
@@ -530,7 +496,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5730ff2928a47609ad3028f8", "entity_type": "ORG", "name": "Susquehanna Venture Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "57b623e5aad171820884a980", "entity_type": "ORG", "name": "DIC Corp", "resolution_method": "manual_article_review"}
 {"domain_types": ["STARTUP", "BUSINESS_ORGANIZATION"], "entity_id": "57bee893c581f9561cbd01bf", "entity_type": "ORG", "name": "Odessia", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "57d0f5cce92f729bcdb25897", "entity_type": "PROJECT", "name": "Mỹ Xuân 6 Terminal", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "57d5f0026cfe8488c98c01cd", "entity_type": "PERSON", "name": "Yohei Kiguchi", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "5822c37081d66602d5761caf", "entity_type": "ORG", "name": "Mescells|MSC", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "583ced31079053aa4d08e7b3", "entity_type": "ORG", "name": "Armadin", "resolution_method": "exact_surface_type"}
@@ -548,12 +513,10 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "595f58032600b8ec0a8d8f25", "entity_type": "PERSON", "name": "Chris Larsen", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "59787755481816a9201ca794", "entity_type": "ORG", "name": "Aaru", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "59a3238551f01d0b230c58a3", "entity_type": "ORG", "name": "X (Alphabet)", "resolution_method": "explicit_document_context"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "59dc166356682b69b8558e82", "entity_type": "PERSON", "name": "Đỗ Quang Vinh", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "59ec8e9dbb69804183335d8f", "entity_type": "ORG", "name": "CM Plus Corporation", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5a0368235a9b24646e5cc8ca", "entity_type": "ORG", "name": "Durable Capital Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "5a183b896ede483ec459e2ed", "entity_type": "GOV", "name": "Chính quyền thành phố Hà Nội", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "5a2366d2f062107a52836dad", "entity_type": "PERSON", "name": "Justin Kosmides", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "5a31fc734d62aab176fd5720", "entity_type": "ORG", "name": "Amparus Tour", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5a42f862ac6c3dca47828a68", "entity_type": "ORG", "name": "Bcons", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "5a60f506a3e45c0cb774b70a", "entity_type": "ORG", "name": "MEF III", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "5a6308d814d5815bf575f6ea", "entity_type": "GOV", "name": "Tanzania Ministry of Foreign Affairs and East African Cooperation", "resolution_method": "manual_article_review"}
@@ -564,9 +527,7 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "5ac2c1ea0b6bcb86b8ec681f", "entity_type": "ORG", "name": "Starbridge", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "5acfde2cfcb5458dca1e0f87", "entity_type": "ORG", "name": "International Finance Corporation", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "5ae1470a54311292553fcce7", "entity_type": "ORG", "name": "Fal", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "5b02577d1e8e18c74b5f1b5f", "entity_type": "ORG", "name": "Korean Chip Design Industry Association (KFIA)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5b1efc3b7e750c854e370be4", "entity_type": "ORG", "name": "Meta", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "5b42bca0d585f9c4383ac276", "entity_type": "ORG", "name": "Russian Union of Exhibitions and Fairs", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5b59ecc371972ca1bf01d26e", "entity_type": "ORG", "name": "TCV", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "5b5bfbfa4e30a9b99171c6d0", "entity_type": "PERSON", "name": "Marlinspike", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "5b66cfc1983e968a27ce045b", "entity_type": "ORG", "name": "Chipotle", "resolution_method": "manual_article_review"}
@@ -590,9 +551,7 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5dbdaca5b39e2bac126f89ee", "entity_type": "ORG", "name": "SK Hynix", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "5dfe58eb5b32b38d89b549fc", "entity_type": "PERSON", "name": "Eugenia Kuyda", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5e56330ae48b2cc44d46ccdd", "entity_type": "ORG", "name": "Xona", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "5e59e660da753f8de90a9ef2", "entity_type": "PROJECT", "name": "Dự án Serenity Phước Hải", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "5e8e8803441ff19d56365017", "entity_type": "ORG", "name": "Xcimer", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "5eb9a55becc2f9f034abe415", "entity_type": "PERSON", "name": "Phạm Nhật Vượng", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "5ec16c28aff397a9b5150ad1", "entity_type": "PERSON", "name": "Neil Mehta", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "5eef88ba0ef700639c6792b0", "entity_type": "PERSON", "name": "Ariel Michaeli", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "5f2bc418ecc620e6ef55e872", "entity_type": "ORG", "name": "Portage Ventures", "resolution_method": "exact_surface_type"}
@@ -628,7 +587,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "645a100656d4b049c699b6a0", "entity_type": "ORG", "name": "Quiet Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "64aa976a98de7f13effde9c9", "entity_type": "ORG", "name": "NOC", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "64ba795985fcae2108e98f09", "entity_type": "ORG", "name": "Founders Fund", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "64cfc38de39cbb14f04fd732", "entity_type": "ORG", "name": "Nordic Travel Associates", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "65039f20f57a6dbf1dcea43d", "entity_type": "ORG", "name": "DiligenceSquared", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "651b6e14c59478a7768b1861", "entity_type": "ORG", "name": "Twynam", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "651c42254b788230ada17e12", "entity_type": "ORG", "name": "IQ Capital", "resolution_method": "exact_surface_type"}
@@ -666,9 +624,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "6a5011cd05f1556fcd881c2a", "entity_type": "ORG", "name": "Crusoe", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "6aafed823f95245401c0ab55", "entity_type": "ORG", "name": "Aseon Labs", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "6ac381201e3e4f02b02a7b2d", "entity_type": "ORG", "name": "M??ng Thanh Vientiane Hotel", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6adc0387acefd4d19c7a98bd", "entity_type": "ORG", "name": "InteliSys Aviation Systems", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6add86305e64604221cacb11", "entity_type": "ORG", "name": "Klook", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6aedc9c5cf44cf21e8ed7143", "entity_type": "ORG", "name": "Akros Cashew Factory", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6b23e91f73e225a35c780b63", "entity_type": "ORG", "name": "Fusion Hotel Group", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6b269878b9716912ee656b78", "entity_type": "ORG", "name": "Berkshire Hathaway", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6b2d55f07386eefe28986c02", "entity_type": "PERSON", "name": "Marc Benioff", "resolution_method": "exact_surface_type"}
@@ -682,9 +637,7 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6c1523ac62e7eb3bc2f51249", "entity_type": "ORG", "name": "Kumpool", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6c1bf915b543438ea1f681c3", "entity_type": "PERSON", "name": "Arvind Jain", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6c3c1eb8ab8cd7b5287d4a7b", "entity_type": "ORG", "name": "Hard Launch Capital", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6c88baf7b7cf5b25b31621c8", "entity_type": "ORG", "name": "Philippine Airlines", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6ca70662645d1c416334e33d", "entity_type": "ORG", "name": "Whatnot", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "6ccc5e910632d34d5d274ba7", "entity_type": "ORG", "name": "Puregold Price Club Inc.", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6d32a92e9a4595a448dfe731", "entity_type": "PERSON", "name": "Jesse Draper", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6d3b672ab2fd9b6c02a9d95c", "entity_type": "ORG", "name": "Epoch Biodesign", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "6d4b5e9a09bf2935f6338e76", "entity_type": "ORG", "name": "Gather AI", "resolution_method": "exact_surface_type"}
@@ -700,7 +653,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "6e3823e430c1dec23dfcf922", "entity_type": "ORG", "name": "Mundi Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6e85104c949fa56bc91fd83c", "entity_type": "ORG", "name": "Daiwa Corporate Investment", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6ea7532f3153d9e15c5d8868", "entity_type": "PERSON", "name": "Trevor Bezdek", "resolution_method": "manual_reviewed_article_context"}
-{"domain_types": ["GOVERNMENT"], "entity_id": "6ebc182c3ffc6b86fbfd0e6d", "entity_type": "GOV", "name": "Nagasaki Prefectural Government", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "6ed50d47c6c3d70546f1a69f", "entity_type": "GOV", "name": "Japan Patent Office", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "6f185ca7f8f203de350a361d", "entity_type": "ORG", "name": "WeRoad", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6fa66de3060bb41a53698725", "entity_type": "PERSON", "name": "Edward Kim", "resolution_method": "exact_surface_type"}
@@ -721,12 +673,9 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "7245da07a239593e256db12e", "entity_type": "PERSON", "name": "Sam", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "72867223d9b82aee818f4e86", "entity_type": "GOV", "name": "Ministry of Agriculture and Environment of Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "72a97b4ea20fa66e7a724b44", "entity_type": "PERSON", "name": "Jeff Cardenas", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "72b5f5500372b5bbeb367c23", "entity_type": "ORG", "name": "Danish Industry", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "72b6bfa4b7b02ca7ec18f32c", "entity_type": "ORG", "name": "HGI Investment", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "72bedb76b18e2b5746c34437", "entity_type": "ORG", "name": "Beijing Shuozoujiuzou Technology Co Ltd", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "72bf3da660b559b37bb78f0b", "entity_type": "PERSON", "name": "Olugbenga Agboola", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "72cdcab79d18dd30695665fa", "entity_type": "ORG", "name": "Runlayer", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "72cfd641fb4dea01932e4d1d", "entity_type": "ORG", "name": "Copenhagen Airport", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "72e634b96a01d87af96315e6", "entity_type": "GOV", "name": "Reserve Bank of India", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "73051e18a514d6a41b03fe45", "entity_type": "ORG", "name": "AdaniConnex", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "732854a9f48c8af85ee6bf48", "entity_type": "ORG", "name": "LetinAR", "resolution_method": "exact_surface_type"}
@@ -753,14 +702,12 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "7635493f7c97b3b3f04d1423", "entity_type": "PERSON", "name": "Matthew Prince", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "76824efce46789be1bfe966a", "entity_type": "PERSON", "name": "Jensen Huang", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "76a39f35be4849f9ce076c36", "entity_type": "ORG", "name": "Kinside", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "76c86d4fa0bac6dc51a5f273", "entity_type": "ORG", "name": "KTNF", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "76d7c5db9763ca8c3e392180", "entity_type": "PERSON", "name": "Jason Droege", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "76daf47b73c3d702ffa943e2", "entity_type": "ORG", "name": "Lovable", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "76e6ed83467ba87fb2860434", "entity_type": "PERSON", "name": "Muthu Alagappan", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "76ff2db87dd081b21a27159b", "entity_type": "PERSON", "name": "Saksham Sarda", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "7719653f03885ddb99f81e9b", "entity_type": "ORG", "name": "Hettich Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "771a5a30df8abc0a6d020864", "entity_type": "ORG", "name": "Circuit", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "771c43ce91c248a5c6b08beb", "entity_type": "ORG", "name": "A.P. Moller Capital", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "777051968a86a47b9d64f1ff", "entity_type": "PERSON", "name": "Kahlil Lalji", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "77f8adeddb74b8221af9ce93", "entity_type": "ORG", "name": "AGRI SMILE", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "787044e506883a438482ed61", "entity_type": "ORG", "name": "GRAI", "resolution_method": "exact_surface_type"}
@@ -770,7 +717,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "790ca321dc370a4b4f7bbe91", "entity_type": "ORG", "name": "TechnoBridge Company", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "793b60edca20917a786280ba", "entity_type": "ORG", "name": "Dell Technologies", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "79416fb39fddc41a14b11b0a", "entity_type": "ORG", "name": "Baruch Future Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "79464571e1603a8c90d78374", "entity_type": "ORG", "name": "Đại học Tôn Đức Thắng", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "7954af2df2bce76b74222501", "entity_type": "ORG", "name": "Brightmind Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "797af67ae4109e90cdf595df", "entity_type": "GOV", "name": "Daegu Metropolitan City Government", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "798fdb6bef08e46f7d4ff96a", "entity_type": "ORG", "name": "Wonder Dynamics", "resolution_method": "exact_surface_type"}
@@ -787,7 +733,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "VC_FUND"], "entity_id": "7bbad786d35cba13f00e4192", "entity_type": "ORG", "name": "General Catalyst", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "7c56276e6f2742ee6fa17e2f", "entity_type": "ORG", "name": "Fagioli Group", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "7c636349efe7483d8d38c6a9", "entity_type": "ORG", "name": "MangoAI", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "7c791ce0d3028c865febc10c", "entity_type": "ORG", "name": "Luxembourg Stock Exchange (LuxSE)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "7ce6847c78f897f1b94e743e", "entity_type": "PERSON", "name": "Nicolas Wittenborn", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "7d1591e88a41cea6c73cfb07", "entity_type": "ORG", "name": "T-Mobile", "resolution_method": "manual_evidence_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "7d22c4164fa5c5b37037cd76", "entity_type": "PERSON", "name": "Amit Jain", "resolution_method": "exact_surface_type"}
@@ -814,7 +759,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "80688768e38748dede582984", "entity_type": "PERSON", "name": "Brendan Foody", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "80d34f5fe3ffdac1bc7e5f90", "entity_type": "PERSON", "name": "Toru Takakura", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "80df92942061e0277d10b77c", "entity_type": "ORG", "name": "Silicon Road Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "80eaac3c8f2db08e4c979e1d", "entity_type": "ORG", "name": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "8100d14ab5a0f43bf78ea0a5", "entity_type": "PERSON", "name": "Sean Jacobsohn", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "811033df47c127dc8d04d41d", "entity_type": "PERSON", "name": "Vivek Ravisankar", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "812ff058279209060e41a1bb", "entity_type": "PERSON", "name": "Even Rogers", "resolution_method": "exact_surface_type"}
@@ -828,9 +772,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "821899f4794b15a1a5dda11d", "entity_type": "ORG", "name": "Hermeus", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "82440a832b86e8bfee73d9be", "entity_type": "ORG", "name": "Harbour City", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "825c6401ba18b5693493688d", "entity_type": "ORG", "name": "Axis", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "829bf6d3f9ef348f0babdbab", "entity_type": "ORG", "name": "Henoto Worldwide", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "82b0e7f7488440bbb4e885ad", "entity_type": "PERSON", "name": "Nguyễn Thanh Sơn", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "82bf09e8f54e91b4f2677352", "entity_type": "ORG", "name": "Thomas Cook India", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "82f59edde29a982c867631bc", "entity_type": "ORG", "name": "Sierra", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "82f9886ed4322d872d739100", "entity_type": "ORG", "name": "Mirai", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "8308da8d0ab03c6c41ed8a46", "entity_type": "GOV", "name": "Government of Japan", "resolution_method": "manual_article_review"}
@@ -846,10 +787,8 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "843064109dd984a65cb246e2", "entity_type": "ORG", "name": "Fathom", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "8430ccc52dac9ceb5c8d65a7", "entity_type": "ORG", "name": "Cluely", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "84370ec34ac5847b99451317", "entity_type": "ORG", "name": "Serve Robotics", "resolution_method": "manual_evidence_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "84a73bc21b96ed3060641a11", "entity_type": "ORG", "name": "MakeMyTrip", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "84c1c3359521f16de5a7afb1", "entity_type": "PERSON", "name": "Henrique Dubugras", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "84cb4467dd531ec29dc35865", "entity_type": "PERSON", "name": "Ben Mahdavi", "resolution_method": "exact_surface_type"}
-{"domain_types": ["GOVERNMENT"], "entity_id": "84d62cc40159fc1878e9ff46", "entity_type": "GOV", "name": "Philippine Department of Tourism", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "84da69ad2812acfdc43013b1", "entity_type": "PERSON", "name": "Bret Taylor", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY", "FINANCE_COMPANY", "INVESTMENT_FUND"], "entity_id": "84fb7323c78834e8f5c0048b", "entity_type": "ORG", "name": "Goldman Sachs Alternatives", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "84fe4c588f712a3e8019f84d", "entity_type": "ORG", "name": "Flapping Airplanes", "resolution_method": "exact_surface_type"}
@@ -866,7 +805,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "86d934f4d07bc981fd907f71", "entity_type": "PERSON", "name": "Neha Singh", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "86f941f5f28941120651b338", "entity_type": "ORG", "name": "Colossal Biosciences", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "8716d5078a3a75a42f3340ae", "entity_type": "ORG", "name": "Simplex Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "8731f39f4d1e9cad70c2caf7", "entity_type": "PERSON", "name": "Nguyễn Việt Quang", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "874fbd1bf2b88472dfa1eb5e", "entity_type": "ORG", "name": "Adani Ports & Special Economic Zone", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "8771f3415234e46dae1648a3", "entity_type": "ORG", "name": "4DX Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "877c3528f07f6d7269a7cf48", "entity_type": "ORG", "name": "Oculus", "resolution_method": "exact_surface_type"}
@@ -937,7 +875,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "91b2435e735e43c6981490ae", "entity_type": "ORG", "name": "Irregular", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "91d39df9711641addf336072", "entity_type": "ORG", "name": "Advanced Institute of Convergence Technology", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "92813dc51b582eea6610190b", "entity_type": "PERSON", "name": "Vinod Khosla", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "92b5778e62e7b37fcc9d9403", "entity_type": "ORG", "name": "Driftwood Dairy", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "92c1a10832c1b8a78161bafa", "entity_type": "PERSON", "name": "Andrew Dumont", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "93113c050477efea3b82272a", "entity_type": "ORG", "name": "GPTZero", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "93254b634f16f0c3c6926114", "entity_type": "PERSON", "name": "Yadid Ayzenberg", "resolution_method": "exact_surface_type"}
@@ -958,14 +895,12 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9581c796aa1b785e86340ec9", "entity_type": "ORG", "name": "Đề xuất", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "95948681bcf5bdb7a854c16d", "entity_type": "ORG", "name": "Hoomanely", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "95e5d9a96a22130bbf249d4d", "entity_type": "ORG", "name": "Breakthrough Energy Discovery", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "95fa42a64ae7af96a3990f9b", "entity_type": "PERSON", "name": "Ngô Thị Hương", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "963155a71265d4f8543e0e20", "entity_type": "ORG", "name": "Farther", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9684f3c861fe27fa17b37593", "entity_type": "ORG", "name": "Yahoo", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "96b333ed838b53ac12c6ee20", "entity_type": "ORG", "name": "Foundation Alloy", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "973fc7c378cbe9dc79a92ac5", "entity_type": "ORG", "name": "Alt Carbon", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "976f8da4eec3957065f33368", "entity_type": "ORG", "name": "Hateco", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "9798b9d56c83d045df642c43", "entity_type": "ORG", "name": "Spur Intelligence", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "980d9a4f182d6de048872561", "entity_type": "PERSON", "name": "Nguyễn Đức Vinh", "resolution_method": "manual_source_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "985a829c8412672f4d05a95b", "entity_type": "GOV", "name": "United States Department of Justice", "resolution_method": "document_verified_government_alias"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "98723c0055bf85c2a3b9bdec", "entity_type": "ORG", "name": "Canva", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "98d3d1dc16a34f849e6b53ab", "entity_type": "PERSON", "name": "Nate Mitchell", "resolution_method": "exact_surface_type"}
@@ -990,7 +925,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "9c83f9c33ab50d27365c8954", "entity_type": "ORG", "name": "Semco Maritime A/S", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9c98310875ec2db01d03c378", "entity_type": "ORG", "name": "South Park Commons", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9cb60cf60d984475cc89fd94", "entity_type": "ORG", "name": "Hospital 199", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9ccedd1dfdfdb1c63b24c8ac", "entity_type": "ORG", "name": "Marquis Energy", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "9d16fc5cb795860c587406f9", "entity_type": "ORG", "name": "Vietnam E-Commerce Association (VECOM)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "9d1b4bb244789c2a79837d60", "entity_type": "ORG", "name": "HMJ", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9d65efe503688d2768f21125", "entity_type": "ORG", "name": "GL events Việt Nam", "resolution_method": "manual_article_review"}
@@ -1011,12 +945,10 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "9fe8a253c9a71bfc03a52e0a", "entity_type": "ORG", "name": "SNAK Venture Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "9ff2e4cdb65d40612c2dd5da", "entity_type": "PERSON", "name": "Trae Stephens", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a011b54ae5671b42f1932d06", "entity_type": "PERSON", "name": "Tushar Vashisht", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a05cc267380a7be6223de087", "entity_type": "ORG", "name": "UPGroup Asia", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a18168d912610af6f91b7bf5", "entity_type": "PERSON", "name": "Andy Fang", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a2085b86c57adbd6d77164a7", "entity_type": "PERSON", "name": "Alex Baikovitz", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a21f2166c1495e774f290f14", "entity_type": "ORG", "name": "Premji Invest", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a2316d74a11080b2fc23e571", "entity_type": "PERSON", "name": "Erik Bernhardsson", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "a24aa374c1b84b2417cbe669", "entity_type": "PROJECT", "name": "Koun Mom agricultural complex", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a2646cd2e9607de80d539b74", "entity_type": "PERSON", "name": "Karun Kaushik", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a2cc7efff05113bb996a400c", "entity_type": "PERSON", "name": "Brian Manning", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "a2d8be082e1b86eac4a18a7f", "entity_type": "ORG", "name": "Postmates", "resolution_method": "manual_evidence_review"}
@@ -1040,7 +972,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a633df366fb3672828f009a6", "entity_type": "PERSON", "name": "Ethan Thornton", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a64d90d51c35a027b11a9827", "entity_type": "PERSON", "name": "Rafal Modrzewski", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "a651496ce464b3a9d6795a5b", "entity_type": "GOV", "name": "People's Committee of Lạng Sơn Province", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a66cb2c9fb5dc7ffe21202b2", "entity_type": "ORG", "name": "HORECFEX", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "a6c5f4994cc3d2a19f12ba2c", "entity_type": "ORG", "name": "Exowatt", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "a73f469d5bad7e10d7ad57a1", "entity_type": "ORG", "name": "Collaborative Fund", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a75aa87a5971362668e5edda", "entity_type": "ORG", "name": "Luân Đôn", "resolution_method": "exact_surface_type"}
@@ -1049,21 +980,18 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "a782e5d4f320ead65d696c2c", "entity_type": "ORG", "name": "Tập đoàn PAN", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "a797666dd3cafe8d1029dc3e", "entity_type": "PROJECT", "name": "Lao-Jagro dairy farm complex in Xiangkhouang", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a7d35e2dc77036e694498390", "entity_type": "ORG", "name": "Affinity Partners", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a7e82f4fec9d9e31aee5f9ed", "entity_type": "ORG", "name": "Đại học Sài Gòn", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "a846ec5239633f992f891466", "entity_type": "GOV", "name": "Vysoké Tatry Town Authority", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a89f67c1bc78639dd0f0bfc2", "entity_type": "PERSON", "name": "Andrej Karpathy", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a9205e591b36e598d23ae172", "entity_type": "PERSON", "name": "Nan Li", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a92106419efb4704af2c59d4", "entity_type": "ORG", "name": "PhonePe", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a966f9c84719ca5b469fb8aa", "entity_type": "ORG", "name": "Feather", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "a9889cf7d74645c86d3639b2", "entity_type": "ORG", "name": "Slovak Nuclear Power Plant Research Institute", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "a9c8826de57a8d56b5585a20", "entity_type": "ORG", "name": "SeaTown Private Credit Fund III", "resolution_method": "manual_article_review"}
 {"domain_types": ["STARTUP", "BUSINESS_ORGANIZATION"], "entity_id": "aa034dc65fe3bebf1631bb83", "entity_type": "ORG", "name": "Counsel Health", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "aa68f234ea4a891790fa09b7", "entity_type": "ORG", "name": "Clay", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "aa7ea787c6da5d7318e56ff1", "entity_type": "ORG", "name": "Bệnh viện 19-8", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "aa906b6aadd44d46c5a15511", "entity_type": "ORG", "name": "Seven Seven Six", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ab19e9ceb1c6d4360546414a", "entity_type": "ORG", "name": "G-Group Technology Corporation", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ab7bdb98ccac2572e0cda230", "entity_type": "PERSON", "name": "Kevin Hartz", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "aba3c9b900d22ecc92d57a2e", "entity_type": "ORG", "name": "Trip.com", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "abb3ae910de254058b48cda8", "entity_type": "PERSON", "name": "Santi Subotovsky", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "abd04404401ce42a1a10751f", "entity_type": "ORG", "name": "InfiniMind", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ac047813749c0f8540513935", "entity_type": "ORG", "name": "Puente Labs", "resolution_method": "exact_surface_type"}
@@ -1081,7 +1009,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ae04d22ef45a2ee615fb7a36", "entity_type": "PERSON", "name": "The pair", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ae103ae9ab479f59fc19f95e", "entity_type": "ORG", "name": "BoldCap", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ae1717eb0894da7973f8d32d", "entity_type": "ORG", "name": "UC Berkeley", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "ae20d426eb5a888b3312c07d", "entity_type": "PROJECT", "name": "VinFast factory in Subang, Indonesia", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ae67d7e717639b73e0567a2b", "entity_type": "PERSON", "name": "Stwart Peña Feliz", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "aec49e44045479d09fb48775", "entity_type": "ORG", "name": "Nuvalence", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "aeed9602c5b9f32890498fcb", "entity_type": "ORG", "name": "IQM", "resolution_method": "exact_surface_type"}
@@ -1101,7 +1028,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "b28a1cefc61dbac1fac46231", "entity_type": "PERSON", "name": "Max Brodeur-Urbas", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "b29e477efe823760d9492854", "entity_type": "ORG", "name": "HNI Hong Kong", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b2a34d5b71180950210808fd", "entity_type": "ORG", "name": "Broadcom", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b2c0962de512128cbc95b8d7", "entity_type": "ORG", "name": "GlobalTix", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "b2d00f34392035f2352d5b5b", "entity_type": "PERSON", "name": "Juan Alzugaray", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b2d8f59b2fbd25456f65d8ba", "entity_type": "ORG", "name": "PDVSA", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b2dfd4c86bc831d3e6d18b68", "entity_type": "ORG", "name": "Bessemer Venture Partners", "resolution_method": "exact_surface_type"}
@@ -1133,19 +1059,13 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b742536b25ef463e7ab36725", "entity_type": "ORG", "name": "The O.H.I.O. Fund", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b78bff9984a32f2b8cddf403", "entity_type": "ORG", "name": "ASIO", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "b7ea3400872f2d402879e2ec", "entity_type": "PERSON", "name": "Zach Yadegari", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b8038db440012cd1145958c2", "entity_type": "ORG", "name": "Shanghai Wan Jun Aviation Service Co Ltd", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "b85bb17ad42fa6164bee2a05", "entity_type": "PERSON", "name": "Mike Krieger", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b8789a12ac2250566deae5f3", "entity_type": "ORG", "name": "Marubeni", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "b8bc828178f27f354e4b1710", "entity_type": "PERSON", "name": "Lê Mạnh Cường", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "b8cd64639271d9fb65853968", "entity_type": "ORG", "name": "Datadog", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "b93e2e924282279a71b191eb", "entity_type": "PERSON", "name": "Lê Ngọc Lâm", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "b963ca1776706406d90e98c0", "entity_type": "ORG", "name": "Boeing", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "b9e269713d1dd3d8621275b7", "entity_type": "PERSON", "name": "Simon Kohl", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "b9eb9c2068b032716fece58d", "entity_type": "ORG", "name": "Scholly", "resolution_method": "exact_surface_type"}
-{"domain_types": ["GOVERNMENT"], "entity_id": "ba0f7d73604e3300879e3ac7", "entity_type": "GOV", "name": "Free and Hanseatic City of Hamburg", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ba463a802ecf7978adbcfc89", "entity_type": "ORG", "name": "Gideon Strategic Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "ba675290e83644767edbcf5b", "entity_type": "ORG", "name": "All Nippon Airways", "resolution_method": "manual_reviewed_article_context"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ba775d4cd77f7d1ddf0ada65", "entity_type": "ORG", "name": "ADM Asia-Pacific Trading Pte Ltd", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ba82c46d10242e4024f5d2bd", "entity_type": "ORG", "name": "Moltbook", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bafafa972628b0efe72fc88f", "entity_type": "ORG", "name": "Thales", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "bafd2801ed52a70003ab8826", "entity_type": "ORG", "name": "Littlebird", "resolution_method": "exact_surface_type"}
@@ -1159,28 +1079,21 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bbf6c2b575cb52a32c66835d", "entity_type": "ORG", "name": "Theory Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "bc1b24aa91affaf25ee627af", "entity_type": "PERSON", "name": "Scott Wu", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "bc36363799bad33f3b953dd5", "entity_type": "PERSON", "name": "Andy Jassy", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bc61192676545559364e2a57", "entity_type": "ORG", "name": "Angkor Dairy Products Co., Ltd. (Angkormilk)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "bc7b26da8545d14b2e040012", "entity_type": "PERSON", "name": "Hans Swildens", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bc85eed87011d3b9c5af0967", "entity_type": "ORG", "name": "Tổng hội Liên hiệp các Doanh nghiệp Khu công nghiệp Đài Loan", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bc9c86e869889944ba913640", "entity_type": "ORG", "name": "Yuma", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "bca979cfabe87516289dae79", "entity_type": "ORG", "name": "GGroup", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "bcb81c81667851af8463d83c", "entity_type": "ORG", "name": "Suno", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bd3d6b6b8d59a1d0c52dc6dc", "entity_type": "ORG", "name": "Northern Gritstone", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bd4addaeba321748929d4d3e", "entity_type": "ORG", "name": "Kokuyo S&T", "resolution_method": "manual_reviewed_article_context"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "bd6cd15386b104260d0e0540", "entity_type": "PERSON", "name": "Nguyễn Thị Phương Thảo", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bd84588b460431bcea202973", "entity_type": "ORG", "name": "Yali Deeptech", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bd94f3114b1d7c2deedd1b9e", "entity_type": "ORG", "name": "Mitsubishi Research Institute", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "TECH_COMPANY"], "entity_id": "bdf81aa3b725780876d4ac46", "entity_type": "ORG", "name": "Apprenda", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "be28bd6a976f869c95754f6e", "entity_type": "ORG", "name": "Smith Point Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON", "TECH_FINANCE_CEO"], "entity_id": "be2d15f0c878e385dbcd3657", "entity_type": "PERSON", "name": "Daniel Tian", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "bea6144c0cc904818bfaadc9", "entity_type": "ORG", "name": "Biển Đông Mineral Co. Ltd", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "beac2a10102de772c6d1169b", "entity_type": "ORG", "name": "AirAsia MOVE", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "beb16d3d69b23b4aafcf955c", "entity_type": "GOV", "name": "Nuclear Regulatory Commission", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bf005675d27af449af2d0d8f", "entity_type": "ORG", "name": "AT&T", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bf0b541a417dbb8e6d768ba0", "entity_type": "ORG", "name": "MotionVFX", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "bf69228875e88dfea064d12f", "entity_type": "ORG", "name": "Pickaxe Technologies", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "bff135c4e31418055ce46c7f", "entity_type": "ORG", "name": "GS E&C", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "bffdd298c61cdae0acaf661f", "entity_type": "ORG", "name": "FuriosaAI", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "c0590a31819be57cd5e29638", "entity_type": "ORG", "name": "Addition", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "c063c68f457bdc8979eb71ac", "entity_type": "PERSON", "name": "Penny Pritzker", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "c082e7f16f73b0d7f81e926c", "entity_type": "ORG", "name": "LinkedIn", "resolution_method": "curated_alias"}
@@ -1224,7 +1137,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "c6250e94175f2e467767849e", "entity_type": "ORG", "name": "Taylor Morrison", "resolution_method": "exact_surface_type"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "c63237428eaab28dc9d92bc4", "entity_type": "GOV", "name": "Bắc Ninh Province", "resolution_method": "manual_article_review"}
 {"domain_types": ["BILLIONAIRE", "BUSINESS_PERSON"], "entity_id": "c634dc846f59700129cb5a9b", "entity_type": "PERSON", "name": "Jeff Bezos", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "c668e007ec50e5b5de7e7381", "entity_type": "ORG", "name": "Coral Travel", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "c6a02a75a0b1a9af6a586989", "entity_type": "ORG", "name": "HBM", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "c6aa29023fb479acbf4c9e65", "entity_type": "ORG", "name": "Hokkaido University", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "c6f1f04bd700cd61c44c6441", "entity_type": "PERSON", "name": "Sara Beykpour", "resolution_method": "exact_surface_type"}
@@ -1273,7 +1185,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cc5138353189bdc7b68e7519", "entity_type": "ORG", "name": "Latent Labs", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "cc59b68b25f2b44f3d863a59", "entity_type": "ORG", "name": "Ballistic Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cc68875298479b2b20c9b521", "entity_type": "ORG", "name": "Ascend Elements", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cca18f36fa11e1e9465e3ad2", "entity_type": "ORG", "name": "Agoda", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "ccad529df1245ef6bf912b23", "entity_type": "GOV", "name": "Government of Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "ccbb7cacc34ba5e3f1c4ad81", "entity_type": "ORG", "name": "Stilta", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "ccc9efd4b8be3e2cc8c59556", "entity_type": "ORG", "name": "Ando", "resolution_method": "exact_surface_type"}
@@ -1291,9 +1202,7 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "cee765adf8904a63733e8d74", "entity_type": "ORG", "name": "Skyryse", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cf19710bc7eaed7db82423e0", "entity_type": "ORG", "name": "New Relic", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "cf4175b06946a0803e3aaf61", "entity_type": "ORG", "name": "Patronus", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cf962260ec1609a778503d50", "entity_type": "ORG", "name": "Momentus Technologies", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "TECH_COMPANY", "VC_FUND"], "entity_id": "cfc9f8592c038d6a2e1e3952", "entity_type": "ORG", "name": "Nvidia", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "cff1644200247422817139fc", "entity_type": "ORG", "name": "dmg events", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "cffec7bd2cf411b41144a8e6", "entity_type": "GOV", "name": "National Innovation Centre (NIC)", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "d00a62fde3e3ecb3b3652be7", "entity_type": "GOV", "name": "Intellectual Property Office of Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d0205655ec0a721e7f688c24", "entity_type": "ORG", "name": "Reliance", "resolution_method": "exact_surface_type"}
@@ -1330,7 +1239,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "d4913af11d70bb2cf049bdbf", "entity_type": "PERSON", "name": "Randy Allen", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d4aa0b077fe3be3f57fe497f", "entity_type": "ORG", "name": "AltC", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "d4b3c7e64d8d26de29a203bb", "entity_type": "ORG", "name": "Upwind", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d4d195c7b85ed3ad3a4c2d54", "entity_type": "ORG", "name": "NPCI International Payments Limited", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d4f521ee420ef8871c1a65e6", "entity_type": "ORG", "name": "Permanent Capital Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d50dea90b98516eb079c15ee", "entity_type": "ORG", "name": "Euromonitor International Ltd", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "d52ae3701594d3de5150b98e", "entity_type": "PERSON", "name": "Tom Brown", "resolution_method": "manual_article_review"}
@@ -1348,7 +1256,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d6662d4ae42cedcf20dd700d", "entity_type": "ORG", "name": "HPE", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d66c57a71d9af5fab9fc3442", "entity_type": "ORG", "name": "PayPal", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d66e5946dc75262efe48a6d5", "entity_type": "ORG", "name": "Female Founders Fund", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "d683d372b8f56560d9fdf7bf", "entity_type": "PROJECT", "name": "Snuol agricultural complex", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "d6ad62acca12d93fcd4ac795", "entity_type": "GOV", "name": "Ministry of Finance of Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "d6d015f24513f3851f951865", "entity_type": "ORG", "name": "LMArena", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d6dce69384c027eb4f3d42f9", "entity_type": "ORG", "name": "Bun", "resolution_method": "exact_surface_type"}
@@ -1357,14 +1264,11 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d7487e54dc782983893f10e4", "entity_type": "ORG", "name": "Lyft", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d759fac172e3ca32b4d76fb4", "entity_type": "ORG", "name": "ArrowMark Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "d75a148676882fcd5fec12e6", "entity_type": "ORG", "name": "Gateway Capital Partners", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "d7752f532e4bae146b7807f4", "entity_type": "ORG", "name": "Sojitz", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "d786ea55c6e7b5066738365a", "entity_type": "ORG", "name": "Bluesky", "resolution_method": "exact_surface_type"}
 {"domain_types": ["STARTUP", "BUSINESS_ORGANIZATION"], "entity_id": "d7980fdf0627d7e046b2264b", "entity_type": "ORG", "name": "ChronicleBio", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "d7c92ac1b2fe951cb6462814", "entity_type": "GOV", "name": "Central Drugs Standard Control Organisation of India", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d7edefe0a512a7b65a3c537b", "entity_type": "ORG", "name": "Anthos Capital", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "d8a9be09d094444b8e904e62", "entity_type": "ORG", "name": "ANA Holdings", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "d8acac3a5c24550254f79d89", "entity_type": "ORG", "name": "Pearson", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d8c01f4422ee03afd9d985cb", "entity_type": "ORG", "name": "Quandela", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "d8c3a48ba5e323e3f4a10f75", "entity_type": "PERSON", "name": "Dario Amodei", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "d8d56e7cb4e42087ab4dff6d", "entity_type": "ORG", "name": "Graze", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON", "TECH_FINANCE_CEO"], "entity_id": "d8dc09e4e50c826d63364571", "entity_type": "PERSON", "name": "Andrew Dai", "resolution_method": "exact_surface_type"}
@@ -1372,7 +1276,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "d903f226ddd4fe5551709da0", "entity_type": "ORG", "name": "Healthify", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d909a22f7298d54475ce893d", "entity_type": "ORG", "name": "Greenoaks Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "d90e5ca6a9216ee4c2008c92", "entity_type": "ORG", "name": "Forerunner", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "d9118443095ca5006fb4b999", "entity_type": "ORG", "name": "Brookland Group & Partners Limited", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "d921661ab4bc9edd957fbec0", "entity_type": "ORG", "name": "Clipbook", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "d931ab339e8a1558bca54389", "entity_type": "ORG", "name": "PrimeSet", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY", "INVESTMENT_FUND", "VC_FUND"], "entity_id": "d951ed4ccd67210c537e5e7b", "entity_type": "ORG", "name": "DST Global Partners", "resolution_method": "manual_reviewed_article_context"}
@@ -1385,7 +1288,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "da8a95d03710ce757e187d23", "entity_type": "ORG", "name": "BioSpring", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "dad9d1a90790faeb70792371", "entity_type": "PERSON", "name": "Arthur Mensch", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "dafb84958bc1b824186a38b6", "entity_type": "ORG", "name": "Wondery", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "db060386dfd0d2dff8eaf3f0", "entity_type": "ORG", "name": "Marriott International", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "db26a719c7a6a330be28e8d0", "entity_type": "ORG", "name": "CDG Zig", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "db29ebec3098d811a59c8ea5", "entity_type": "ORG", "name": "Permiso Security", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "db593113f20b1cccc0667c40", "entity_type": "ORG", "name": "Y Combinator", "resolution_method": "exact_surface_type"}
@@ -1396,7 +1298,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "dbd7ace5251319176a27cb77", "entity_type": "ORG", "name": "Sonic Fire Tech", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "dbdb46470e86329bb44767b3", "entity_type": "ORG", "name": "Pacific Land Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "dc137721d8727d1bc526d72a", "entity_type": "ORG", "name": "Mitti Labs", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "dc21d79f7be30f11a8bf5fc9", "entity_type": "ORG", "name": "Rosatom Additive Technologies", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND", "VC_FUND"], "entity_id": "dc4636fe1c4c611b7e79bc0e", "entity_type": "ORG", "name": "Benchmark", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "dc4e8260fef84e9727ff8691", "entity_type": "ORG", "name": "AI research lab", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "dc642c9ff56fbab8239c0d5b", "entity_type": "ORG", "name": "Wayve", "resolution_method": "exact_surface_type"}
@@ -1411,8 +1312,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "dda6693ffc4e7ddc182f0807", "entity_type": "PERSON", "name": "Matt Soule", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "ddd5da5dee0d140d5684a22e", "entity_type": "ORG", "name": "Snabbit", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "dddf2c872d18b26888cb49d2", "entity_type": "PERSON", "name": "Gautam Narang", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "dde8ac99b7c80ee2b4dab0f3", "entity_type": "PERSON", "name": "Lâm Quốc Thanh", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ddf640d9b56ef2d411ba6640", "entity_type": "ORG", "name": "CAE Inc.", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "de0cf5eb83fef09fd829475f", "entity_type": "ORG", "name": "Type One", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "de3877faa3753769c5a587f3", "entity_type": "ORG", "name": "Tenable", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "de5cf5ba0f7a5e6370d9bdbe", "entity_type": "ORG", "name": "Toyota Ventures", "resolution_method": "exact_surface_type"}
@@ -1422,8 +1321,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ded1a8cfb4b4a292b67f9e30", "entity_type": "ORG", "name": "Congruent Ventures", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "df3c03ba66e14e357724b357", "entity_type": "ORG", "name": "Sunwah Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "df70562ef0028ccdb369c1de", "entity_type": "ORG", "name": "Uber", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "df8ae15f4430d204a1cc7fbf", "entity_type": "ORG", "name": "Stavian Hightech Infrastructure JSC", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "dff57f5e676600df9921e1e1", "entity_type": "ORG", "name": "Alstom", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "e010bfcded91fa619d01be83", "entity_type": "PERSON", "name": "Jake Gibson", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e0173dbdd3b18f153ad7f424", "entity_type": "ORG", "name": "Oratomic", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e027ecc135876df3c6244a06", "entity_type": "ORG", "name": "Johnson & Johnson", "resolution_method": "exact_surface_type"}
@@ -1437,7 +1334,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "INVESTMENT_FUND"], "entity_id": "e0f23b780f9a5f1e89512ffe", "entity_type": "ORG", "name": "Tiger Global", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "e0f76426041095e66f8bd309", "entity_type": "ORG", "name": "Camlin Limited", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e106647b88fe3b16d715321c", "entity_type": "ORG", "name": "Hess", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "e110e11168b8bf9584453ef0", "entity_type": "ORG", "name": "One Click Travel", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "e1335d4e01e0a04f0b67acf2", "entity_type": "PROJECT", "name": "ITO automation equipment manufacturing project", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e18869b3afa2019f7c948de8", "entity_type": "ORG", "name": "Balderton Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e198bd0e4b2267c829d5173f", "entity_type": "ORG", "name": "Lightspeed Venture Partners", "resolution_method": "exact_surface_type"}
@@ -1464,7 +1360,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e5443699487629a35154bb4a", "entity_type": "ORG", "name": "Oji Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "e56a005391097e6a63e3076c", "entity_type": "PERSON", "name": "Flo Crivelli", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e5961109406a917d81636409", "entity_type": "ORG", "name": "Blue Apron", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e5ad647e5315626b80b5bc48", "entity_type": "ORG", "name": "Mohammed Enterprises Tanzania Limited (METL)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY", "TECH_COMPANY", "STARTUP"], "entity_id": "e5db2566da85900644bfc8c5", "entity_type": "ORG", "name": "Higgsfield", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "e6366180908bfd2c62672760", "entity_type": "PERSON", "name": "Capella Kerst", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e67304ad28c0818f45fec3d7", "entity_type": "ORG", "name": "Hillspire", "resolution_method": "exact_surface_type"}
@@ -1480,22 +1375,18 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "e765e9c3b650cd8ab7f56da5", "entity_type": "ORG", "name": "NewCore", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "e7757da4265d7f66a025ff24", "entity_type": "ORG", "name": "CCI CrossBorder (CCIX)", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e784dcacebb198972ac15fd6", "entity_type": "ORG", "name": "Greenfield Partners", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e78e8b8d2d85f372772e4041", "entity_type": "ORG", "name": "Italian Chamber of Commerce in Vietnam (ICHAM)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "e7b7be961a7ec2dd68e3166c", "entity_type": "ORG", "name": "Lux Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e86c0a2558006a30a97dd507", "entity_type": "ORG", "name": "Dascena", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "e8fb8bbb5af02356d69e5d97", "entity_type": "ORG", "name": "KEXIM Asia Limited", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e93086be17cb7eead9e4d47e", "entity_type": "ORG", "name": "Tidal Venture Partners", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "e98f76cefe2d358034d97bf2", "entity_type": "ORG", "name": "Greycroft", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "e9dba954dcabe7498fec1bd1", "entity_type": "ORG", "name": "Scandinavian Airlines", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ea580ea3d44d6fcf7b1f454c", "entity_type": "PERSON", "name": "Eric Moch", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ea77fb75c3718193eabb82ce", "entity_type": "PERSON", "name": "Alfred Wahlforss", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "ea82964e1552e2cc5ac2c59f", "entity_type": "ORG", "name": "FTAI Aviation", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "eae21fba5da820070215bfac", "entity_type": "ORG", "name": "Bridgetown Research", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "eaf5bf5a4977893f1bb42294", "entity_type": "ORG", "name": "Gaingels", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "eb268d7e2d48b52eca48ae51", "entity_type": "PERSON", "name": "Alexandre LeBrun", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "eb610a3deec7442f40fc5ee0", "entity_type": "PERSON", "name": "Georges Harik", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "eb785308919b1d3257d27bdb", "entity_type": "ORG", "name": "Base10 Partners", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "eba05bc97d4ec12e7079c177", "entity_type": "ORG", "name": "VinFast Trading & Production", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "ec4d3ae05e5a4dc8f507979b", "entity_type": "ORG", "name": "ICEYE", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ec7407530c0b0af06e0b305e", "entity_type": "ORG", "name": "Cobalt Capital", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ec90a2d38fba3ffb41be9fc6", "entity_type": "PERSON", "name": "Kirsten Green", "resolution_method": "exact_surface_type"}
@@ -1510,7 +1401,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "edcaaabefe507e9d1ee1c6a7", "entity_type": "PERSON", "name": "Dan Levy", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "edf301b00477c321776b95ec", "entity_type": "PERSON", "name": "Assaf Rappaport", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ee82dd5726ffd123063e7fef", "entity_type": "PERSON", "name": "Javier Santiso", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "eec87b99eea44248bf8568d7", "entity_type": "ORG", "name": "Nishi-Nippon Railroad", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ef0925ae9eb2eb6674f2fe5b", "entity_type": "ORG", "name": "Kodiak Robotics", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ef0ba25a67bc7b6766b4cc3d", "entity_type": "ORG", "name": "AI lab", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "ef1fce267e4fb67a5140caf8", "entity_type": "PERSON", "name": "Roy Lee", "resolution_method": "exact_surface_type"}
@@ -1518,14 +1408,11 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "ef6d5db1126aa76fe044cc14", "entity_type": "ORG", "name": "Clouted", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "ef8348f1f51fa52d68081b0d", "entity_type": "ORG", "name": "Mantis", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "efde5a7724649a3c6d71b557", "entity_type": "PERSON", "name": "Hồng Vệ Đông", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f0097a9a69b499fd77fbf609", "entity_type": "ORG", "name": "VinMotion USA, Inc.", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f009bb8a5b7fe8228d78dd09", "entity_type": "ORG", "name": "ADT", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "f09d140821ed9e2ce99a62f8", "entity_type": "ORG", "name": "OSB Group", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f10bfb401558be85c06439ba", "entity_type": "PERSON", "name": "Nik Sharma", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f140c7887efc176147bf79ba", "entity_type": "ORG", "name": "Sound Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f1840e6f5f3ccdd8ac271e72", "entity_type": "ORG", "name": "SOTC Travel", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f197e45139da06c305585520", "entity_type": "ORG", "name": "Town Hall Ventures", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "f19e95b0616f0c7dd4961818", "entity_type": "ORG", "name": "Zarubezhneft", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f239db582aa992eccd58ad47", "entity_type": "PERSON", "name": "Denis Yarats", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f240a039a13f24895e7c7a3c", "entity_type": "PERSON", "name": "Aaron Wang", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "f2560b614300065f22eb7c58", "entity_type": "ORG", "name": "Long Lake", "resolution_method": "exact_surface_type"}
@@ -1543,17 +1430,14 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "f3ac7cbf1f03ec0d1020108e", "entity_type": "PROJECT", "name": "Dự án Phú Định Riverside", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f3dfd982389a1cc1a4eec8b5", "entity_type": "ORG", "name": "geCKo Materials", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "f41f01047231c7a2bc6e930a", "entity_type": "ORG", "name": "Apate", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "f48baaf307e36d0f2b1f69b2", "entity_type": "ORG", "name": "SKY Leasing", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f4b7c8ae34ea9d5bd203ad2e", "entity_type": "PERSON", "name": "Alex Cohen", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "f4bc2b03e260a178a2dd9f86", "entity_type": "ORG", "name": "Helsing", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "f51908ebe31fb08f94429225", "entity_type": "ORG", "name": "Scale AI", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f5bd6391212a9fa360b4338f", "entity_type": "PERSON", "name": "Alejandro Buffo Sempé", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "f5cb9f3fa2870d04d0397cfb", "entity_type": "ORG", "name": "LTD Anex Tourism", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "f5ea9ecec8d2f82490d3f3c7", "entity_type": "ORG", "name": "Row Zero", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f61b28ebd281691033a82d80", "entity_type": "ORG", "name": "Superhuman", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "f624a298cf93cc9588668be8", "entity_type": "ORG", "name": "Base", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f6796c77fe3a45ccd9620840", "entity_type": "ORG", "name": "Prenetics", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f6a208882c20cf9bfd789d67", "entity_type": "ORG", "name": "TotalEnergies", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "f6c28985a38dbdc67aab431f", "entity_type": "GOV", "name": "United States Securities and Exchange Commission", "resolution_method": "document_verified_government_alias"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f703f4f3a681716888420dae", "entity_type": "PERSON", "name": "Rakesh Kothari", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "f70a8dffa4c1cad3e5356faf", "entity_type": "ORG", "name": "Nexstrom", "resolution_method": "exact_surface_type"}
@@ -1565,7 +1449,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f78246ce88bca2087fa31aa0", "entity_type": "PERSON", "name": "CNBC", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION", "STARTUP"], "entity_id": "f792affdc72bad432381a80b", "entity_type": "ORG", "name": "AethexAI", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f7f9ec1d4c3bd8fa732f8c1d", "entity_type": "PERSON", "name": "Bill Ford", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "f848f4c7999df6ff5d308cf4", "entity_type": "PERSON", "name": "Lê Hồng Hà", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FUNDED_ORGANIZATION"], "entity_id": "f8594c4fb755550a6cbd7c0c", "entity_type": "ORG", "name": "City Detect", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f8b20d05246d856bfaf08ed2", "entity_type": "ORG", "name": "Shuanghui", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "f8d00b19ed7a15f6b5a3431a", "entity_type": "ORG", "name": "Hyundai Bioscience", "resolution_method": "manual_article_review"}
@@ -1573,13 +1456,11 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f90ef327ec69da942abbad16", "entity_type": "ORG", "name": "TruArrow", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f92d02c65aa82b3cc5050718", "entity_type": "PERSON", "name": "Michael Fester", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP", "TECH_COMPANY"], "entity_id": "f962eceab934692e76d9ad5f", "entity_type": "ORG", "name": "Elorian", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f972b3d0149486b93c38eaa4", "entity_type": "ORG", "name": "Đại học Kinh tế TP HCM (UEH)", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "f9a0d3fc19634f35971e1add", "entity_type": "PERSON", "name": "Marc Andreessen", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f9b45f84dfa2b7ddc853f6b2", "entity_type": "ORG", "name": "NAND", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "fa34d7ed81ec93d741499800", "entity_type": "ORG", "name": "TotalEnergies Gas & Power Activities", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "fa40e3c48eb6c421d89338ce", "entity_type": "ORG", "name": "Carlsberg", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "fa7d04cf62d5d0b9489cc7a0", "entity_type": "ORG", "name": "Sequoia", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "fa8d6924775408bf08492018", "entity_type": "ORG", "name": "Elmet", "resolution_method": "manual_reviewed_article_context"}
 {"domain_types": ["INVESTMENT_FUND", "BUSINESS_ORGANIZATION"], "entity_id": "fa90888cffb13fa05c3fd39a", "entity_type": "ORG", "name": "Bertelsmann Healthcare Investments", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT"], "entity_id": "faa4c8757f57b415a50d2e10", "entity_type": "GOV", "name": "Ministry of Justice of Vietnam", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "fac6601cee907627cf4cd504", "entity_type": "PERSON", "name": "Jaehyeok Kim", "resolution_method": "exact_surface_type"}
@@ -1602,7 +1483,6 @@
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "STARTUP"], "entity_id": "fdd37e1b7201bafa7d89b7d6", "entity_type": "ORG", "name": "Pixie", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY"], "entity_id": "fdd67d719a668a3cc1e0011c", "entity_type": "ORG", "name": "Woori Bank", "resolution_method": "manual_source_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "VC_FUND"], "entity_id": "fe23a740cf2b0d211cef572b", "entity_type": "ORG", "name": "SignalFire", "resolution_method": "exact_surface_type"}
-{"domain_types": ["BUSINESS_ORGANIZATION", "BUSINESS_COUNTERPARTY"], "entity_id": "fe6b7e1f1c2fc597bbce8b68", "entity_type": "ORG", "name": "APG Inc", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION", "FINANCE_COMPANY", "TECH_COMPANY"], "entity_id": "fe95f3232d92ea964462f55b", "entity_type": "ORG", "name": "Brex", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "fe9f8a5952f43ad02eb872c0", "entity_type": "ORG", "name": "Planet Labs", "resolution_method": "exact_surface_type"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "fecf19e0f1127c5c7c41dad6", "entity_type": "PERSON", "name": "Jack Clark", "resolution_method": "manual_article_review"}
@@ -1622,8 +1502,6 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "c48fe9ec65d1d95bd5bcc262", "entity_type": "PROJECT", "name": "Meiko Yên Quang semiconductor manufacturing plant", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "d2ac80b7b2b1da75f9062ea5", "entity_type": "PROJECT", "name": "Meiko PCB manufacturing plant at Đà River Left Bank Industrial Park", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "eedf870a04869e63a4133043", "entity_type": "PROJECT", "name": "Đà Nẵng Free Trade Zone FTZ2 (Eagle FTZ) project", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "5d688e15e2db49b046142619", "entity_type": "PROJECT", "name": "Đà Nẵng Free Trade Zone FTZ3 project", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "1bae1f81cce71fe5514b86cc", "entity_type": "PROJECT", "name": "Đà Nẵng Free Trade Zone FTZ4 project", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "0bf1b76c81143f91e288a546", "entity_type": "PROJECT", "name": "Đà Nẵng Free Trade Zone FTZ5 project", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "7ecca7942c3604adc8783a63", "entity_type": "ORG", "name": "YCH Group Pte. Ltd.", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "d26c70bc39005fc2a9f0b6c4", "entity_type": "PROJECT", "name": "Liên Chiểu deep-sea port project", "resolution_method": "manual_article_review"}
@@ -1635,13 +1513,10 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "0fd0520e306f7103613cd381", "entity_type": "PROJECT", "name": "Điện Tiến Industrial Park", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT", "GOVERNMENT_ENTITY"], "entity_id": "0e4e448fe0b044d9ae41b5de", "entity_type": "GOV", "name": "Hà Tĩnh provincial authorities", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "f7edab21baa928cd6b8edb0e", "entity_type": "PROJECT", "name": "Vũng Áng energy-industrial hub", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "02581e9ef2ada913fd527591", "entity_type": "PROJECT", "name": "North Central LNG Terminal", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "d33b8362d66ab7c3ba598bb0", "entity_type": "PROJECT", "name": "Vũng Áng III LNG-fired power plant", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "8eaa808cd85cec15acde8e42", "entity_type": "PROJECT", "name": "Hà Tĩnh regional gas distribution network", "resolution_method": "manual_article_review"}
 {"domain_types": ["GOVERNMENT", "GOVERNMENT_ENTITY"], "entity_id": "bc400995bf4c7733b17512e0", "entity_type": "GOV", "name": "Hà Tĩnh Economic Zone Authority", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "794fd0aa48284e0ef9acd0b7", "entity_type": "PROJECT", "name": "LNG-integrated data centre project at Vũng Áng", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "9998d0ccae608025c6080256", "entity_type": "ORG", "name": "Nebula Energy", "resolution_method": "manual_article_review"}
-{"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "ca1a06c4ddf8b4691242c86d", "entity_type": "ORG", "name": "MobiFone", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "f4f697bbce44b69836fc8477", "entity_type": "ORG", "name": "PV Power", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_COUNTERPARTY", "BUSINESS_ORGANIZATION"], "entity_id": "95abb06c06fe6ac27d8825e6", "entity_type": "ORG", "name": "LG Innotek Vietnam Hai Phong Co Ltd", "resolution_method": "manual_article_review"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "70aa8dee2f51c81e612268c0", "entity_type": "PROJECT", "name": "LG Innotek semiconductor substrate manufacturing complex at DEEP C Hai Phong 2", "resolution_method": "manual_article_review"}
@@ -1707,7 +1582,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "c4cca14fbdad405bf63f22df", "entity_type": "ORG", "name": "JLand Group", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "466f5784e6c3d080707a6bf9", "entity_type": "PROJECT", "name": "Hanoi AI and Data Centre Complex", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "e1cfce846c8eda086b526a65", "entity_type": "ORG", "name": "Johor Corporation", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "e241970e2fa99530a6ce7e3a", "entity_type": "PERSON", "name": "Đặng Thành Tâm", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "26efb59b63eae0ad650a3154", "entity_type": "ORG", "name": "Starmason", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "4ce9970e47c97d84a29fc8fa", "entity_type": "PROJECT", "name": "Starmason Super-Large Data Centre Complex", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "3fbcc30d090bc46d94c5a55e", "entity_type": "ORG", "name": "BB Investment and Development Co Ltd", "resolution_method": "manual_canonical_name"}
@@ -1735,7 +1609,6 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "9e41f8b21ca9dc9e8f15b5e8", "entity_type": "PROJECT", "name": "Chị chị em em 3", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "b665ab8f16ec5388f38c6bdd", "entity_type": "PROJECT", "name": "Án mạng Karaoke", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "c7f2075f474ae527ad511495", "entity_type": "PROJECT", "name": "Chiến bào", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "86cf39dd976201a555668318", "entity_type": "PROJECT", "name": "My Xuan 6 Port", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "3971f30159a7528d477a39db", "entity_type": "PROJECT", "name": "Thu Thiem Lotte Eco Smart City", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "944ef76def5fb717ae34544a", "entity_type": "PROJECT", "name": "Can Gio International Transshipment Port", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "1981626ab33d57bf02c5ae23", "entity_type": "ORG", "name": "Saigon Port JSC", "resolution_method": "manual_canonical_name"}
@@ -1803,8 +1676,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "72afcbc0b20ffbd52502e595", "entity_type": "ORG", "name": "Japan Bank for International Cooperation", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "45bef524e511754114dbfd46", "entity_type": "ORG", "name": "The Joyo Bank Ltd", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "4ca879346c95dc96d5fd0b46", "entity_type": "ORG", "name": "National Power Transmission Corporation", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "e7af7757b5ad3cef6d9005bc", "entity_type": "ORG", "name": "United Overseas Bank", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6432531cc04b501a0595d0b0", "entity_type": "ORG", "name": "China Construction Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "547262fa60cd56739bb11438", "entity_type": "ORG", "name": "Tien Phong Commercial Joint Stock Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "1b22b3e71bc7b908e7245235", "entity_type": "ORG", "name": "US International Development Finance Corporation", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "144fd0f372a9ebd15c8bf96a", "entity_type": "ORG", "name": "Asian Development Bank", "resolution_method": "manual_canonical_name"}
@@ -1825,26 +1696,19 @@
 {"domain_types": ["GOVERNMENT_ENTITY"], "entity_id": "e2081dda92b75723a540e6f2", "entity_type": "GOV", "name": "United Arab Emirates", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "f95f9d1daf19768ec4ea67fa", "entity_type": "ORG", "name": "Human Capital", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "24a299e1582304b89576b5b6", "entity_type": "ORG", "name": "Vy Capital", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "274969df8d7933293e137190", "entity_type": "ORG", "name": "GELEX Group", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "dad5fc17d8e7a55de09eb938", "entity_type": "PERSON", "name": "Tim Evans", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "996e7666160c43e6e5f596d4", "entity_type": "ORG", "name": "HSBC Vietnam", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "ed521a74310c46b5374c2a83", "entity_type": "PERSON", "name": "Lê Tuấn Anh", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "267a3765a91ef3df958ffea2", "entity_type": "ORG", "name": "BOT Sài Gòn–Mỹ Thuận Co", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "4cc2c8312f8e52b6f228e5d2", "entity_type": "PROJECT", "name": "HCM City–Trung Lương–Mỹ Thuận Expressway Expansion", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "e11fe9e9d2ac585d5af14df2", "entity_type": "ORG", "name": "TPBank", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "bfa44326513413658527aba2", "entity_type": "PERSON", "name": "Lê Quang Vinh", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "a7085a9430e02c4cc73e2d5d", "entity_type": "PERSON", "name": "Bùi Xuân Dũng", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "3788449ccce8e97d20d5e9b4", "entity_type": "ORG", "name": "ANZ", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "4cfd2128e50a8559a4726077", "entity_type": "ORG", "name": "MUFG Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "209977d35ce89fe03a9a2d98", "entity_type": "ORG", "name": "State Bank of India", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "5937f5641e1b822cb3a5f2a2", "entity_type": "ORG", "name": "LeapFrog", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "f777d07844eee92496f536f0", "entity_type": "ORG", "name": "FMO", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "13144f769be74c5417bebb3e", "entity_type": "ORG", "name": "British International Investment", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "1dfa04a74fdde059ba98226c", "entity_type": "ORG", "name": "FinDev Canada", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "218114ac444b6285aee793ff", "entity_type": "ORG", "name": "SFinance", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "c31cf27afe4b7780845f71c9", "entity_type": "ORG", "name": "Krungsri", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "1ba7725e80ad0415fdcfd07f", "entity_type": "ORG", "name": "MUFG Financial Group", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "2532159d99f958e749334042", "entity_type": "ORG", "name": "Abu Dhabi Commercial Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ASSET"], "entity_id": "6223298648af0359eea3ebe3", "entity_type": "ASSET", "name": "SHB Singapore Dollar Senior Unsecured Bond", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bbe74d7065c1e4297f2d02ee", "entity_type": "ORG", "name": "Credit Guarantee and Investment Facility", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "70626043178db6f01e5964de", "entity_type": "ORG", "name": "S&P Global Ratings", "resolution_method": "manual_canonical_name"}
@@ -1862,8 +1726,6 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "84ce19e934fee545a99e8826", "entity_type": "PERSON", "name": "Đinh Đức Thắng", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "13e9e0a21968b2cc9ff3586c", "entity_type": "ORG", "name": "National Citizen Commercial Joint Stock Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ASSET"], "entity_id": "a2d973ae914cf4f2e7d51e79", "entity_type": "ASSET", "name": "National Citizen Bank share issuance", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ASSET"], "entity_id": "e5b5c27a8c880538b96e6875", "entity_type": "ASSET", "name": "Vietbank capital-raising share issuance", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ASSET"], "entity_id": "1d2567547e2f204daea54c1b", "entity_type": "ASSET", "name": "VietABank capital-raising share issuance", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "58ade9e82e48f94b24aada88", "entity_type": "ORG", "name": "BVBank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ASSET"], "entity_id": "c9c651b4a65d7782a1e1d90f", "entity_type": "ASSET", "name": "BVBank rights and ESOP share issuance", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "ae923830fa89e38ffc0a81b6", "entity_type": "ORG", "name": "Ho Chi Minh Stock Exchange", "resolution_method": "manual_canonical_name"}
@@ -1877,16 +1739,8 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "d1d9981367611771645619ce", "entity_type": "PERSON", "name": "Đào Minh Tú", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "95ca9f5be4cc59f9c1cdc03d", "entity_type": "ORG", "name": "Vietnam Banks Association", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["GOVERNMENT_ENTITY"], "entity_id": "feacdc19f483d3328e08f54a", "entity_type": "GOV", "name": "State Securities Commission of Vietnam", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "971f5b191beb0a5fbe0c5e4e", "entity_type": "PERSON", "name": "Phạm Thị Huyền Trang", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "2bd222de73468e2d7bd33b71", "entity_type": "PERSON", "name": "Nguyễn Lê Quốc Anh", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "89842deb88aa54578a2b90bc", "entity_type": "PERSON", "name": "Phạm Đức Ấn", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "90217565810f63f6915ac1b8", "entity_type": "PROJECT", "name": "Hải Vân Tunnel and Cả Pass Project", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "ad6483ee322a1bef75e16bd3", "entity_type": "PROJECT", "name": "Bắc Giang–Lạng Sơn BOT Project", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "6c02bc547dfc13ca0c305f46", "entity_type": "PROJECT", "name": "Pháp Vân–Cầu Giẽ BOT Project", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "acfe4789afe0b776f231738b", "entity_type": "PROJECT", "name": "HCM City–Trung Lương–Mỹ Thuận Expressway Project", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "600f3cb4ed0a04c14fc95043", "entity_type": "PERSON", "name": "Trần Văn Tần", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "bfa87dd60a57b1d34a61db9b", "entity_type": "PERSON", "name": "Nguyễn Xuân Bắc", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "ae5b9c8f12a641c3c774f5f7", "entity_type": "PERSON", "name": "Hàn Ngọc Vũ", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "bc55f26b7199e6c6a6a970c4", "entity_type": "ORG", "name": "EVNNPC", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "6527ed8c1aa50d78feb41b45", "entity_type": "PROJECT", "name": "EVNNPC battery energy storage deployment at 70 substations", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "c8368272948cdf9279cac3e7", "entity_type": "ORG", "name": "Phu Ninh International Investment Co Ltd", "resolution_method": "manual_canonical_name"}
@@ -1924,9 +1778,7 @@
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "6dbe85b9f85015aff4d0448d", "entity_type": "PERSON", "name": "Zhang Shuting", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "f897cc21ec581828c63f9e9a", "entity_type": "ORG", "name": "Hongyi International Vietnam", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "48e599030d0baa992126db20", "entity_type": "PERSON", "name": "Yang Chao", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "e89e5e06ae61d4a4ef1ba76c", "entity_type": "PERSON", "name": "Trần Hoài Nam", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "8f1339177db351a5b2f5ec46", "entity_type": "ORG", "name": "Export Finance Australia", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "d295f75a2d10e042e73f3568", "entity_type": "ORG", "name": "World Bank", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "93cd16910bbb6af52cb02206", "entity_type": "PROJECT", "name": "220kV Ứng Hòa Substation and Connection Lines", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "b324f619c0030d1fa4245b7f", "entity_type": "PROJECT", "name": "220kV Tân Việt Substation and Tân Việt–Gia Lộc–Phố Nối Transmission Line", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "c9608d035e58e018b898da9a", "entity_type": "PROJECT", "name": "220kV Substation Connected to Đông Anh–Vân Trì Transmission Line", "resolution_method": "manual_canonical_name"}
@@ -1936,7 +1788,6 @@
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "b4dcfbad0a32f7cdbe3e63f3", "entity_type": "PROJECT", "name": "500kV Bắc Ninh–Bắc Ninh 4 Transmission Line", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "cacb2b7780a1931700e4e676", "entity_type": "PROJECT", "name": "500kV Long An Substation and Connection Lines", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "681709ffe6cd330c710ec454", "entity_type": "PROJECT", "name": "Van Canh 2 Wind Power Plant Project", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "8b973153f16a927c377cbe9e", "entity_type": "PROJECT", "name": "Van Canh 1 Wind Power Plant Project", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["GOVERNMENT_ENTITY"], "entity_id": "bdc2c1789c9c171f61979605", "entity_type": "GOV", "name": "Gia Lai Provincial People's Committee", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "d3445aadcc3dd831c8a1ed9e", "entity_type": "PERSON", "name": "Phạm Anh Tuấn", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6d48afc77f3671091e919537", "entity_type": "ORG", "name": "Hememics Biotechnologies Inc", "resolution_method": "manual_canonical_name"}
@@ -1957,7 +1808,6 @@
 {"domain_types": ["GOVERNMENT_ENTITY"], "entity_id": "de6bd34d71b650d0ed60408d", "entity_type": "GOV", "name": "Ho Chi Minh City People's Committee", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "c6fc9eb3e07baf84b6c7269d", "entity_type": "PROJECT", "name": "Nam Pleiku Dry Port", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "0e88e2bb3d38cbc6fcee714b", "entity_type": "ORG", "name": "Thagri Gia Lai Agriculture Company", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PROJECT"], "entity_id": "28cb6f527a720cc8e858158e", "entity_type": "PROJECT", "name": "Tây Giang Industrial Park", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PERSON"], "entity_id": "9ed5e1d7132c607a3eb9dff9", "entity_type": "PERSON", "name": "Lâm Hải Giang", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "2c8d58fc891c25828b97e998", "entity_type": "PROJECT", "name": "Evolution DC VN HCMC Data Centre", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_PROJECT"], "entity_id": "7e141bf97c64758f7854ca1a", "entity_type": "PROJECT", "name": "Tâm Anh High-Tech Medical Centre", "resolution_method": "manual_canonical_name"}
@@ -1982,9 +1832,6 @@
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "19db67e419ba87c501b3346d", "entity_type": "ORG", "name": "Systems Design Lab", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "7089ae92269c9ed4f713a3ec", "entity_type": "ORG", "name": "University of Tokyo", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "ff271d8587b5f93968e25a76", "entity_type": "ORG", "name": "Matsuo Institute", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "7fcceea1a3acb1bc532bd80a", "entity_type": "ORG", "name": "ENEOS Corporation", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "6cd303f79ad077135b9f8e20", "entity_type": "ORG", "name": "Japan Cooperation Center for Petroleum and Sustainable Energy", "resolution_method": "manual_canonical_name"}
-{"domain_types": ["BUSINESS_PERSON"], "entity_id": "b173adba7ff9345aa5530ff1", "entity_type": "PERSON", "name": "Phạm Văn Thanh", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "90b8d9365c82d8992bbea2c2", "entity_type": "ORG", "name": "CFM International", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "cbfefb4a9dc4e5ac9ca1c00a", "entity_type": "ORG", "name": "GE Aerospace", "resolution_method": "manual_canonical_name"}
 {"domain_types": ["BUSINESS_ORGANIZATION"], "entity_id": "a64d2f59a1943bded2d2cd6b", "entity_type": "ORG", "name": "Safran Aircraft Engines", "resolution_method": "manual_canonical_name"}

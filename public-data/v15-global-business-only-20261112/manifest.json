@@ -3,12 +3,16 @@
   "source_export": "international-business-v15-manual-20261112-global-business-only",
   "counts": {
     "articles": 923,
-    "entities": 2817,
+    "entities": 2664,
     "nodes": 2664,
-    "isolated_entities": 153,
+    "isolated_entities": 0,
     "relations": 5046,
     "claims": 5362,
     "relation_types": 47
+  },
+  "source_counts": {
+    "entity_rows": 2817,
+    "isolated_entities_omitted": 153
   },
   "source_export_manifest_sha256": "6e69d2cf80e9a93835538e4cfdc0b9af82850e555fa3312edaf820eaef1158f7",
   "source_input_sha256": {
@@ -20,11 +24,12 @@
   },
   "file_sha256": {
     "articles.jsonl": "2d9cae6ba2f6889c2774015b34a69cbeed7d2c2f9abb46d04a8f57c1ef51ab8b",
-    "entities.jsonl": "67010fc5b940e864f9f1ac370bdcb79ea7c31f0b7477761c1be3f6afee58b779",
+    "entities.jsonl": "3731a4103ab5bd23f1cdc4b7c61a0d4b390be671ff55ad70f610cc1938a31ef9",
     "relations.jsonl": "66b07cfc39c06cc15dac3933b9125e00508bca2d0ea81f9317bc14b971738d4c",
     "claims.jsonl": "c8f727960a2eee2a08f062399596a02833ae31fa3739db5454d23d4ec7de739f"
   },
   "public_projection": {
+    "entity_scope": "only entities that are endpoints of at least one relation, matching the AuraDB graph projection",
     "omitted_fields": {
       "articles.jsonl": [
         "archive_raw_path",
