@@ -1,0 +1,1106 @@
+{
+  "generated_on": "2026-11-24",
+  "source": "Neo4j AuraDB read-only snapshot",
+  "source_database": "572d5570",
+  "aura_graph_sha256": "5388d21d1f4d448d991ccd06f01f56d032e769e9270cc34df2eda96ba295faa3",
+  "method": {
+    "undirected_projection": "one unweighted edge per unique entity pair; Aura Entity nodes retained",
+    "directed_pagerank": "one unweighted edge per ordered pair; schema-symmetric predicates mirrored",
+    "pagerank_alpha": 0.85,
+    "communities": "Louvain on largest connected component; seed=20261124",
+    "core": "k-core on Aura Entity nodes",
+    "small_world": "sigma-like ratio against 5 G(n,m) random graphs, same node/edge counts; seeds 20261124-20261128"
+  },
+  "comparison_to_public_v15": {
+    "public_projection_entity_rows": 2664,
+    "aura_entity_nodes": 2664,
+    "source_normalized_export_entity_rows": 2817,
+    "source_isolated_entities_omitted": 153,
+    "aura_entity_ids_equal_public_projection_ids": true,
+    "aura_entity_ids_equal_relation_endpoint_ids": true,
+    "entity_property_mismatches": 0,
+    "export_relation_rows": 5046,
+    "aura_relation_rows": 5046,
+    "full_graph_fingerprint_matches_public_manifest": true,
+    "unique_relation_triples_equal": true,
+    "missing_aura_relation_triples": 0,
+    "extra_aura_relation_triples": 0
+  },
+  "graph": {
+    "entity_nodes": 2664,
+    "raw_relationships": 5046,
+    "unique_undirected_edges": 4887,
+    "unique_directed_edges_after_symmetry": 7451,
+    "predicate_counts_top_15": [
+      [
+        "CO_INVESTED_WITH",
+        2165
+      ],
+      [
+        "INVESTED_IN",
+        1334
+      ],
+      [
+        "FOUNDED",
+        359
+      ],
+      [
+        "CO_FINANCED_WITH",
+        243
+      ],
+      [
+        "CEO_OF",
+        211
+      ],
+      [
+        "ACQUIRED",
+        148
+      ],
+      [
+        "PARTNERED_WITH",
+        129
+      ],
+      [
+        "COOPERATES_WITH",
+        85
+      ],
+      [
+        "SUBSIDIARY_OF",
+        33
+      ],
+      [
+        "MEMBER_OF",
+        31
+      ],
+      [
+        "PART_OF",
+        30
+      ],
+      [
+        "DEVELOPS",
+        30
+      ],
+      [
+        "AGREED_TO_ACQUIRE",
+        26
+      ],
+      [
+        "SUPPLIES_TO",
+        24
+      ],
+      [
+        "OWNS_STAKE_IN",
+        18
+      ]
+    ],
+    "component_count": 443,
+    "isolates": 0,
+    "largest_component_nodes": 1288,
+    "largest_component_edges": 3434,
+    "largest_component_fraction": 0.48348348348348347,
+    "connected_pair_fraction": 0.23477185409216952,
+    "average_shortest_path_all_reachable_pairs": 4.92393754285433,
+    "average_shortest_path_largest_component": 4.937523828828176,
+    "average_clustering_largest_component": 0.31373976214757654,
+    "transitivity_largest_component": 0.33095264784537287,
+    "small_world_sigma_like": 69.27683358708168,
+    "small_world_sigma_gt_1": true
+  },
+  "pagerank_top_30": [
+    {
+      "entity_id": "39b0bbdf1cb9474380bdb20d",
+      "name": "Generalist",
+      "type": "ORG",
+      "pagerank": 0.004969788016225838
+    },
+    {
+      "entity_id": "8ee6368c265d7bde91c48554",
+      "name": "Green SM",
+      "type": "ORG",
+      "pagerank": 0.004637461104969826
+    },
+    {
+      "entity_id": "e198bd0e4b2267c829d5173f",
+      "name": "Lightspeed Venture Partners",
+      "type": "ORG",
+      "pagerank": 0.004060690311671788
+    },
+    {
+      "entity_id": "39c7ff17964c6f09dac1ff24",
+      "name": "Anthropic",
+      "type": "ORG",
+      "pagerank": 0.0035431835556599296
+    },
+    {
+      "entity_id": "28f8d0a8a1325e0c93ed88b6",
+      "name": "Pronto",
+      "type": "ORG",
+      "pagerank": 0.003307194798529162
+    },
+    {
+      "entity_id": "cfc9f8592c038d6a2e1e3952",
+      "name": "Nvidia",
+      "type": "ORG",
+      "pagerank": 0.003101017447006337
+    },
+    {
+      "entity_id": "5d9a142acb4c5e0e7c5e95ba",
+      "name": "ElevenLabs",
+      "type": "ORG",
+      "pagerank": 0.0030419064321479724
+    },
+    {
+      "entity_id": "ecb1f71c4d18d89a21ffed72",
+      "name": "Andreessen Horowitz",
+      "type": "ORG",
+      "pagerank": 0.0029732583924747145
+    },
+    {
+      "entity_id": "5e8e8803441ff19d56365017",
+      "name": "Xcimer",
+      "type": "ORG",
+      "pagerank": 0.0029253822178294583
+    },
+    {
+      "entity_id": "c3ea39126aa03d499491d3e4",
+      "name": "OpenAI",
+      "type": "ORG",
+      "pagerank": 0.0029098456171213205
+    },
+    {
+      "entity_id": "9b04b6e0549d1ae3f218d084",
+      "name": "Mariana Minerals",
+      "type": "ORG",
+      "pagerank": 0.0029081320614698517
+    },
+    {
+      "entity_id": "b67c5b045e86c82060b82bd9",
+      "name": "Sumitomo Mitsui Banking Corporation",
+      "type": "ORG",
+      "pagerank": 0.0029007418425524103
+    },
+    {
+      "entity_id": "54125fc84652d745cd1056a0",
+      "name": "MIT",
+      "type": "ORG",
+      "pagerank": 0.002854404664095267
+    },
+    {
+      "entity_id": "92eb1b42c1ae332b9bcbb481",
+      "name": "Legora",
+      "type": "ORG",
+      "pagerank": 0.002800831634955418
+    },
+    {
+      "entity_id": "908e7eec2e25b315c248eb7b",
+      "name": "RTX",
+      "type": "ORG",
+      "pagerank": 0.002714676966022433
+    },
+    {
+      "entity_id": "5ca03d5b64a5d845d798cabe",
+      "name": "D-ID",
+      "type": "ORG",
+      "pagerank": 0.0026980232082501705
+    },
+    {
+      "entity_id": "4061fe52536856eaeccbe826",
+      "name": "Harvey",
+      "type": "ORG",
+      "pagerank": 0.002690546689870896
+    },
+    {
+      "entity_id": "77af477411d906d5a3d4a46f",
+      "name": "CFS",
+      "type": "ORG",
+      "pagerank": 0.0026061297489911226
+    },
+    {
+      "entity_id": "7bbad786d35cba13f00e4192",
+      "name": "General Catalyst",
+      "type": "ORG",
+      "pagerank": 0.0025897898936024103
+    },
+    {
+      "entity_id": "f14789e4c1373ea405fb2c2e",
+      "name": "Xflow",
+      "type": "ORG",
+      "pagerank": 0.0025108536404906527
+    },
+    {
+      "entity_id": "54fdafec1bf1645ed9508b33",
+      "name": "Apptronik",
+      "type": "ORG",
+      "pagerank": 0.002299249730105319
+    },
+    {
+      "entity_id": "c34bfb804cf64656ed8f6501",
+      "name": "Aeternum Consulting",
+      "type": "ORG",
+      "pagerank": 0.0022380772376452145
+    },
+    {
+      "entity_id": "77f8adeddb74b8221af9ce93",
+      "name": "AGRI SMILE",
+      "type": "ORG",
+      "pagerank": 0.002194322119677056
+    },
+    {
+      "entity_id": "5fb6e7a617bbe28fb3b7cc2c",
+      "name": "Accel",
+      "type": "ORG",
+      "pagerank": 0.002128010666198522
+    },
+    {
+      "entity_id": "0c8485253cf1435f5d667fa6",
+      "name": "Rivian",
+      "type": "ORG",
+      "pagerank": 0.0021006339085124204
+    },
+    {
+      "entity_id": "9a0de3674de7646fa16cd957",
+      "name": "Oura",
+      "type": "ORG",
+      "pagerank": 0.0020786356886167284
+    },
+    {
+      "entity_id": "aa034dc65fe3bebf1631bb83",
+      "name": "Counsel Health",
+      "type": "ORG",
+      "pagerank": 0.002073229648444232
+    },
+    {
+      "entity_id": "dcda9fff00c66ab23a839aae",
+      "name": "SpaceX",
+      "type": "ORG",
+      "pagerank": 0.002030380371543216
+    },
+    {
+      "entity_id": "84162d1da7940a806dba8923",
+      "name": "Volkswagen Group",
+      "type": "ORG",
+      "pagerank": 0.001984530488471665
+    },
+    {
+      "entity_id": "dbdaf2e143fd04a81d220b49",
+      "name": "India Deep Tech Alliance",
+      "type": "ORG",
+      "pagerank": 0.0019375077382855258
+    }
+  ],
+  "communities": {
+    "count": 37,
+    "modularity": 0.7138843586472458,
+    "largest_10": [
+      {
+        "rank": 1,
+        "size": 125,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "39c7ff17964c6f09dac1ff24",
+            "name": "Anthropic",
+            "type": "ORG",
+            "pagerank": 0.0035431835556599296
+          },
+          {
+            "entity_id": "92eb1b42c1ae332b9bcbb481",
+            "name": "Legora",
+            "type": "ORG",
+            "pagerank": 0.002800831634955418
+          },
+          {
+            "entity_id": "7bbad786d35cba13f00e4192",
+            "name": "General Catalyst",
+            "type": "ORG",
+            "pagerank": 0.0025897898936024103
+          },
+          {
+            "entity_id": "5fb6e7a617bbe28fb3b7cc2c",
+            "name": "Accel",
+            "type": "ORG",
+            "pagerank": 0.002128010666198522
+          },
+          {
+            "entity_id": "35b53fa4d76c126457cb69ea",
+            "name": "Perplexity",
+            "type": "ORG",
+            "pagerank": 0.0019241011763359368
+          },
+          {
+            "entity_id": "20152e3936c1c7a7d1fe8a7b",
+            "name": "Menlo Ventures",
+            "type": "ORG",
+            "pagerank": 0.0017992903246954776
+          },
+          {
+            "entity_id": "2efb0255ff0dd8e95ec9a94f",
+            "name": "Airtel",
+            "type": "ORG",
+            "pagerank": 0.0017500335401518419
+          },
+          {
+            "entity_id": "fe0eb70b247bebda093bd72b",
+            "name": "Salesforce Ventures",
+            "type": "ORG",
+            "pagerank": 0.0016719445403759606
+          },
+          {
+            "entity_id": "a77e4d37a822d6ef01b4cb98",
+            "name": "Redpoint Ventures",
+            "type": "ORG",
+            "pagerank": 0.0012140068658729479
+          },
+          {
+            "entity_id": "db593113f20b1cccc0667c40",
+            "name": "Y Combinator",
+            "type": "ORG",
+            "pagerank": 0.0011026931341393646
+          }
+        ]
+      },
+      {
+        "rank": 2,
+        "size": 123,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "ecb1f71c4d18d89a21ffed72",
+            "name": "Andreessen Horowitz",
+            "type": "ORG",
+            "pagerank": 0.0029732583924747145
+          },
+          {
+            "entity_id": "4061fe52536856eaeccbe826",
+            "name": "Harvey",
+            "type": "ORG",
+            "pagerank": 0.002690546689870896
+          },
+          {
+            "entity_id": "bb3f258809cd366ebea3216c",
+            "name": "Anduril",
+            "type": "ORG",
+            "pagerank": 0.0019368787969953106
+          },
+          {
+            "entity_id": "b78bff9984a32f2b8cddf403",
+            "name": "ASIO",
+            "type": "ORG",
+            "pagerank": 0.0017665403237835714
+          },
+          {
+            "entity_id": "2f7b17140c19b712f4ed3289",
+            "name": "Sequoia Capital",
+            "type": "ORG",
+            "pagerank": 0.001650108245931434
+          },
+          {
+            "entity_id": "64ba795985fcae2108e98f09",
+            "name": "Founders Fund",
+            "type": "ORG",
+            "pagerank": 0.0015223667736874145
+          },
+          {
+            "entity_id": "e7b7be961a7ec2dd68e3166c",
+            "name": "Lux Capital",
+            "type": "ORG",
+            "pagerank": 0.0013452472722783795
+          },
+          {
+            "entity_id": "5cb93d2cd5820fd5f72488c7",
+            "name": "Valor Equity Partners",
+            "type": "ORG",
+            "pagerank": 0.0013044975795435596
+          },
+          {
+            "entity_id": "c4074eb0122fb7e149fe2784",
+            "name": "Harbinger",
+            "type": "ORG",
+            "pagerank": 0.0010358553521410978
+          },
+          {
+            "entity_id": "4fe79f56ba4e4d56037b682d",
+            "name": "Altimeter Capital",
+            "type": "ORG",
+            "pagerank": 0.0009736534665064444
+          }
+        ]
+      },
+      {
+        "rank": 3,
+        "size": 92,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "cfc9f8592c038d6a2e1e3952",
+            "name": "Nvidia",
+            "type": "ORG",
+            "pagerank": 0.003101017447006337
+          },
+          {
+            "entity_id": "5d9a142acb4c5e0e7c5e95ba",
+            "name": "ElevenLabs",
+            "type": "ORG",
+            "pagerank": 0.0030419064321479724
+          },
+          {
+            "entity_id": "5ca03d5b64a5d845d798cabe",
+            "name": "D-ID",
+            "type": "ORG",
+            "pagerank": 0.0026980232082501705
+          },
+          {
+            "entity_id": "37c43d3da15e716cf7caa16b",
+            "name": "T. Rowe Price",
+            "type": "ORG",
+            "pagerank": 0.0013443812785095951
+          },
+          {
+            "entity_id": "6e310b48c1236590f0ba81ba",
+            "name": "BlackRock",
+            "type": "ORG",
+            "pagerank": 0.0012152793348932885
+          },
+          {
+            "entity_id": "712a576fb9f2d3f9e2b029d1",
+            "name": "D1 Capital Partners",
+            "type": "ORG",
+            "pagerank": 0.001099440619646807
+          },
+          {
+            "entity_id": "a9c2de49e335e331d056908d",
+            "name": "Vista Equity Partners",
+            "type": "ORG",
+            "pagerank": 0.000853447103441532
+          },
+          {
+            "entity_id": "e17df1351c142c5c6cc38590",
+            "name": "Together AI",
+            "type": "ORG",
+            "pagerank": 0.0008324742026718415
+          },
+          {
+            "entity_id": "b551a46965705c4d4faabca1",
+            "name": "General Atlantic",
+            "type": "ORG",
+            "pagerank": 0.000684570894125117
+          },
+          {
+            "entity_id": "35a92dee55843e5e7433b8e3",
+            "name": "SambaNova",
+            "type": "ORG",
+            "pagerank": 0.0006439805731322272
+          }
+        ]
+      },
+      {
+        "rank": 4,
+        "size": 77,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "052afd57c4b00ba0297619d2",
+            "name": "Glow",
+            "type": "ORG",
+            "pagerank": 0.0016953090514613498
+          },
+          {
+            "entity_id": "6d97e3deb42c99757fb7dd7d",
+            "name": "Index Ventures",
+            "type": "ORG",
+            "pagerank": 0.0011109983283720851
+          },
+          {
+            "entity_id": "755d17a682e95abaa2e2ed6a",
+            "name": "DoorDash",
+            "type": "ORG",
+            "pagerank": 0.001109928596081015
+          },
+          {
+            "entity_id": "3c46abde373910bf2d4b24d1",
+            "name": "Ramp",
+            "type": "ORG",
+            "pagerank": 0.0006246953569950531
+          },
+          {
+            "entity_id": "42daaeefa93fd15683af2669",
+            "name": "Greenoaks",
+            "type": "ORG",
+            "pagerank": 0.0006202920688194802
+          },
+          {
+            "entity_id": "893a672a0e6ae1d327d813d2",
+            "name": "Deductive",
+            "type": "ORG",
+            "pagerank": 0.0005696985487388605
+          },
+          {
+            "entity_id": "103b9669bce36badc68e4e43",
+            "name": "Cyberstarts",
+            "type": "ORG",
+            "pagerank": 0.0005615728103742393
+          },
+          {
+            "entity_id": "3499de8d7024a77d19bf95a6",
+            "name": "Mackanic",
+            "type": "ORG",
+            "pagerank": 0.0005516079605570582
+          },
+          {
+            "entity_id": "1c26df6abd0b8cb79c7a20cf",
+            "name": "Caper AI",
+            "type": "ORG",
+            "pagerank": 0.0004650327750947818
+          },
+          {
+            "entity_id": "859a0ed5297fb2ff38cad61f",
+            "name": "Falcon platform",
+            "type": "ASSET",
+            "pagerank": 0.00046426078104760943
+          }
+        ]
+      },
+      {
+        "rank": 5,
+        "size": 71,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "dcda9fff00c66ab23a839aae",
+            "name": "SpaceX",
+            "type": "ORG",
+            "pagerank": 0.002030380371543216
+          },
+          {
+            "entity_id": "733cb48a1e7c6ee9f60ad92e",
+            "name": "xAI",
+            "type": "ORG",
+            "pagerank": 0.0014107704915492
+          },
+          {
+            "entity_id": "cd9a42d38d4eecae2a0605a2",
+            "name": "Amazon",
+            "type": "ORG",
+            "pagerank": 0.0008513446947420477
+          },
+          {
+            "entity_id": "e22da98cc95e821cf52e688c",
+            "name": "Astrix Security",
+            "type": "ORG",
+            "pagerank": 0.0008255809784532692
+          },
+          {
+            "entity_id": "4dda486bccabe90a0995a465",
+            "name": "Cursor",
+            "type": "ORG",
+            "pagerank": 0.0007987068560487937
+          },
+          {
+            "entity_id": "d2bf93248a031dd7bc07d304",
+            "name": "Nasdaq",
+            "type": "ORG",
+            "pagerank": 0.0007822095588056603
+          },
+          {
+            "entity_id": "cb5fa56875188d74988b2557",
+            "name": "General Fusion",
+            "type": "ORG",
+            "pagerank": 0.0007479830432800279
+          },
+          {
+            "entity_id": "24375ae6617cd1f386baab85",
+            "name": "SolarCity",
+            "type": "ORG",
+            "pagerank": 0.0007218969887442916
+          },
+          {
+            "entity_id": "833f3022fcb07753c3891971",
+            "name": "Alphabet",
+            "type": "ORG",
+            "pagerank": 0.0006894480219626731
+          },
+          {
+            "entity_id": "d1d9484825594691d14c8864",
+            "name": "Tesla",
+            "type": "ORG",
+            "pagerank": 0.0005582217485149193
+          }
+        ]
+      },
+      {
+        "rank": 6,
+        "size": 66,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "5e8e8803441ff19d56365017",
+            "name": "Xcimer",
+            "type": "ORG",
+            "pagerank": 0.0029253822178294583
+          },
+          {
+            "entity_id": "54125fc84652d745cd1056a0",
+            "name": "MIT",
+            "type": "ORG",
+            "pagerank": 0.002854404664095267
+          },
+          {
+            "entity_id": "908e7eec2e25b315c248eb7b",
+            "name": "RTX",
+            "type": "ORG",
+            "pagerank": 0.002714676966022433
+          },
+          {
+            "entity_id": "77af477411d906d5a3d4a46f",
+            "name": "CFS",
+            "type": "ORG",
+            "pagerank": 0.0026061297489911226
+          },
+          {
+            "entity_id": "ff539140d5de76d396c08a79",
+            "name": "Google",
+            "type": "ORG",
+            "pagerank": 0.0014313923808225702
+          },
+          {
+            "entity_id": "6918c2bca69f2c776b91f828",
+            "name": "Commonwealth Fusion Systems",
+            "type": "ORG",
+            "pagerank": 0.0012897883333268343
+          },
+          {
+            "entity_id": "1f72a5357e02a5ba1dc697ee",
+            "name": "Proxima Fusion",
+            "type": "ORG",
+            "pagerank": 0.000853750226067732
+          },
+          {
+            "entity_id": "2f436da248e78ec6aa1768a1",
+            "name": "Zap Energy",
+            "type": "ORG",
+            "pagerank": 0.0007771223062965841
+          },
+          {
+            "entity_id": "eb3357634494072ddd32d92c",
+            "name": "Dominion Energy",
+            "type": "ORG",
+            "pagerank": 0.0006946665461766665
+          },
+          {
+            "entity_id": "90be2593da890cc5fe484592",
+            "name": "Thea Energy",
+            "type": "ORG",
+            "pagerank": 0.0006109980954190525
+          }
+        ]
+      },
+      {
+        "rank": 7,
+        "size": 60,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "b4e44dbb500242d753eab2e8",
+            "name": "Microsoft",
+            "type": "ORG",
+            "pagerank": 0.0016596126357261345
+          },
+          {
+            "entity_id": "831bbdb87f02ac6f70f42298",
+            "name": "Thrive Capital",
+            "type": "ORG",
+            "pagerank": 0.0012451699762024329
+          },
+          {
+            "entity_id": "b5a225a5bc2bcf21f69416c5",
+            "name": "Helion",
+            "type": "ORG",
+            "pagerank": 0.0010171554237756995
+          },
+          {
+            "entity_id": "f71728334cc54a4db61b896c",
+            "name": "Peak XV Partners",
+            "type": "ORG",
+            "pagerank": 0.0008017676038697372
+          },
+          {
+            "entity_id": "68451bbe2a3fb9b77d9149dc",
+            "name": "First Round Capital",
+            "type": "ORG",
+            "pagerank": 0.0007539973041024939
+          },
+          {
+            "entity_id": "b75b997caed0001a22c23e4d",
+            "name": "Rilo",
+            "type": "ORG",
+            "pagerank": 0.0006535282007192199
+          },
+          {
+            "entity_id": "c2dc7cfeb84e8f70dcaa435f",
+            "name": "Chelan County Public Utility District",
+            "type": "GOV",
+            "pagerank": 0.0005787178782817961
+          },
+          {
+            "entity_id": "a30a63f060b07e40b17e70f1",
+            "name": "Fractile",
+            "type": "ORG",
+            "pagerank": 0.0005034940351414107
+          },
+          {
+            "entity_id": "80092ba075b4553a6ab4da81",
+            "name": "BoxGroup",
+            "type": "ORG",
+            "pagerank": 0.0005031889420947929
+          },
+          {
+            "entity_id": "f7f9ec1d4c3bd8fa732f8c1d",
+            "name": "Bill Ford",
+            "type": "PERSON",
+            "pagerank": 0.0005031889420947929
+          }
+        ]
+      },
+      {
+        "rank": 8,
+        "size": 58,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "e198bd0e4b2267c829d5173f",
+            "name": "Lightspeed Venture Partners",
+            "type": "ORG",
+            "pagerank": 0.004060690311671788
+          },
+          {
+            "entity_id": "2a4d6d58f4c0084c6218d05d",
+            "name": "Mistral AI",
+            "type": "ORG",
+            "pagerank": 0.001398167721752172
+          },
+          {
+            "entity_id": "2d145926a42c2802fc2c311a",
+            "name": "Bpifrance",
+            "type": "ORG",
+            "pagerank": 0.0007591786746528229
+          },
+          {
+            "entity_id": "c7ffdc1ff027f3e203d557e7",
+            "name": "B Capital",
+            "type": "ORG",
+            "pagerank": 0.0006956576057345742
+          },
+          {
+            "entity_id": "0baac99ade2e845704d86295",
+            "name": "Basis",
+            "type": "ORG",
+            "pagerank": 0.0006908018380565741
+          },
+          {
+            "entity_id": "7c184a434f5be0b2fbbe8e4d",
+            "name": "Neko Health",
+            "type": "ORG",
+            "pagerank": 0.0006584197092121791
+          },
+          {
+            "entity_id": "37c51ed38cf04429219de589",
+            "name": "InScope",
+            "type": "ORG",
+            "pagerank": 0.0006404260171186957
+          },
+          {
+            "entity_id": "4783b58cc9a6cc3ca3ddca99",
+            "name": "Headline",
+            "type": "ORG",
+            "pagerank": 0.0005798395139886907
+          },
+          {
+            "entity_id": "3b3bd2083247ed409d00d8a4",
+            "name": "Xavier Niel",
+            "type": "PERSON",
+            "pagerank": 0.0005798395139886907
+          },
+          {
+            "entity_id": "58baeff7f99587bf1313166b",
+            "name": "Eric Schmidt",
+            "type": "PERSON",
+            "pagerank": 0.000575089074507282
+          }
+        ]
+      },
+      {
+        "rank": 9,
+        "size": 54,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "f14789e4c1373ea405fb2c2e",
+            "name": "Xflow",
+            "type": "ORG",
+            "pagerank": 0.0025108536404906527
+          },
+          {
+            "entity_id": "b82b6d1b63276cd8cb54872d",
+            "name": "Drip Capital",
+            "type": "ORG",
+            "pagerank": 0.0008575940181131848
+          },
+          {
+            "entity_id": "90a6588ff4fd8ded89b11fbb",
+            "name": "AI-based foreign exchange tool",
+            "type": "ASSET",
+            "pagerank": 0.0008575940181131848
+          },
+          {
+            "entity_id": "fc2d02a75849ab0cf2cf2889",
+            "name": "Easebuzz",
+            "type": "ORG",
+            "pagerank": 0.0008575940181131848
+          },
+          {
+            "entity_id": "d7980fdf0627d7e046b2264b",
+            "name": "ChronicleBio",
+            "type": "ORG",
+            "pagerank": 0.000832570982541741
+          },
+          {
+            "entity_id": "357559bd69860a580d18c125",
+            "name": "Vietnam International Financial Center - HCMC",
+            "type": "ORG",
+            "pagerank": 0.0007083851347857759
+          },
+          {
+            "entity_id": "37c0b6ecc18c46f2cdaf13fc",
+            "name": "Stripe",
+            "type": "ORG",
+            "pagerank": 0.0007028002296263192
+          },
+          {
+            "entity_id": "7887f9805d1535244d979d9c",
+            "name": "Proximal Ventures",
+            "type": "ORG",
+            "pagerank": 0.0006611895387430973
+          },
+          {
+            "entity_id": "fe23a740cf2b0d211cef572b",
+            "name": "SignalFire",
+            "type": "ORG",
+            "pagerank": 0.0005764596557624311
+          },
+          {
+            "entity_id": "1dd9daf575a5c289fef79ef5",
+            "name": "State Bank of Vietnam",
+            "type": "GOV",
+            "pagerank": 0.0005184591383593946
+          }
+        ]
+      },
+      {
+        "rank": 10,
+        "size": 50,
+        "top_pagerank_nodes": [
+          {
+            "entity_id": "c3ea39126aa03d499491d3e4",
+            "name": "OpenAI",
+            "type": "ORG",
+            "pagerank": 0.0029098456171213205
+          },
+          {
+            "entity_id": "ed64d176c01e4c51ae96365a",
+            "name": "celld",
+            "type": "ASSET",
+            "pagerank": 0.0006338416393840239
+          },
+          {
+            "entity_id": "d6d015f24513f3851f951865",
+            "name": "LMArena",
+            "type": "ORG",
+            "pagerank": 0.0006223439369809316
+          },
+          {
+            "entity_id": "b0c7da512ca89d5e541eb00c",
+            "name": "Rosalind life-sciences AI model",
+            "type": "ASSET",
+            "pagerank": 0.000619406439501441
+          },
+          {
+            "entity_id": "2b49eba713209b7c4b89a823",
+            "name": "Deno",
+            "type": "ORG",
+            "pagerank": 0.0005735452769664405
+          },
+          {
+            "entity_id": "170ebf69ab1c86e288150e6c",
+            "name": "Cerebras",
+            "type": "ORG",
+            "pagerank": 0.0005573272791965154
+          },
+          {
+            "entity_id": "48d1d155f3288da2b86efd68",
+            "name": "Orchestra Bio",
+            "type": "ORG",
+            "pagerank": 0.0005430680585197434
+          },
+          {
+            "entity_id": "b9ff70b17259056f05d9578a",
+            "name": "CoreWeave",
+            "type": "ORG",
+            "pagerank": 0.0004952481188915899
+          },
+          {
+            "entity_id": "9dd6e2d7df946430b2ccd722",
+            "name": "Healthleap",
+            "type": "ORG",
+            "pagerank": 0.00045592050858912243
+          },
+          {
+            "entity_id": "57bee893c581f9561cbd01bf",
+            "name": "Odessia",
+            "type": "ORG",
+            "pagerank": 0.00044472634189609786
+          }
+        ]
+      }
+    ]
+  },
+  "core": {
+    "maximum_k": 16,
+    "maximum_core_size": 17,
+    "maximum_core_nodes": [
+      {
+        "entity_id": "b67c5b045e86c82060b82bd9",
+        "name": "Sumitomo Mitsui Banking Corporation",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0029007418425524103
+      },
+      {
+        "entity_id": "d6e2512796be0fba859b82be",
+        "name": "Standard Chartered",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0014869276923456796
+      },
+      {
+        "entity_id": "8ca8ed345b78889aa9366035",
+        "name": "Commerzbank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0012103215175054299
+      },
+      {
+        "entity_id": "bbd4a859e61e26a244253069",
+        "name": "Mashreq Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0012103215175054299
+      },
+      {
+        "entity_id": "ddf20165f803e616b17752eb",
+        "name": "Australia and New Zealand Banking Group",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0012103215175054299
+      },
+      {
+        "entity_id": "f70c991b41b5d48a74af7b38",
+        "name": "CTBC Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0012103215175054299
+      },
+      {
+        "entity_id": "fc2f946192cf400bece4e97d",
+        "name": "Cathay United Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0012103215175054299
+      },
+      {
+        "entity_id": "93ebaae112ee0ea7b232dff7",
+        "name": "HSBC",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0011637246760772457
+      },
+      {
+        "entity_id": "16c264edc51195f97341409e",
+        "name": "Maybank Securities",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "40de45223b2ce01d79e4205c",
+        "name": "Taipei Fubon Commercial Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "4deb70aaba4e1927ea1d116a",
+        "name": "The Bank of East Asia",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "50eb5ba7e89d24bae9f80671",
+        "name": "Doha Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "5f0847965c9348c915580de0",
+        "name": "National Bank of Kuwait",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "9ae62c95a0a0f411a4c48029",
+        "name": "Oversea-Chinese Banking Corporation Limited",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "a90156b93cd20644f33933c4",
+        "name": "Arab Bank for Investment and Foreign Trade",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "e71278f87b8234ddf919edf3",
+        "name": "First Abu Dhabi Bank",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      },
+      {
+        "entity_id": "f6bc11b8836ccb83254ca8ba",
+        "name": "Landesbank Baden-Württemberg",
+        "type": "ORG",
+        "core_number": 16,
+        "pagerank": 0.0010762407295877156
+      }
+    ],
+    "core_size_by_k": {
+      "1": 1812,
+      "2": 206,
+      "3": 43,
+      "4": 79,
+      "5": 62,
+      "6": 94,
+      "7": 82,
+      "8": 61,
+      "9": 50,
+      "10": 44,
+      "11": 12,
+      "12": 32,
+      "13": 25,
+      "14": 29,
+      "15": 16,
+      "16": 17
+    }
+  },
+  "caveats": [
+    "A finite all-pairs average is undefined for this disconnected graph; the reported whole-network average covers reachable pairs only, and the standard small-world comparison uses the largest component.",
+    "The G(n,m) baseline preserves node and edge counts but not the degree sequence; sigma-like ratio is indicative.",
+    "CO_INVESTED_WITH is the largest predicate group (2165/5046 Aura relationships).",
+    "PageRank and community/core results describe graph structure; they do not validate extraction precision."
+  ]
+}
