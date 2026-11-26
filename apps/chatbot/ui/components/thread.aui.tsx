@@ -111,6 +111,7 @@ export function Thread({
                     "sticky bottom-0 mt-auto rounded-t-[var(--composer-radius)]",
                 )}
               >
+                {!isEmpty && <FollowUpSuggestions />}
                 <Composer />
               </ThreadPrimitive.ViewportFooter>
             </div>
@@ -120,12 +121,129 @@ export function Thread({
     </LinearHistory.Provider>
   );
 }
+const starterPrompts = [
+  "Các quỹ đầu tư vào SpaceX",
+  "Các khoản đầu tư của quỹ TDK Ventures",
+  "Các thương vụ mua lại liên quan đến Cursor",
+];
+
+function PromptSuggestions({
+  prompts,
+  label,
+}: {
+  prompts: readonly string[];
+  label: string;
+}) {
+  const hasDraft = useAuiState((s) => Boolean(s.composer.text.trim()));
+  return (
+    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
+      {prompts.map((prompt) => (
+        <ThreadPrimitive.Suggestion
+          key={prompt}
+          prompt={prompt}
+          send={false}
+          disabled={hasDraft}
+          type="button"
+          className="border-border bg-muted/40 text-foreground hover:bg-muted focus-visible:ring-ring max-w-full cursor-pointer rounded-lg border px-3 py-1.5 text-left text-sm break-words focus-visible:ring-2 focus-visible:outline-none disabled:cursor-default disabled:opacity-60"
+        >
+          {prompt}
+        </ThreadPrimitive.Suggestion>
+      ))}
+    </div>
+  );
+}
+
 function ThreadWelcome() {
   return (
-    <div className="mb-6 flex flex-col px-2">
+    <div className="mb-6 flex flex-col gap-4 px-2">
       <p className="fade-in slide-in-from-bottom-1 animate-in fill-mode-both text-2xl font-medium tracking-tight duration-200">
-        How can I help you today?
+        Bạn muốn tìm hiểu về doanh nghiệp hay khoản đầu tư nào?
       </p>
+      <PromptSuggestions prompts={starterPrompts} label="Gợi ý bắt đầu" />
+    </div>
+  );
+}
+
+function FollowUpSuggestions() {
+  const last = useAuiState((s) => s.thread.messages.at(-1));
+  const previous = useAuiState((s) => s.thread.messages.at(-2));
+  const isRunning = useAuiState((s) => s.thread.isRunning);
+  const custom = last?.metadata.custom;
+  const graph = useMemo(() => parseQueryGraph(custom?.graph), [custom?.graph]);
+  if (
+    isRunning ||
+    last?.role !== "assistant" ||
+    last.status?.type !== "complete" ||
+    !graph
+  )
+    return null;
+
+  const metadata = custom?.metadata;
+  if (
+    !metadata ||
+    typeof metadata !== "object" ||
+    !("retrieval_type" in metadata) ||
+    metadata.retrieval_type !== "graphrag"
+  )
+    return null;
+  const citationIds =
+    "citation_ids" in metadata ? metadata.citation_ids : undefined;
+  const seedIds = "seed_ids" in metadata ? metadata.seed_ids : undefined;
+  const labels = new Map(graph.nodes.map((node) => [node.id, node.label]));
+  const edges = new Map(graph.edges.map((edge) => [edge.id, edge]));
+  const previousQuestion =
+    previous?.role === "user"
+      ? previous.content
+          .find((part) => part.type === "text")
+          ?.text.trim()
+          .toLowerCase()
+      : undefined;
+  const prompts = new Set<string>();
+  const citedIds = new Set(
+    Array.isArray(citationIds)
+      ? last.content.flatMap((part) =>
+          part.type === "text"
+            ? Array.from(
+                part.text.matchAll(/\]\(\/evidence\/([1-9]\d*)\)/g),
+                (match) => citationIds[Number(match[1]) - 1],
+              )
+            : [],
+        )
+      : [],
+  );
+  const evidence = Array.isArray(citationIds)
+    ? graph.evidence.filter((item) => citedIds.has(item.id))
+    : graph.evidence;
+  for (const item of evidence) {
+    const edge =
+      item.targetType === "edge" ? edges.get(item.targetId) : undefined;
+    if (!edge) continue;
+    if (
+      !Array.isArray(citationIds) &&
+      Array.isArray(seedIds) &&
+      seedIds.length &&
+      !seedIds.includes(edge.source) &&
+      !seedIds.includes(edge.target)
+    )
+      continue;
+    const source = labels.get(edge.source);
+    const target = labels.get(edge.target);
+    if (!source || !target || source === target) continue;
+    const prompt =
+      edge.label === "INVESTED_IN"
+        ? `Bài báo nói gì về khoản đầu tư của ${source} vào ${target}?`
+        : edge.label === "ACQUIRED"
+          ? `Bài báo nêu gì về giá và trạng thái thương vụ giữa ${source} và ${target}?`
+          : `Bài báo giải thích quan hệ giữa ${source} và ${target} như thế nào?`;
+    if (prompt.toLowerCase() !== previousQuestion) prompts.add(prompt);
+    if (prompts.size === 2) break;
+  }
+  if (!prompts.size) return null;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-muted-foreground text-xs font-medium">Hỏi tiếp</p>
+      <PromptSuggestions prompts={[...prompts]} label="Gợi ý hỏi tiếp" />
     </div>
   );
 }
