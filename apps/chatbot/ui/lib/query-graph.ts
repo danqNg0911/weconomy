@@ -20,6 +20,11 @@ export type GraphEvidence = {
   trigger?: string;
 };
 export type GraphTarget = Pick<GraphEvidence, "targetType" | "targetId">;
+export type GraphSelection = {
+  threadId: string;
+  messageId: string;
+  evidenceId?: string;
+};
 export type QueryGraph = {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -109,4 +114,26 @@ export function evidenceUrl(value?: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+export function resolveCitation(
+  graph: QueryGraph | null,
+  metadata: unknown,
+  href: string,
+) {
+  if (!graph) return undefined;
+  const index = /^\/evidence\/([1-9]\d*)$/.exec(href);
+  if (index) {
+    const ids = record(metadata) ? metadata.citation_ids : undefined;
+    const id = Array.isArray(ids) ? ids[Number(index[1]) - 1] : undefined;
+    const item = graph.evidence.find((evidence) => evidence.id === id);
+    return item && { item, label: `Nguồn ${index[1]}` };
+  }
+  const url = evidenceUrl(href);
+  const item = url
+    ? graph.evidence.find((evidence) => evidenceUrl(evidence.url) === url)
+    : undefined;
+  return item && url
+    ? { item, label: new URL(url).hostname.replace(/^www\./, "") }
+    : undefined;
 }

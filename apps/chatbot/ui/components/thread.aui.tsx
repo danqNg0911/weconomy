@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo, type ComponentProps } from "react";
 import {
   ArrowUpIcon,
   BotIcon,
@@ -38,10 +38,15 @@ import {
   UserMessageAttachments,
 } from "@/components/attachment.aui";
 import { cn } from "@/lib/utils";
-import { parseQueryGraph } from "@/lib/query-graph";
+import {
+  evidenceUrl,
+  parseQueryGraph,
+  resolveCitation,
+} from "@/lib/query-graph";
 const LinearHistory = createContext(false);
 const ViewGraph = createContext<
-  ((threadId: string, messageId: string) => void) | undefined
+  | ((threadId: string, messageId: string, evidenceId?: string) => void)
+  | undefined
 >(undefined);
 
 export function Thread({
@@ -49,7 +54,11 @@ export function Thread({
   onViewGraph,
 }: {
   linearHistory?: boolean;
-  onViewGraph?: (threadId: string, messageId: string) => void;
+  onViewGraph?: (
+    threadId: string,
+    messageId: string,
+    evidenceId?: string,
+  ) => void;
 }) {
   const isEmpty = useAuiState((s) => s.thread.isEmpty);
 
@@ -279,7 +288,7 @@ function AssistantMessage() {
           <div className="text-foreground leading-relaxed break-words">
             <MessagePrimitive.Parts
               components={{
-                Text: MarkdownText,
+                Text: AnswerMarkdown,
                 tools: { Fallback: ToolFallback },
               }}
             />
@@ -305,6 +314,45 @@ function AssistantMessage() {
       </div>
     </MessagePrimitive.Root>
   );
+}
+
+function CitationLink({ href, children }: ComponentProps<"a">) {
+  const onViewGraph = useContext(ViewGraph);
+  const threadId = useAuiState((s) => s.threads.mainThreadId);
+  const messageId = useAuiState((s) => s.message.id);
+  const raw = useAuiState((s) => s.message.metadata.custom?.graph);
+  const metadata = useAuiState((s) => s.message.metadata.custom?.metadata);
+  const graph = useMemo(() => parseQueryGraph(raw), [raw]);
+  const citation = href ? resolveCitation(graph, metadata, href) : undefined;
+  const badge =
+    "bg-muted text-muted-foreground hover:text-foreground mx-0.5 inline-flex cursor-pointer items-center rounded-md border px-1.5 text-xs font-medium whitespace-nowrap";
+  if (citation && onViewGraph && threadId) {
+    return (
+      <button
+        type="button"
+        className={badge}
+        title={citation.item.title}
+        aria-controls="detail-panel"
+        onClick={() => onViewGraph(threadId, messageId, citation.item.id)}
+      >
+        {citation.label}
+      </button>
+    );
+  }
+  const url = evidenceUrl(href);
+  return url ? (
+    <a className={badge} href={url} target="_blank" rel="noopener noreferrer">
+      {new URL(url).hostname.replace(/^www\./, "")}
+    </a>
+  ) : (
+    <span>{children}</span>
+  );
+}
+
+const citationComponents = { a: CitationLink };
+
+function AnswerMarkdown() {
+  return <MarkdownText components={citationComponents} />;
 }
 
 function MessageGraphLink() {

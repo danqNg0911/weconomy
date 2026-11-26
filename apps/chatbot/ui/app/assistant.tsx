@@ -14,13 +14,13 @@ import { ThreadListSidebar } from "@/components/threadlist-sidebar.aui";
 import { Button } from "@/components/ui/button";
 import { GraphPanel } from "@/components/graph-panel";
 import { ResizableDetailPanel } from "@/components/resizable-detail-panel";
+import type { GraphSelection } from "@/lib/query-graph";
 
 export const Assistant = () => {
   const [panel, setPanel] = useState<"graph" | null>(null);
-  const [selectedGraph, setSelectedGraph] = useState<{
-    threadId: string;
-    messageId: string;
-  } | null>(null);
+  const [selectedGraph, setSelectedGraph] = useState<GraphSelection | null>(
+    null,
+  );
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !document.getElementById("graph-evidence"))
@@ -66,8 +66,8 @@ export const Assistant = () => {
                 <div className="min-h-0 flex-1 overflow-hidden">
                   <Thread
                     linearHistory
-                    onViewGraph={(threadId, messageId) => {
-                      setSelectedGraph({ threadId, messageId });
+                    onViewGraph={(threadId, messageId, evidenceId) => {
+                      setSelectedGraph({ threadId, messageId, evidenceId });
                       setPanel("graph");
                     }}
                   />

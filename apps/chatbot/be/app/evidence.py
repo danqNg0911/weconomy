@@ -2,10 +2,17 @@
 
 import argparse
 import json
+import re
 import sqlite3
 from pathlib import Path
 
 from .config import Settings
+from .guards import normalize
+
+
+FINANCIAL_DETAIL = re.compile(
+    r"[$€£]\s*\d|\b\d[\d.,]*\s*(?:%|(?:ty|trieu|nghin|billion|million|thousand|usd|eur|vnd)\b)"
+)
 
 
 def edge_claim_ids(edge):
@@ -20,6 +27,59 @@ def edge_claim_ids(edge):
     return list(dict.fromkeys(value for value in ids if isinstance(value, str)))
 
 
+def _indexed_claims(path, ids):
+    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
+        for offset in range(0, len(ids), 800):
+            batch = ids[offset : offset + 800]
+            rows = db.execute(
+                "SELECT c.id,c.payload,d.payload FROM claims c LEFT JOIN documents d ON d.id=c.document_id "
+                f"WHERE c.id IN ({','.join('?' for _ in batch)})",
+                batch,
+            )
+            for identifier, claim_json, document_json in rows:
+                yield identifier, json.loads(claim_json), json.loads(document_json) if document_json else {}
+
+
+def article_passages(settings, sources, source_entities):
+    """Read bounded context around the exact stored quote in its source article."""
+    path = Path(settings.evidence_index_path)
+    ids = list(dict.fromkeys(item["claimId"] for item in sources if item.get("claimId")))
+    if not ids or not path.is_file():
+        return {}
+    entities_by_claim = {}
+    for item in sources:
+        if claim_id := item.get("claimId"):
+            entities_by_claim.setdefault(claim_id, set()).update(source_entities.get(item["targetId"], ()))
+    passages = {}
+    for identifier, claim, document in _indexed_claims(path, ids):
+        text, quote = document.get("text"), claim.get("evidence")
+        if not isinstance(text, str) or not isinstance(quote, str) or not quote:
+            continue
+        start, end = claim.get("evidence_start"), claim.get("evidence_end")
+        if isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(text):
+            if text[start:end] == quote:
+                url = document.get("url") or document.get("canonical_url")
+                before = max(0, start - 240)
+                after = min(end, start + 500) + 400
+                passage = text[before:after]
+                parties = entities_by_claim.get(identifier, set())
+                if len(parties) == 2:
+                    details = []
+                    for paragraph in text.splitlines():
+                        normalized = normalize(paragraph)
+                        if (
+                            FINANCIAL_DETAIL.search(normalized)
+                            and all(re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", normalized) for name in parties)
+                            and paragraph.strip() not in passage
+                        ):
+                            details.append(paragraph.strip()[:500])
+                            if len(details) == 2:
+                                break
+                    passage = "\n\n".join([passage, *details])
+                passages[(identifier, url, quote)] = passage
+    return passages
+
+
 def enrich(settings, details):
     graph = details["graph"]
     ids = list(dict.fromkeys(value for edge in graph["edges"] for value in edge.get("claim_ids", [])))
@@ -31,21 +91,11 @@ def enrich(settings, details):
         details["metadata"]["evidence_status"] = "missing_index"
         return details
     claims = {}
-    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
-        for offset in range(0, len(ids), 800):
-            batch = ids[offset : offset + 800]
-            rows = db.execute(
-                "SELECT c.id,c.payload,d.payload FROM claims c LEFT JOIN documents d ON d.id=c.document_id "
-                f"WHERE c.id IN ({','.join('?' for _ in batch)})",
-                batch,
-            )
-            for identifier, claim_json, document_json in rows:
-                claim = json.loads(claim_json)
-                document = json.loads(document_json) if document_json else {}
-                quote = claim.get("evidence")
-                url = document.get("url") or document.get("canonical_url")
-                if isinstance(quote, str) and quote.strip() and url:
-                    claims[identifier] = (claim, document, url)
+    for identifier, claim, document in _indexed_claims(path, ids):
+        quote = claim.get("evidence")
+        url = document.get("url") or document.get("canonical_url")
+        if isinstance(quote, str) and quote.strip() and url:
+            claims[identifier] = (claim, document, url)
     existing = {item["id"]: item for item in graph["evidence"]}
     for edge in graph["edges"]:
         matches = [claims[value] for value in edge.get("claim_ids", []) if value in claims]

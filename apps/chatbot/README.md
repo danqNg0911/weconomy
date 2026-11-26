@@ -163,7 +163,7 @@ Frontend giữ bố cục và thành phần assistant-ui đã tùy chỉnh, dùn
 4. **Lập plan:** LLM trả JSON gồm `entities`, `terms`, `relations` và có thể thêm `entity_variants`. Backend xác thực JSON và truyền tham số cho câu Cypher cố định.
 5. **Chuẩn hóa:** chuẩn hóa dấu, chữ hoa/thường và khoảng trắng. Backend áp dụng alias Anh–Việt và biến thể tương đương do planner cung cấp. Ví dụ `Mỹ` ↔ `United States`, `Nhật Bản` ↔ `Japan`. Ưu tiên khớp tên chính xác.
 6. **Truy xuất multi-hop:** liên kết tên với node `Entity`, rồi duyệt breadth-first từ nhiều seed. Frontier của hop tiếp theo chỉ lấy từ láng giềng thực tế của hop trước. Ưu tiên loại quan hệ trong plan, bỏ chu trình và giới hạn lượng dữ liệu. Có thể duyệt hai chiều để tìm liên hệ, nhưng kết quả vẫn giữ đúng chiều `source → target`, thời điểm và trạng thái khẳng định/kiểm duyệt của cạnh.
-7. **Evidence và tổng hợp:** backend nối `claim_id` của từng cạnh với trích đoạn và bài báo qua chỉ mục SQLite. Snapshot lưu evidence của các cạnh truy xuất được. Model nhận node, cạnh, đường đi và tối đa 8 trích đoạn, mỗi đoạn giới hạn 500 ký tự. Khi không có cạnh phù hợp, backend trả thông báo thiếu dữ liệu.
+7. **Evidence và tổng hợp:** backend nối `claim_id` của từng cạnh với trích đoạn và bài báo qua chỉ mục SQLite. Model nhận tối đa 8 nguồn, ưu tiên cạnh liên quan tới câu hỏi, kèm ngữ cảnh sát trích dẫn khi khớp văn bản bài báo. Câu trả lời tổng hợp dữ kiện ngay trong chat và dẫn nguồn qua badge nội bộ mở trích dẫn, đồ thị và link bài báo gốc.
 8. **Lưu và hiển thị:** lưu câu trả lời cùng graph, plan, biến thể chuẩn hóa, truy vấn/tham số và đường đi. FE nhận stream rồi hiển thị graph tương ứng.
 
 Luồng đầy đủ gọi model tối đa bốn lần theo thứ tự kiểm tra an toàn, kiểm tra phạm vi, lập plan và tổng hợp.

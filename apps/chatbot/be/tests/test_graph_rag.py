@@ -1,6 +1,9 @@
+import json
+
 import pytest
 from app import graph_rag, guards
 from app.config import Settings
+from app.evidence import build_index
 from app.llm import LLMError
 from app.main import create_app
 from fastapi.testclient import TestClient
@@ -29,6 +32,82 @@ def test_edge_evidence_resolves_claim_quote_and_prefers_reviewed():
     assert evidence[0]["claimId"] == "checked"
     assert evidence[0]["quote"] == "checked quote"
     assert evidence[0]["url"] == "https://example.com"
+
+
+def test_answer_sources_prioritizes_transaction_and_reads_amount_from_article(tmp_path):
+    quote = "Buyer acquired Target."
+    price = "Buyer agreed to pay up to $85 million for Target."
+    article = "\n".join((
+        price,
+        "Unrelated background. " * 20,
+        "A prior fundraising round valued Buyer at $300 million.",
+        quote,
+    ))
+    start = article.index(quote)
+    (tmp_path / "claims.jsonl").write_text(json.dumps({
+        "claim_id": "transaction", "document_id": "article", "evidence": quote,
+        "evidence_start": start, "evidence_end": start + len(quote),
+    }) + "\n", encoding="utf-8")
+    url = "https://example.com/acquisition"
+    (tmp_path / "articles.jsonl").write_text(json.dumps({
+        "document_id": "article", "canonical_url": url, "text": article,
+    }) + "\n", encoding="utf-8")
+    index = tmp_path / "evidence.db"
+    build_index([tmp_path], index)
+    unrelated = [
+        {"targetType": "edge", "targetId": "other", "quote": f"Other news {i}"}
+        for i in range(8)
+    ]
+    source = {
+        "targetType": "edge", "targetId": "deal", "claimId": "transaction", "quote": quote, "url": url,
+    }
+    graph = {
+        "nodes": [{"id": name, "label": name} for name in ("Buyer", "Target", "Other")],
+        "edges": [
+            {"id": "deal", "source": "Buyer", "target": "Target", "label": "ACQUIRED"},
+            {"id": "other", "source": "Buyer", "target": "Other", "label": "INVESTED_IN"},
+        ],
+        "evidence": [*unrelated, source],
+    }
+    plan = graph_rag.Plan(entities=["Buyer", "Target"], terms=[], relations=["ACQUIRED"])
+    settings = Settings(_env_file=None, evidence_index_path=str(index))
+
+    sources = graph_rag.answer_sources(settings, "Buyer mua Target bao nhiêu?", plan, graph)
+
+    assert len(sources) == 8
+    assert sources[0]["quote"] == quote and sources[0]["url"] == url
+    assert price in sources[0]["articleContext"]
+    assert "articleContext" not in source
+    source["url"] = "https://example.com/different"
+    assert "articleContext" not in graph_rag.answer_sources(settings, "Buyer mua Target bao nhiêu?", plan, graph)[0]
+
+
+def test_investor_answer_context_excludes_outbound_and_indirect_edges():
+    graph = {
+        "nodes": [{"id": name, "label": name} for name in ("Fund", "Target", "Subsidiary", "Adviser")],
+        "edges": [
+            {"id": "in", "source": "Fund", "target": "Target", "label": "INVESTED_IN"},
+            {"id": "out", "source": "Target", "target": "Subsidiary", "label": "INVESTED_IN"},
+            {"id": "indirect", "source": "Fund", "target": "Subsidiary", "label": "INVESTED_IN"},
+            {"id": "assisted", "source": "Adviser", "target": "Target", "label": "INVESTED_IN"},
+        ],
+        "evidence": [
+            {"targetType": "edge", "targetId": identifier}
+            for identifier in ("in", "out", "indirect")
+        ] + [{
+            "targetType": "edge", "targetId": "assisted",
+            "quote": "Adviser helped that firm make investments into several companies, including Target.",
+        }],
+    }
+    plan = graph_rag.Plan(entities=["Target"], terms=[], relations=["INVESTED_IN"])
+    paths = [{"edges": ["in", "out"]}]
+
+    context, context_paths = graph_rag.answer_context("các quỹ đầu tư vào Target", plan, graph, paths)
+
+    assert context["edges"] == graph["edges"][:1]
+    assert context["evidence"] == graph["evidence"][:1]
+    assert context_paths == []
+    assert graph_rag.answer_context("Target đầu tư vào đâu?", plan, graph, paths) == (graph, paths)
 
 
 def test_real_frontier_multi_hop_direction_and_caps():
@@ -117,8 +196,9 @@ def test_pipeline_persists_graph_or_refusal_and_replays(tmp_path, monkeypatch, b
     async def stream(settings, history, instruction):
         calls.append("synthesize")
         assert "TDK Ventures" in instruction and "C2i" in instruction
-        assert "TDK Ventures invested in C2i." in instruction and "https://example.com/source" in instruction
-        yield "TDK Ventures đầu tư vào C2i."
+        assert "TDK Ventures invested in C2i." in instruction and "/evidence/1" in instruction
+        assert "https://example.com/source" not in instruction
+        yield "TDK Ventures đầu tư vào C2i. [Nguồn 1](/evidence/1)"
 
     monkeypatch.setattr(guards, "check", check)
     monkeypatch.setattr(guards, "structured", structured)
@@ -138,6 +218,7 @@ def test_pipeline_persists_graph_or_refusal_and_replays(tmp_path, monkeypatch, b
         else:
             assert calls == ["guards", "plan", "retrieve", "synthesize"]
             assert rows[-1]["details"] == snapshot
+            assert rows[-1]["details"]["metadata"]["citation_ids"] == ["r:c1"]
         before = list(calls)
         assert "event: done" in client.post(url, json=payload).text
         assert calls == before

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuiState } from "@assistant-ui/react";
 import { ListFilter, Network, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   evidenceUrl,
   filterEvidence,
   parseQueryGraph,
+  type GraphSelection,
   type GraphTarget,
   type QueryGraph,
 } from "@/lib/query-graph";
@@ -18,7 +19,7 @@ export function GraphPanel({
   selectedGraph,
 }: {
   onClose: () => void;
-  selectedGraph?: { threadId: string; messageId: string } | null;
+  selectedGraph?: GraphSelection | null;
 }) {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const threadId = useAuiState((s) => s.threads.mainThreadId);
@@ -51,6 +52,32 @@ export function GraphPanel({
     graph: QueryGraph;
     target: GraphTarget;
   } | null>(null);
+  const handledCitation = useRef<GraphSelection | null>(null);
+  const selectedCard = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (
+      !selectedGraph?.evidenceId ||
+      selectedGraph === handledCitation.current ||
+      selectedGraph.threadId !== threadId ||
+      !answerGraph
+    )
+      return;
+    const evidenceId = selectedGraph.evidenceId;
+    if (!answerGraph.evidence.some((item) => item.id === evidenceId)) return;
+    handledCitation.current = selectedGraph;
+    setSample(null);
+    setFilter(null);
+    setSelection({ graph: answerGraph, evidenceId });
+    setEvidenceOpen(true);
+  }, [selectedGraph, answerGraph, threadId]);
+  useEffect(() => {
+    if (evidenceOpen && selectedEvidence) {
+      selectedCard.current?.scrollIntoView({
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [evidenceOpen, selectedEvidence]);
   const activeFilter = filter?.graph === graph ? filter?.target : undefined;
   const evidence =
     graph && activeFilter
@@ -262,6 +289,7 @@ export function GraphPanel({
                       return (
                         <li
                           key={item.id}
+                          ref={selected ? selectedCard : undefined}
                           className={`bg-muted/40 overflow-hidden rounded-lg border border-white ring-1 ${selected ? "ring-amber-400" : "ring-black/15 dark:ring-0"}`}
                         >
                           <button
