@@ -19,11 +19,33 @@ export type GraphEvidence = {
   assertionStatus?: string;
   trigger?: string;
 };
+export type GraphTarget = Pick<GraphEvidence, "targetType" | "targetId">;
 export type QueryGraph = {
   nodes: GraphNode[];
   edges: GraphEdge[];
   evidence: GraphEvidence[];
 };
+
+export function filterEvidence(graph: QueryGraph, target: GraphTarget) {
+  if (target.targetType === "edge") {
+    return graph.evidence.filter(
+      (item) => item.targetType === "edge" && item.targetId === target.targetId,
+    );
+  }
+  const incidentEdges = new Set(
+    graph.edges
+      .filter(
+        (edge) =>
+          edge.source === target.targetId || edge.target === target.targetId,
+      )
+      .map((edge) => edge.id),
+  );
+  return graph.evidence.filter((item) =>
+    item.targetType === "edge"
+      ? incidentEdges.has(item.targetId)
+      : item.targetId === target.targetId,
+  );
+}
 
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);

@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAuiState } from "@assistant-ui/react";
 import { ListFilter, Network, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GraphCanvas } from "@/components/graph-canvas";
 import {
   evidenceUrl,
+  filterEvidence,
   parseQueryGraph,
+  type GraphTarget,
   type QueryGraph,
 } from "@/lib/query-graph";
 
@@ -37,6 +39,41 @@ export function GraphPanel({
   const answerGraph = useMemo(() => parseQueryGraph(raw), [raw]);
   const showingSample = sample?.context === context;
   const graph = showingSample ? sample.graph : answerGraph;
+  const [selection, setSelection] = useState<{
+    graph: QueryGraph;
+    evidenceId: string;
+  } | null>(null);
+  const selectedEvidence =
+    selection?.graph === graph
+      ? graph?.evidence.find((item) => item.id === selection?.evidenceId)
+      : undefined;
+  const [filter, setFilter] = useState<{
+    graph: QueryGraph;
+    target: GraphTarget;
+  } | null>(null);
+  const activeFilter = filter?.graph === graph ? filter?.target : undefined;
+  const evidence =
+    graph && activeFilter
+      ? filterEvidence(graph, activeFilter)
+      : (graph?.evidence ?? []);
+  const nodeLabel = (id: string) =>
+    graph?.nodes.find((node) => node.id === id)?.label;
+  const filteredEdge =
+    activeFilter?.targetType === "edge"
+      ? graph?.edges.find((edge) => edge.id === activeFilter.targetId)
+      : undefined;
+  const filterLabel = filteredEdge
+    ? `${nodeLabel(filteredEdge.source)} → ${nodeLabel(filteredEdge.target)}`
+    : activeFilter && nodeLabel(activeFilter.targetId);
+  const selectGraphTarget = useCallback(
+    (target: GraphTarget) => {
+      if (!graph) return;
+      setFilter({ graph, target });
+      setSelection(null);
+      setEvidenceOpen(true);
+    },
+    [graph],
+  );
   const metadata = message?.metadata.custom?.metadata;
   const evidenceStatus =
     metadata && typeof metadata === "object" && "evidence_status" in metadata
@@ -65,7 +102,7 @@ export function GraphPanel({
   };
   return (
     <section
-      className="flex h-full min-h-0 flex-col"
+      className="@container flex h-full min-h-0 flex-col"
       aria-labelledby="graph-heading"
     >
       <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
@@ -130,9 +167,15 @@ export function GraphPanel({
           </p>
         )}
       </div>
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden @md:flex-row">
         {graph?.nodes.length ? (
-          <GraphCanvas key={`${context}:${showingSample}`} graph={graph} />
+          <GraphCanvas
+            key={`${context}:${showingSample}`}
+            graph={graph}
+            highlight={selectedEvidence ?? activeFilter}
+            focusHighlight={Boolean(selectedEvidence)}
+            onSelect={selectGraphTarget}
+          />
         ) : (
           <div className="text-muted-foreground flex min-h-40 flex-1 flex-col items-center justify-center gap-3 p-8 text-center text-sm">
             <Network className="size-8 opacity-50" />
@@ -146,13 +189,17 @@ export function GraphPanel({
           <section
             id="graph-evidence"
             aria-labelledby="evidence-heading"
-            className="bg-background absolute inset-y-0 right-0 z-20 flex w-[85%] max-w-sm min-w-0 flex-col border-l shadow-xl sm:w-80"
+            className="bg-background flex max-h-[45%] w-full shrink-0 flex-col border-t @md:max-h-none @md:w-[42%] @md:max-w-xs @md:border-t-0 @md:border-l"
           >
             <div className="flex shrink-0 items-center justify-between px-4 py-3">
               <h3 id="evidence-heading" className="text-sm font-semibold">
                 Evidence{" "}
-                <span className="text-muted-foreground font-normal">
-                  ({graph?.evidence.length ?? 0})
+                <span
+                  aria-live="polite"
+                  className="text-muted-foreground font-normal"
+                >
+                  ({evidence.length}
+                  {activeFilter ? `/${graph?.evidence.length ?? 0}` : ""})
                 </span>
               </h3>
               <Button
@@ -164,70 +211,95 @@ export function GraphPanel({
                 <X />
               </Button>
             </div>
+            {activeFilter && (
+              <div className="bg-muted mx-4 mb-3 flex shrink-0 items-center justify-between gap-2 rounded-md px-3 py-1.5 text-xs">
+                <span className="min-w-0 break-words">
+                  {filterLabel}
+                  {filteredEdge && (
+                    <span className="text-muted-foreground mt-0.5 block">
+                      {filteredEdge.label}
+                    </span>
+                  )}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => {
+                    setFilter(null);
+                    setSelection(null);
+                  }}
+                >
+                  Bỏ lọc
+                </Button>
+              </div>
+            )}
             <div className="min-h-0 overflow-y-auto px-4 pb-4">
-              <p className="text-muted-foreground mb-4 text-xs">
-                Evidence lấy từ claim gắn với cạnh: câu trích trong bài → bài
-                báo và URL nguồn. Hiện tối đa 3 claim mỗi cạnh, ưu tiên claim đã
-                duyệt; trạng thái thể hiện tình trạng kiểm định claim.
-              </p>
-              {!graph?.evidence.length ? (
+              {!evidence.length ? (
                 <p className="text-muted-foreground text-sm">
-                  {showingSample
-                    ? "Chưa tìm thấy trích dẫn nguồn cho dữ liệu ví dụ này."
-                    : evidenceStatus === "missing_index"
-                      ? "Chưa có chỉ mục dữ liệu nguồn để tra cứu claim. Cần nhập bộ Parquet/export vào backend."
-                      : evidenceStatus === "partial" ||
-                          evidenceStatus === "missing_source"
-                        ? "Chưa tìm được đoạn trích gốc cho các cạnh này trong dữ liệu nguồn hiện có."
-                        : "Chưa có trích dẫn cho đồ thị này."}
+                  {activeFilter
+                    ? "Chưa có trích dẫn cho mục đã chọn."
+                    : showingSample
+                      ? "Chưa tìm thấy trích dẫn nguồn cho dữ liệu ví dụ này."
+                      : evidenceStatus === "missing_index"
+                        ? "Chưa có chỉ mục dữ liệu nguồn để tra cứu claim. Cần nhập bộ Parquet/export vào backend."
+                        : evidenceStatus === "partial" ||
+                            evidenceStatus === "missing_source"
+                          ? "Chưa tìm được đoạn trích gốc cho các cạnh này trong dữ liệu nguồn hiện có."
+                          : "Chưa có trích dẫn cho đồ thị này."}
                 </p>
               ) : (
-                <ol className="space-y-4">
-                  {graph.evidence.map((item) => {
-                    const target =
-                      item.targetType === "node"
-                        ? graph.nodes.find((n) => n.id === item.targetId)?.label
-                        : graph.edges.find((e) => e.id === item.targetId)
-                            ?.label;
-                    const url = evidenceUrl(item.url);
-                    return (
-                      <li
-                        key={item.id}
-                        className="space-y-2 border-b pb-4 last:border-0"
-                      >
-                        <p className="text-muted-foreground text-xs">
-                          {item.targetType === "node" ? "Node" : "Edge"} ·{" "}
-                          {target}{" "}
-                          <span className="font-mono">({item.targetId})</span>
-                        </p>
-                        <blockquote className="border-l-2 pl-3 text-sm leading-relaxed whitespace-pre-wrap">
-                          {item.quote}
-                        </blockquote>
-                        <p className="text-muted-foreground text-xs">
-                          {item.source && `${item.source} · `}
-                          {item.reviewStatus || "unreviewed"} ·{" "}
-                          {item.assertionStatus || "reported"}
-                          {item.claimId && (
-                            <span className="font-mono">
-                              {" "}
-                              · claim {item.claimId}
-                            </span>
-                          )}
-                        </p>
-                        {url && (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm break-all underline underline-offset-4"
+                graph && (
+                  <ol className="space-y-4">
+                    {evidence.map((item) => {
+                      const target =
+                        item.targetType === "node"
+                          ? graph.nodes.find((n) => n.id === item.targetId)
+                              ?.label
+                          : graph.edges.find((e) => e.id === item.targetId)
+                              ?.label;
+                      const url = evidenceUrl(item.url);
+                      const selected = selectedEvidence?.id === item.id;
+                      return (
+                        <li
+                          key={item.id}
+                          className={`bg-muted/40 overflow-hidden rounded-lg border border-white ring-1 ${selected ? "ring-amber-400" : "ring-black/15 dark:ring-0"}`}
+                        >
+                          <button
+                            type="button"
+                            aria-pressed={selected}
+                            onClick={() =>
+                              setSelection(
+                                selected
+                                  ? null
+                                  : { graph, evidenceId: item.id },
+                              )
+                            }
+                            className="hover:bg-accent focus-visible:ring-ring block w-full cursor-pointer space-y-2 p-3 text-left focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
                           >
-                            {item.title || new URL(url).hostname}
-                          </a>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ol>
+                            {target && (
+                              <span className="block text-xs font-semibold">
+                                {target}
+                              </span>
+                            )}
+                            <span className="block text-sm leading-relaxed whitespace-pre-wrap">
+                              {item.quote}
+                            </span>
+                          </button>
+                          {url && (
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block px-3 pb-3 text-sm break-words italic underline underline-offset-4"
+                            >
+                              {item.title || new URL(url).hostname}
+                            </a>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )
               )}
             </div>
           </section>

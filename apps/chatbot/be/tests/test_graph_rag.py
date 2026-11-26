@@ -21,12 +21,10 @@ class Edge(dict):
 
 def test_edge_evidence_resolves_claim_quote_and_prefers_reviewed():
     edge = Edge("r", Node("A"), Node("B"))
-    edge["event_details_json"] = (
-        '[{"claims":['
-        '{"claim_id":"auto","evidence":"auto quote","review_status":"unreviewed"},'
-        '{"claim_id":"checked","evidence":"checked quote","review_status":"manually_verified",'
+    edge["event_details_json"] = '[{"claims":[' \
+        '{"claim_id":"auto","evidence":"auto quote","review_status":"unreviewed"},' \
+        '{"claim_id":"checked","evidence":"checked quote","review_status":"manually_verified",' \
         '"url":"https://example.com","title":"Source"}]}]'
-    )
     evidence = graph_rag.edge_evidence(edge)
     assert evidence[0]["claimId"] == "checked"
     assert evidence[0]["quote"] == "checked quote"
@@ -69,17 +67,17 @@ async def test_guards_short_circuit(monkeypatch):
     monkeypatch.setattr(guards, "structured", classify)
     assert (await guards.check(None, "cách rửa tiền", []))[0] == "safety"
     assert calls == []
-    assert (await guards.check(None, "outside topic", []))[0] == "domain"
+    assert (await guards.check(None, "another harmful request", []))[0] == "safety"
     assert len(calls) == 1
     calls.clear()
 
     async def classify_domain(settings, instruction, data, schema):
         calls.append(instruction)
-        return guards.Verdict(allowed=False)
+        return guards.Verdict(allowed=len(calls) == 1)
 
     monkeypatch.setattr(guards, "structured", classify_domain)
     assert (await guards.check(None, "write a game", []))[0] == "domain"
-    assert len(calls) == 1
+    assert len(calls) == 2
 
 
 @pytest.fixture
@@ -104,7 +102,10 @@ def test_pipeline_persists_graph_or_refusal_and_replays(tmp_path, monkeypatch, b
         "graph": {
             "nodes": [{"id": "a", "label": "TDK Ventures"}, {"id": "b", "label": "C2i"}],
             "edges": [{"id": "r", "source": "a", "target": "b", "label": "INVESTED_IN"}],
-            "evidence": [],
+            "evidence": [{
+                "id": "r:c1", "targetType": "edge", "targetId": "r", "claimId": "c1",
+                "quote": "TDK Ventures invested in C2i.", "url": "https://example.com/source",
+            }],
         },
         "metadata": {"retrieval_type": "graphrag", "hop_count": 2, "paths": [], "queries": []},
     }
@@ -116,6 +117,7 @@ def test_pipeline_persists_graph_or_refusal_and_replays(tmp_path, monkeypatch, b
     async def stream(settings, history, instruction):
         calls.append("synthesize")
         assert "TDK Ventures" in instruction and "C2i" in instruction
+        assert "TDK Ventures invested in C2i." in instruction and "https://example.com/source" in instruction
         yield "TDK Ventures đầu tư vào C2i."
 
     monkeypatch.setattr(guards, "check", check)
@@ -148,7 +150,7 @@ async def test_invalid_guard_output_fails_closed(monkeypatch):
 
     monkeypatch.setattr(guards, "stream_text", stream)
     with pytest.raises(LLMError):
-        await guards.structured(Settings(_env_file=None), "guard", {}, guards.Verdict)
+        await guards.structured(None, "guard", {}, guards.Verdict)
 
 
 @pytest.mark.anyio

@@ -39,8 +39,13 @@ def enrich(settings, details):
                 f"WHERE c.id IN ({','.join('?' for _ in batch)})",
                 batch,
             )
-            for identifier, claim, document in rows:
-                claims[identifier] = (json.loads(claim), json.loads(document) if document else {})
+            for identifier, claim_json, document_json in rows:
+                claim = json.loads(claim_json)
+                document = json.loads(document_json) if document_json else {}
+                quote = claim.get("evidence")
+                url = document.get("url") or document.get("canonical_url")
+                if isinstance(quote, str) and quote.strip() and url:
+                    claims[identifier] = (claim, document, url)
     existing = {item["id"]: item for item in graph["evidence"]}
     for edge in graph["edges"]:
         matches = [claims[value] for value in edge.get("claim_ids", []) if value in claims]
@@ -50,19 +55,16 @@ def enrich(settings, details):
                 pair[0].get("claim_id", ""),
             )
         )
-        for claim, document in matches[:3]:
-            quote = claim.get("evidence")
-            if not isinstance(quote, str) or not quote.strip():
-                continue
+        for claim, document, url in matches[:3]:
             identifier = f"{edge['id']}:{claim['claim_id']}"
             existing[identifier] = {
                 "id": identifier,
                 "targetType": "edge",
                 "targetId": edge["id"],
                 "claimId": claim["claim_id"],
-                "quote": quote,
+                "quote": claim["evidence"],
                 "title": document.get("title") or "",
-                "url": document.get("url") or document.get("canonical_url") or "",
+                "url": url,
                 "source": document.get("source_id") or "",
                 "reviewStatus": claim.get("review_status") or "unreviewed",
                 "assertionStatus": claim.get("assertion_status") or "reported",
@@ -102,6 +104,7 @@ def build_index(sources, destination):
             p
             for pattern in ("claims.jsonl", "articles.jsonl", "relations.parquet", "articles.parquet")
             for p in source.rglob(pattern)
+            if "audit" not in p.relative_to(source).parts
         )
     if not source_files:
         raise ValueError("No claims/articles JSONL or relations/articles Parquet found")

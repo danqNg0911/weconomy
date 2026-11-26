@@ -38,10 +38,7 @@ class Settings(BaseSettings):
     graph_neighbors_per_node: int = Field(default=8, ge=1, le=20)
     graph_max_nodes: int = Field(default=60, ge=5, le=150)
     graph_max_edges: int = Field(default=100, ge=5, le=250)
-    graph_answer_max_edges: int = Field(default=16, ge=2, le=40)
     evidence_index_path: str = str(ROOT / ".data" / "evidence.sqlite3")
-    llm_guard_max_tokens: int = Field(default=64, ge=32, le=256)
-    llm_plan_max_tokens: int = Field(default=512, ge=128, le=2048)
     llm_max_output_tokens: int = Field(default=1024, ge=128, le=4096)
     llm_history_messages: int = Field(default=6, ge=1, le=100)
     llm_system_prompt: str = (
